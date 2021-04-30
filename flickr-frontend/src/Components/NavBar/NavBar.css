@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+
+/* base styles */
+* {
+  margin: 0;
+  font-family: "Proxima Nova", "helvetica neue", helvetica, arial, sans-serif;
+  color: none;
+}
+.navbar {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  max-width: 0 auto;
+  margin: 0 auto;
+  border-bottom: 1px solid rgb(227, 227, 233);
+  background-color: rgb(33, 33, 36);
+}
+.navbar h1 {
+  color: white;
+  font-family: "Proxima Nova", "helvetica neue", helvetica, arial, sans-serif;
+}
+.navbar .links {
+  margin-right: auto;
+}
+.navbar .navRight {
+  margin-left: auto;
+}
+.navbar a {
+  margin-left: 16px;
+  text-decoration: none;
+  padding: 10px;
+  color: white;
+}
+.navbar a:hover {
+  color: rgb(89, 89, 91);
+}
+
+.navRight .icon {
+  padding-left: 30px;
+}
+
+.addvertise {
+  padding: 100px;
+  display: flex;
+  align-items: center;
+  max-width: 0 auto;
+  margin: 0 auto;
+  border-bottom: 1px solid rgb(32, 32, 35);
+  background-color: rgb(33, 33, 36);
+}
