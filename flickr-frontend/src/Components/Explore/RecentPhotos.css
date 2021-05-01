@@ -1,0 +1,46 @@
+/* .main{
+    display: block;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    margin-top: 30px;
+} */
+
+.content{
+    padding-inline: 1%;
+    margin-block: 20px ;
+}
+
+.headerRow{
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    justify-content:space-evenly;
+    
+}
+
+.headerRow button{
+    margin-left: 10pt;
+    margin-right: 10pt;
+}
+
+.headerRow h4{
+    flex-grow: 1;
+    margin-left: 10px;
+    font-weight: lighter;
+}
+
+.headerRow a{
+    background-color: transparent;
+}
+
+.headerRow button{
+    border: none;
+}
+
+.photos{
+    height: 6229px;
+    position: initial;
+}
