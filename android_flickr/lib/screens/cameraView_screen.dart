@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 
+enum FlashMode {
+  always,
+  auto,
+  never,
+}
+
 class CameraViewScreen extends StatefulWidget {
   @override
   _CameraViewScreenState createState() => _CameraViewScreenState();
@@ -18,6 +24,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   String photoPath;
   //index of the camera mode chosen by user, 0 = back camera, 1 = front.
   int inUseCamera;
+  // flash mode chosen by user.
+  FlashMode flashMode = FlashMode.auto;
 
   //method used to initialize the camera
   Future initCamera(CameraDescription cameraDescription) async {
@@ -73,30 +81,9 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
   Widget previewOfCamera() {
     if (cameraController == null || !cameraController.value.isInitialized) {
-      return Text(
-        'Loading',
-        style: TextStyle(
-            color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),
-      );
+      return Container();
     }
-    // var camera = cameraController.value;
-    // // fetch screen size
     var size = MediaQuery.of(context).size;
-    // //
-    // var scale = size.aspectRatio * camera.aspectRatio;
-    // if (scale < 1) scale = 1 / scale;
-    // return
-    //     // Transform.scale(
-    //     //   scale: scale,
-    //     //   child: Container(
-    //     //     child: SizedBox(
-    //     //       child:
-    //     CameraPreview(cameraController);
-    // // height: size.height * 0.6,
-    // // width: double.infinity,
-    // //   ),
-    // // ),
-    // //);
     return Container(
       width: size.width,
       height: size.height * 0.65,
@@ -127,14 +114,32 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
         child: Image.asset(
           imagePath,
           width: 50,
+          height: 50,
         ),
       ),
     );
   }
 
+  String flashModeSwitchCase() {
+    switch (flashMode) {
+      case FlashMode.always:
+        return 'assets/images/FlashAlways.png';
+        break;
+      case FlashMode.auto:
+        return 'assets/images/FlashAuto.png';
+        break;
+      case FlashMode.never:
+        return 'assets/images/FlashNever.png';
+        break;
+      default:
+        return 'assets/images/FlashAuto.png';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceHeight = MediaQuery.of(context).size.height;
+    final deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 31, 31, 33),
@@ -146,19 +151,17 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
             Stack(
               children: [
                 previewOfCamera(),
-                Align(
-                  alignment: Alignment(0.9, 0),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      padding: EdgeInsets.all(10),
-                      color: Colors.black38,
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                      ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, left: deviceWidth * 0.825),
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    // padding: EdgeInsets.all(10),
+                    color: Colors.black38,
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 33,
                     ),
                   ),
                 ),
@@ -176,6 +179,15 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                     Padding(
                       padding: EdgeInsets.only(top: deviceHeight * 0.025),
                       child: imageButton('assets/images/CameraMode.png'),
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.025),
+                        child: imageButton(
+                          flashModeSwitchCase(),
+                        ),
+                      ),
                     ),
                   ],
                 ),
