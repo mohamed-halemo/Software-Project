@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'dart:io';
 
 enum FlashMode {
   always,
@@ -29,8 +31,13 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   // bool that reflects the user choice of either photo or video
   bool isVideoMode = false;
 
+  List<AssetEntity> galleryList;
+
+  File recentImage;
+
   //method used to initialize the camera
   Future initCamera(CameraDescription cameraDescription) async {
+    initGallary();
     if (cameraController != null) {
       await cameraController.dispose();
     }
@@ -55,6 +62,29 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  Future initGallary() async {
+    await PhotoManager.requestPermission();
+    PhotoManager.clearFileCache();
+    List<AssetPathEntity> list = await PhotoManager.getAssetPathList(
+      onlyAll: true,
+      filterOption: FilterOptionGroup(
+        orders: [
+          OrderOption(
+            type: OrderOptionType.createDate,
+          )
+        ],
+      ),
+    );
+
+    galleryList = await list[0].getAssetListRange(start: 0, end: 1);
+
+    galleryList[0].file.then((value) {
+      setState(() {
+        recentImage = value;
+      });
+    });
   }
 
   showCameraException(e) {
@@ -288,6 +318,25 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                         ),
                       ),
                       alignment: Alignment(-0.32, 0),
+                    ),
+                    Align(
+                      child: Container(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.0525),
+                        width: 35,
+                        height: 70,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: recentImage == null
+                              ? Container(
+                                  color: Colors.grey,
+                                )
+                              : Image.file(
+                                  recentImage,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      alignment: Alignment(-0.9, 0),
                     ),
                   ],
                 ),
