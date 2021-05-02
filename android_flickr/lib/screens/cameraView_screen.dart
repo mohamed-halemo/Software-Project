@@ -49,6 +49,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
   showCameraException(e) {
     String errorText = 'Error ${e.code} \nError message: ${e.description}';
+    print(errorText);
   }
 
   @override
@@ -116,14 +117,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     );
   }
 
+  Widget imageButton(String imagePath) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.05,
+      child: GestureDetector(
+        onTap: () {
+          print('click on edit');
+        },
+        child: Image.asset(
+          imagePath,
+          width: 50,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final deviceHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 31, 31, 33),
       body: Container(
-        height: MediaQuery.of(context).size.height,
+        height: deviceHeight,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Stack(
               children: [
@@ -146,8 +164,31 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                 ),
               ],
             ),
-            // Row(),
-            // Row(),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      color: Color.fromARGB(255, 21, 21, 21),
+                      height: deviceHeight * 0.1,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: deviceHeight * 0.025),
+                      child: imageButton('assets/images/CameraMode.png'),
+                    ),
+                  ],
+                ),
+                Stack(
+                  children: [
+                    Container(
+                      color: Color.fromARGB(255, 12, 12, 12),
+                      height: deviceHeight * 0.1,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),
