@@ -26,6 +26,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   int inUseCamera;
   // flash mode chosen by user.
   FlashMode flashMode = FlashMode.auto;
+  // bool that reflects the user choice of either photo or video
+  bool isVideoMode = false;
 
   //method used to initialize the camera
   Future initCamera(CameraDescription cameraDescription) async {
@@ -104,17 +106,39 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     );
   }
 
-  Widget imageButton(String imagePath) {
+  Widget cameraModeButton(String imagePath) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.05,
       child: GestureDetector(
         onTap: () {
-          print('click on edit');
+          print('click on camera mode');
         },
-        child: Image.asset(
-          imagePath,
-          width: 50,
-          height: 50,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Image.asset(
+            imagePath,
+            width: 30,
+            height: 30,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget flashModeButton(String imagePath) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.05,
+      child: GestureDetector(
+        onTap: () {
+          print('click on flash');
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Image.asset(
+            imagePath,
+            width: 35,
+            height: 35,
+          ),
         ),
       ),
     );
@@ -174,17 +198,17 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                   children: [
                     Container(
                       color: Color.fromARGB(255, 21, 21, 21),
-                      height: deviceHeight * 0.1,
+                      height: deviceHeight * 0.09,
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: deviceHeight * 0.025),
-                      child: imageButton('assets/images/CameraMode.png'),
+                      child: cameraModeButton('assets/images/CameraMode.png'),
                     ),
                     Align(
                       alignment: Alignment.topRight,
                       child: Padding(
                         padding: EdgeInsets.only(top: deviceHeight * 0.025),
-                        child: imageButton(
+                        child: flashModeButton(
                           flashModeSwitchCase(),
                         ),
                       ),
@@ -195,7 +219,75 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                   children: [
                     Container(
                       color: Color.fromARGB(255, 12, 12, 12),
-                      height: deviceHeight * 0.1,
+                      height: deviceHeight * 0.125,
+                    ),
+                    Align(
+                      child: GestureDetector(
+                        onTap: () {
+                          print('click on takePhoto');
+                        },
+                        child: Container(
+                          width: 60,
+                          height: deviceHeight * 0.125,
+                          decoration: BoxDecoration(
+                            color: isVideoMode
+                                ? Color.fromARGB(255, 167, 23, 23)
+                                : Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                    ),
+                    Align(
+                      child: Container(
+                        width: 8,
+                        height: deviceHeight * 0.125,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      alignment:
+                          isVideoMode ? Alignment(-0.2, 0) : Alignment(0.2, 0),
+                    ),
+                    Align(
+                      child: Container(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.045),
+                        width: 30,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isVideoMode = false;
+                            });
+                          },
+                          child: Image.asset(
+                            isVideoMode
+                                ? 'assets/images/Photo_Grey.png'
+                                : 'assets/images/Photo.png',
+                          ),
+                        ),
+                      ),
+                      alignment: Alignment(0.32, 0),
+                    ),
+                    Align(
+                      child: Container(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.045),
+                        width: 30,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isVideoMode = true;
+                            });
+                          },
+                          child: Image.asset(
+                            isVideoMode
+                                ? 'assets/images/Video.png'
+                                : 'assets/images/Video_Grey.png',
+                          ),
+                        ),
+                      ),
+                      alignment: Alignment(-0.32, 0),
                     ),
                   ],
                 ),
