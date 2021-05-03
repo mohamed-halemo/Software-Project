@@ -33,6 +33,9 @@ dependencies:
   path: ^1.8.0
   path_provider: ^2.0.1
   photo_manager: ^1.1.4
+  adv_camera: ^2.0.0+1-nullsafety
+  camerawesome: ^0.2.2
+  gallery_saver: ^2.1.0
 
 dev_dependencies:
   flutter_test:
