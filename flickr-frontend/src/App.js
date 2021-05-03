@@ -30,7 +30,6 @@ function App() {
           <Route path="/about" component={About} />
         </Switch>
       </div>
-
     </Router>
 
   );
