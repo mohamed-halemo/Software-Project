@@ -3,8 +3,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
+import 'dart:math';
 
-enum FlashMode {
+enum UserFlashMode {
   always,
   auto,
   never,
@@ -17,7 +18,8 @@ class CameraViewScreen extends StatefulWidget {
 
 /// Camera View Widget, Opens when Camera icon is pressed in home view.
 /// method style follows the official example on pub.dev
-class _CameraViewScreenState extends State<CameraViewScreen> {
+class _CameraViewScreenState extends State<CameraViewScreen>
+    with WidgetsBindingObserver {
   //Connection establisher with camera, provided by the camera package.
   CameraController cameraController;
   // a list of device cameras, starts at 0, usually of length 2.
@@ -27,17 +29,21 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   //index of the camera mode chosen by user, 0 = back camera, 1 = front.
   int inUseCamera;
   // flash mode chosen by user.
-  FlashMode flashMode = FlashMode.auto;
+  UserFlashMode flashMode = UserFlashMode.auto;
   // bool that reflects the user choice of either photo or video
   bool isVideoMode = false;
 
+  // List of all images on the device (customized to only load the first image, the recent image)
   List<AssetEntity> galleryList;
-
+  // the last image stored on the device
   File recentImage;
 
   //method used to initialize the camera
   Future initCamera(CameraDescription cameraDescription) async {
+    //first initialize gallery list to load recent image
     initGallary();
+
+    //if a camera controller exists, dispose and start a new one
     if (cameraController != null) {
       await cameraController.dispose();
     }
@@ -62,8 +68,25 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     if (mounted) {
       setState(() {});
     }
+    cameraController.setFlashMode(FlashMode.auto);
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // App state changed before we got the chance to initialize.
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      cameraController?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      if (cameraController != null) {
+        initCamera(allCameras[inUseCamera]).then((value) {});
+      }
+    }
+  }
+
+  // load list of images and assign the most recent one
   Future initGallary() async {
     await PhotoManager.requestPermission();
     PhotoManager.clearFileCache();
@@ -78,6 +101,7 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       ),
     );
 
+    //only get the first two images, not anymore are needed in this view
     galleryList = await list[0].getAssetListRange(start: 0, end: 1);
 
     galleryList[0].file.then((value) {
@@ -87,8 +111,10 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     });
   }
 
+  //
   showCameraException(e) {
-    String errorText = 'Error ${e.code} \nError message: ${e.description}';
+    String errorText =
+        'ErrorCode ${e.code} \nError Description: ${e.description}';
     print(errorText);
   }
 
@@ -96,6 +122,8 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+
+    //get a lisy of device cameras and initialize to back camera
     availableCameras().then((retrivedList) {
       allCameras = retrivedList;
       if (allCameras.length > 0) {
@@ -111,9 +139,10 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     });
   }
 
+  // refactoring the camera preview size to fit the screen
   Widget previewOfCamera() {
     if (cameraController == null || !cameraController.value.isInitialized) {
-      return Container();
+      return SizedBox();
     }
     var size = MediaQuery.of(context).size;
     return Container(
@@ -136,21 +165,43 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
     );
   }
 
+  //press to change camera mode, front and back
   Widget cameraModeButton(String imagePath) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.05,
       child: GestureDetector(
         onTap: () {
-          print('click on camera mode');
+          if (inUseCamera == 1) {
+            setState(() {
+              inUseCamera = 0;
+            });
+          } else {
+            setState(() {
+              inUseCamera = 1;
+            });
+          }
+          initCamera(allCameras[inUseCamera]).then((value) {});
         },
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Image.asset(
-            imagePath,
-            width: 30,
-            height: 30,
-          ),
-        ),
+        child: inUseCamera == 0
+            ? Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Image.asset(
+                  imagePath,
+                  width: 30,
+                  height: 30,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(left: 40),
+                child: Transform(
+                  transform: Matrix4.rotationY(pi),
+                  child: Image.asset(
+                    imagePath,
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -160,7 +211,27 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
       height: MediaQuery.of(context).size.height * 0.05,
       child: GestureDetector(
         onTap: () {
-          print('click on flash');
+          if (flashMode == UserFlashMode.always) {
+            cameraController.setFlashMode(FlashMode.off);
+            setState(() {
+              flashMode = UserFlashMode.never;
+            });
+            return;
+          }
+          if (flashMode == UserFlashMode.never) {
+            cameraController.setFlashMode(FlashMode.auto);
+            setState(() {
+              flashMode = UserFlashMode.auto;
+            });
+            return;
+          }
+          if (flashMode == UserFlashMode.auto) {
+            cameraController.setFlashMode(FlashMode.always);
+            setState(() {
+              flashMode = UserFlashMode.always;
+            });
+            return;
+          }
         },
         child: Padding(
           padding: const EdgeInsets.only(right: 8.0),
@@ -176,18 +247,25 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
 
   String flashModeSwitchCase() {
     switch (flashMode) {
-      case FlashMode.always:
+      case UserFlashMode.always:
         return 'assets/images/FlashAlways.png';
         break;
-      case FlashMode.auto:
+      case UserFlashMode.auto:
         return 'assets/images/FlashAuto.png';
         break;
-      case FlashMode.never:
+      case UserFlashMode.never:
         return 'assets/images/FlashNever.png';
         break;
       default:
         return 'assets/images/FlashAuto.png';
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addObserver(this);
+    cameraController?.dispose();
+    super.dispose();
   }
 
   @override
