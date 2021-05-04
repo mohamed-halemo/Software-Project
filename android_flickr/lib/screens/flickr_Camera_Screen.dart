@@ -4,7 +4,7 @@ import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+// import 'package:gallery_saver/gallery_saver.dart';
 import 'dart:io';
 import 'dart:math';
 
@@ -375,6 +375,6 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     final String filePath =
         '${imageDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await _pictureController.takePicture(filePath);
-    GallerySaver.saveImage(filePath);
+    // GallerySaver.saveImage(filePath);
   }
 }
