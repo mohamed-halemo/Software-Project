@@ -37,6 +37,7 @@ dependencies:
   camerawesome: ^0.2.2
   # gallery_saver: ^2.1.0
   image_gallery_saver: ^1.6.9
+  video_thumbnail: ^0.3.3
 
 dev_dependencies:
   flutter_test:

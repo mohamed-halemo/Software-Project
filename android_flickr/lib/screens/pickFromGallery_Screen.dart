@@ -1,6 +1,7 @@
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:io';
 
 class PhotoGallery extends StatefulWidget {
@@ -10,8 +11,10 @@ class PhotoGallery extends StatefulWidget {
 
 class _PhotoGalleryState extends State<PhotoGallery> {
   List<AssetPathEntity> galleryList = [];
-  List<List<AssetEntity>> galleryImplicitList = [];
+
+  List<List<AssetEntity>> listOfAlbums = [];
   var firstImagesList;
+
   List<int> imageCountList = [];
   List<int> videoCountList = [];
 
@@ -35,25 +38,30 @@ class _PhotoGalleryState extends State<PhotoGallery> {
     List<int> tempListImage = new List<int>(galleryList.length);
     List<int> tempListVideo = new List<int>(galleryList.length);
     for (var i = 0; i < galleryList.length; i++) {
-      galleryList[i].assetList.then((value) => value[0].file.then(
-            (value2) {
-              if (value[0].type == AssetType.other) {
-                for (var j = 1; j < value.length; j++) {
-                  if (value[j].type != AssetType.other) {
-                    value[j].file.then((value3) {
-                      setState(() {
-                        tempList[i] = value3;
-                      });
-                      return;
+      galleryList[i].assetList.then((value) {
+        listOfAlbums.add(value);
+        value[0].file.then(
+          (value2) {
+            if (value[0].type != AssetType.image &&
+                value[0].type != AssetType.video) {
+              for (var j = 1; j < value.length; j++) {
+                if (value[j].type == AssetType.image ||
+                    value[j].type == AssetType.video) {
+                  value[j].file.then((value3) {
+                    setState(() {
+                      tempList[i] = value3;
                     });
-                  }
+                    return;
+                  });
                 }
               }
-              setState(() {
-                tempList[i] = value2;
-              });
-            },
-          ));
+            }
+            setState(() {
+              tempList[i] = value2;
+            });
+          },
+        );
+      });
 
       firstImagesList = tempList;
       galleryList[i].assetList.then((value) {
@@ -182,59 +190,65 @@ class _PhotoGalleryState extends State<PhotoGallery> {
               itemCount: firstImagesList == null ? 0 : firstImagesList.length,
               itemBuilder: (context, index) {
                 return Container(
-                  width: double.infinity,
                   color: index % 2 == 0
                       ? Color.fromARGB(255, 0, 0, 0)
                       : Colors.grey.shade900,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onTap: () {},
-                            child: Container(
-                              width: 70,
-                              height: 70,
-                              alignment: Alignment.centerLeft,
-                              child: firstImagesList[index] == null
-                                  ? Container()
-                                  : ClipRect(
-                                      child: Image.file(
-                                        firstImagesList[index],
-                                        fit: BoxFit.cover,
-                                      ),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          alignment: Alignment.centerLeft,
+                          child: firstImagesList[index] == null ||
+                                  listOfAlbums[index].first.type !=
+                                      AssetType.image
+                              ? Container()
+                              : ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: 50),
+                                  child: ClipRect(
+                                    child: Image.file(
+                                      firstImagesList[index],
+                                      fit: BoxFit.cover,
                                     ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 70,
+                          top: 20,
+                        ),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            '${galleryList[index].name}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              height: 1,
                             ),
                           ),
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${galleryList[index].name}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                height: 1,
-                              ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 70,
+                          top: 10,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            getImagesVideos(index),
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              height: 2,
                             ),
-                            Text(
-                              getImagesVideos(index),
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                height: 2,
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
