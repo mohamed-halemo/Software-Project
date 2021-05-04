@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:io';
 import 'dart:math';
 
@@ -25,7 +26,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   ValueNotifier<CameraFlashes> _switchFlash = ValueNotifier(CameraFlashes.NONE);
   ValueNotifier<Sensors> _sensor = ValueNotifier(Sensors.BACK);
   ValueNotifier<CaptureModes> _captureMode = ValueNotifier(CaptureModes.PHOTO);
-  ValueNotifier<Size> _photoSize = ValueNotifier(null);
+  ValueNotifier<Size> _photoSize = ValueNotifier(Size(3840, 2160));
   ValueNotifier<double> _zoom = ValueNotifier(0);
   // Controllers
   PictureController _pictureController = new PictureController();
@@ -78,7 +79,8 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
                   CameraAwesome(
                     testMode: false,
                     selectDefaultSize: (List<Size> availableSizes) {
-                      return availableSizes[availableSizes.length - 1];
+                      // print(availableSizes.toString());
+                      return availableSizes[0];
                     },
                     onOrientationChanged:
                         (CameraOrientations newOrientation) {},
@@ -375,6 +377,17 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     final String filePath =
         '${imageDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await _pictureController.takePicture(filePath);
-    // GallerySaver.saveImage(filePath);
+
+    if (filePath != null) {
+      // GallerySaver.saveImage(filePath).then((value) => {
+      //       setState(() {
+      //         print('image saved!');
+      //       })
+      //     });
+      final result = await ImageGallerySaver.saveFile(filePath);
+      print(result);
+    } else {
+      print('Null path');
+    }
   }
 }
