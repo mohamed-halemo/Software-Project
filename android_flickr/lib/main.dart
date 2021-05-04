@@ -1,6 +1,7 @@
-import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import './screens/flickr_Camera_Screen.dart';
 
 void main() {
   runApp(MyApp());
