@@ -1,3 +1,4 @@
+import 'package:android_flickr/screens/GetStartedPage_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FlickrCameraScreen(),
+      home: GetStartedScreen(),
     );
   }
 }

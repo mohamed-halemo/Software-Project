@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 enum UserFlashMode {
   always,
