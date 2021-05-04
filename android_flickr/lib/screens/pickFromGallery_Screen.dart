@@ -37,6 +37,18 @@ class _PhotoGalleryState extends State<PhotoGallery> {
     for (var i = 0; i < galleryList.length; i++) {
       galleryList[i].assetList.then((value) => value[0].file.then(
             (value2) {
+              if (value[0].type == AssetType.other) {
+                for (var j = 1; j < value.length; j++) {
+                  if (value[j].type != AssetType.other) {
+                    value[j].file.then((value3) {
+                      setState(() {
+                        tempList[i] = value3;
+                      });
+                      return;
+                    });
+                  }
+                }
+              }
               setState(() {
                 tempList[i] = value2;
               });
@@ -52,6 +64,9 @@ class _PhotoGalleryState extends State<PhotoGallery> {
           }
           if (value[j].type == AssetType.video) {
             videoCount++;
+            break;
+          }
+          if (value[j].type == AssetType.other) {
             break;
           }
         }
@@ -101,6 +116,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(
@@ -125,7 +141,6 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                           builder: (BuildContext context) =>
                               FlickrCameraScreen(),
                         ));
-                    ;
                   },
                   child: Text(
                     'Cancel',
@@ -161,6 +176,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
               color: Colors.grey,
             ),
             ListView.builder(
+              itemExtent: 70,
               padding: EdgeInsets.zero,
               shrinkWrap: true,
               itemCount: firstImagesList == null ? 0 : firstImagesList.length,
@@ -170,45 +186,55 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                   color: index % 2 == 0
                       ? Color.fromARGB(255, 0, 0, 0)
                       : Colors.grey.shade900,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onTap: () {},
-                        child: Container(
-                          width: 70,
-                          height: 70,
-                          alignment: Alignment.centerLeft,
-                          child: firstImagesList[index] == null
-                              ? Container()
-                              : Image.file(
-                                  firstImagesList[index],
-                                  fit: BoxFit.fitWidth,
-                                ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () {},
+                            child: Container(
+                              width: 70,
+                              height: 70,
+                              alignment: Alignment.centerLeft,
+                              child: firstImagesList[index] == null
+                                  ? Container()
+                                  : ClipRect(
+                                      child: Image.file(
+                                        firstImagesList[index],
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                            ),
+                          ),
                         ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${galleryList[index].name}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              height: 1,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${galleryList[index].name}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                height: 1,
+                              ),
                             ),
-                          ),
-                          Text(
-                            getImagesVideos(index),
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              height: 2,
+                            Text(
+                              getImagesVideos(index),
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                height: 2,
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    ],
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 );
               },
