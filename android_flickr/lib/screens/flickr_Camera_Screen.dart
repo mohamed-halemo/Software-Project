@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:camerawesome/models/orientations.dart';
 import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
@@ -6,8 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'dart:io';
-import 'dart:math';
+
+import './pickFromGallery_Screen.dart';
 
 enum UserFlashMode {
   always,
@@ -30,7 +33,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   ValueNotifier<double> _zoom = ValueNotifier(0);
   // Controllers
   PictureController _pictureController = new PictureController();
-  // VideoController _videoController = new VideoController();
+  VideoController _videoController = new VideoController();
 
   // List of all images on the device (customized to only load the first image, the recent image)
   List<AssetEntity> galleryList;
@@ -214,7 +217,13 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
                         width: 35,
                         height: 70,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        PhotoGallery()));
+                          },
                           child: recentImage == null
                               ? Container(
                                   color: Colors.grey,
