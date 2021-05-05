@@ -30,7 +30,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   ValueNotifier<double> _zoom = ValueNotifier(0);
   // Controllers
   PictureController _pictureController = new PictureController();
-  VideoController _videoController = new VideoController();
+  // VideoController _videoController = new VideoController();
 
   // List of all images on the device (customized to only load the first image, the recent image)
   List<AssetEntity> galleryList;
