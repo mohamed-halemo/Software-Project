@@ -1,7 +1,7 @@
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-// import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:io';
 
 class PhotoGallery extends StatefulWidget {
