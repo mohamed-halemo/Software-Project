@@ -22,6 +22,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
+  bitmap:
+    dependency: "direct main"
+    description:
+      name: bitmap
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -64,6 +71,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  circle_list:
+    dependency: "direct main"
+    description:
+      name: circle_list
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.4"
   clock:
     dependency: transitive
     description:
@@ -103,6 +117,13 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
+  fab_circular_menu:
+    dependency: "direct main"
+    description:
+      name: fab_circular_menu
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"

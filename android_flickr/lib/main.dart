@@ -3,6 +3,7 @@ import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './colors/blackSwatch.dart' as primBlack;
+import './screens/photoEditScreen.dart';
 
 void main() {
   runApp(MyApp());
