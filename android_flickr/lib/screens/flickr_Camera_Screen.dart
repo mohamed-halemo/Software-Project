@@ -10,7 +10,8 @@ import 'package:photo_manager/photo_manager.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
-import './pickFromGallery_Screen.dart';
+import './PhotoGalleryScreen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 enum UserFlashMode {
   always,
@@ -33,7 +34,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   ValueNotifier<double> _zoom = ValueNotifier(0);
   // Controllers
   PictureController _pictureController = new PictureController();
-  VideoController _videoController = new VideoController();
+  // VideoController _videoController = new VideoController();
 
   // List of all images on the device (customized to only load the first image, the recent image)
   List<AssetEntity> galleryList;
@@ -60,6 +61,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+
     initGallary();
   }
 
@@ -222,7 +224,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
                                 context,
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
-                                        PhotoGallery()));
+                                        PhotoGalleryScreen()));
                           },
                           child: recentImage == null
                               ? Container(
@@ -248,6 +250,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
 
   Future initGallary() async {
     await PhotoManager.requestPermission();
+    await Permission.storage.request();
     PhotoManager.clearFileCache();
     List<AssetPathEntity> list = await PhotoManager.getAssetPathList(
       onlyAll: true,

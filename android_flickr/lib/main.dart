@@ -2,6 +2,7 @@ import 'package:android_flickr/screens/GetStartedPage_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import './colors/blackSwatch.dart' as primBlack;
 import './screens/login_screen.dart';
 
 void main() {
@@ -24,10 +25,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Rubik',
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: primBlack.primaryBlack,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: GetStartedScreen(),
+      home: FlickrCameraScreen(),
     );
   }
 }

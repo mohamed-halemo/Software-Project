@@ -41,6 +41,9 @@ dependencies:
   # gallery_saver: ^2.1.0
   image_gallery_saver: ^1.6.9
   video_thumbnail: ^0.3.3
+  photo_gallery: ^1.0.1
+  permission_handler: ^7.1.0
+  transparent_image: ^2.0.0
 
 dev_dependencies:
   flutter_test:
