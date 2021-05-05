@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:camerawesome/models/orientations.dart';
 import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
@@ -375,31 +376,21 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   }
 
   Future takePhoto() async {
-    // final Directory tempDir = await getTemporaryDirectory();
-    // final filePath =
-    //     await Directory('${tempDir.path}/cameraphoto').create(recursive: true);
-
-    // // _pictureController.takePicture('${filePath.path}/fpcamera.jpg').then(
-    // //       (value) {},
-    // //     );
-    // await _pictureController.takePicture('${tempDir.path}/myimage.jpg');
     final Directory tempDir = await getTemporaryDirectory();
     final imageDir =
         await Directory('${tempDir.path}/test').create(recursive: true);
     final String filePath =
         '${imageDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     await _pictureController.takePicture(filePath);
-
-    if (filePath != null) {
-      // GallerySaver.saveImage(filePath).then((value) => {
-      //       setState(() {
-      //         print('image saved!');
-      //       })
-      //     });
-      final result = await ImageGallerySaver.saveFile(filePath);
-      print(result);
-    } else {
-      print('Null path');
-    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => PhotoEditScreen(filePath)));
+    // if (filePath != null) {
+    //   final result = await ImageGallerySaver.saveFile(filePath);
+    //   print(result);
+    // } else {
+    //   print('Null path');
+    // }
   }
 }

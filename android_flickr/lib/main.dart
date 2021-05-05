@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './colors/blackSwatch.dart' as primBlack;
 import './screens/login_screen.dart';
+import './screens/photoEditScreen.dart';
 
 void main() {
   runApp(MyApp());
