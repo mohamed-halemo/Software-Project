@@ -386,11 +386,11 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => PhotoEditScreen(filePath)));
-    // if (filePath != null) {
-    //   final result = await ImageGallerySaver.saveFile(filePath);
-    //   print(result);
-    // } else {
-    //   print('Null path');
-    // }
+    if (filePath != null) {
+      final result = await ImageGallerySaver.saveFile(filePath);
+      print(result);
+    } else {
+      print('Null path');
+    }
   }
 }
