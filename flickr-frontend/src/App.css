@@ -2,6 +2,10 @@
   text-align: center;
   max-height: 0 auto;
 }
+body{
+  background-color:rgb(243, 245, 246)
+}
+
 
 .content {
   width: 100%;
@@ -43,4 +47,9 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.OuterFeedContainer{
+  background-color: rgb(243, 245, 246);
+
 }
