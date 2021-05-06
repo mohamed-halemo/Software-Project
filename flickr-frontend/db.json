@@ -48,7 +48,25 @@
       "commentNum": 30,
       "favoritsNum": 90,
       "date": "6h ago"
-    }
+    },
 
+  "users": [
+    {
+
+      "NewuserFirstname": "sara",
+      "NewuserLastname": "osama",
+      "Newuserage": "21",
+      "Newuseremailaddress": "sara@gmail.com",
+      "Newuserpassword": "sara123456789"
+    },
+
+    {
+
+      "NewuserFirstname": "ahmed",
+      "NewuserLastname": "ali",
+      "Newuserage": "35",
+      "Newuseremailaddress": "ahmed@gmail.com",
+      "Newuserpassword": "ahmed123456789"
+    }
   ]
 }
