@@ -5,6 +5,7 @@ import { IconContext } from 'react-icons';
 
 const HomeToolBar = () => {
   const handleClick = (e) => {
+    // eslint-disable-next-line no-console
     console.log('All Activity test button', e);
   };
   return (
