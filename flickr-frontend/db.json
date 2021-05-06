@@ -3,7 +3,7 @@
     {
       "id": 1,
       "photoName": "The First Photo",
-      "avatar":"https://www.w3schools.com/w3images/avatar2.png",
+      "avatar": "https://www.w3schools.com/w3images/avatar2.png",
       "img": "https://images.unsplash.com/photo-1508921912186-1d1a45ebb3c1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1868&q=80",
       "owner": {
         "ownerName": "Sara",
@@ -22,8 +22,7 @@
     {
       "id": 2,
       "photoName": "The Second Photo",
-      "avatar":"https://www.w3schools.com/howto/img_avatar.png",
-
+      "avatar": "https://www.w3schools.com/howto/img_avatar.png",
       "img": "https://mdbcdn.b-cdn.net/img/new/standard/nature/111.jpg",
       "owner": {
         "ownerName": "Aya",
@@ -37,8 +36,7 @@
     {
       "id": 3,
       "photoName": "The Third Photo",
-      "avatar":"https://www.w3schools.com/howto/img_avatar2.png",
-
+      "avatar": "https://www.w3schools.com/howto/img_avatar2.png",
       "img": "https://mk0paperlessmovn94k7.kinstacdn.com/wp-content/uploads/2019/09/o2dvsv2pnhe.jpg",
       "owner": {
         "ownerName": "Ahmed",
@@ -49,6 +47,21 @@
       "favoritsNum": 90,
       "date": "6h ago"
     }
-
+  ],
+  "users": [
+    {
+      "NewuserFirstname": "sara",
+      "NewuserLastname": "osama",
+      "Newuserage": "21",
+      "Newuseremailaddress": "sara@gmail.com",
+      "Newuserpassword": "sara123456789"
+    },
+    {
+      "NewuserFirstname": "ahmed",
+      "NewuserLastname": "ali",
+      "Newuserage": "35",
+      "Newuseremailaddress": "ahmed@gmail.com",
+      "Newuserpassword": "ahmed123456789"
+    }
   ]
 }
