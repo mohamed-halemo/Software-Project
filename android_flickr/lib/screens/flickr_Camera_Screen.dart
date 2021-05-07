@@ -20,6 +20,8 @@ enum UserFlashMode {
   never,
 }
 
+///Main Camera View where users take images or videos,
+///Its a widget that occupies the full screen.
 class FlickrCameraScreen extends StatefulWidget {
   @override
   _FlickrCameraScreen createState() => _FlickrCameraScreen();
@@ -27,42 +29,57 @@ class FlickrCameraScreen extends StatefulWidget {
 
 class _FlickrCameraScreen extends State<FlickrCameraScreen>
     with TickerProviderStateMixin {
-  //Notifiers
+  //Camera Notifiers.
+
+  //flash mode notifier, accepts CameraFlashes ENUM.
   ValueNotifier<CameraFlashes> _switchFlash = ValueNotifier(CameraFlashes.NONE);
+  //current sensor notifiers, back or front, accepts Sensors ENUM.
   ValueNotifier<Sensors> _sensor = ValueNotifier(Sensors.BACK);
+  //Capture mode notifier, Photo or video, accepts CaptureModes ENUM.
   ValueNotifier<CaptureModes> _captureMode = ValueNotifier(CaptureModes.PHOTO);
+  //photo resultion notifier, Accepts a size (width, height).
   ValueNotifier<Size> _photoSize = ValueNotifier(Size(3840, 2160));
+  //zoom level notifier, accepts a double between 0 and 1.
   ValueNotifier<double> _zoom = ValueNotifier(0);
-  // Controllers
+
+  // Controllers.
+
+  //Picture Controller which is called to take pictures.
   PictureController _pictureController = new PictureController();
+  //Video Controller which is called to take Start and stop recording videos.
   // VideoController _videoController = new VideoController();
 
-  // List of all images on the device (customized to only load the first image, the recent image)
+  // List of images on the device (customized to only load the first 2 images,
+  // we get the recent image from this list.
   List<AssetEntity> galleryList;
-  // the last image stored on the device
+  // the last image stored on the device.
   File recentImage;
 
-// bool that reflects the user choice of either photo or video
+// bool that reflects the user choice of either photo or video, State variable.
   bool isVideoMode = false;
 
-  //index of the camera mode chosen by user, 0 = back camera, 1 = front.
+  //index of the camera mode chosen by user, 0 = back camera, 1 = front, State variable.
   int inUseCamera;
-  // flash mode chosen by user.
+  // flash mode chosen by user.State variable.
   UserFlashMode flashMode = UserFlashMode.auto;
 
+  //Discards any resources used by any of the objects. After this is called,
+  //the object is not in a usable state and should be discarded.
   @override
   void dispose() {
-    // previewStreamSub.cancel();
     _photoSize.dispose();
     _captureMode.dispose();
+    _zoom.dispose();
+    _sensor.dispose();
+    _switchFlash.dispose();
     super.dispose();
   }
 
+  //hide notification panel and then initialize Camera and Gallery
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-
     initGallary();
   }
 
@@ -249,10 +266,13 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     );
   }
 
+  //Initialize Camera and Gallery, retreive gallery list
   Future initGallary() async {
     await PhotoManager.requestPermission();
     await Permission.storage.request();
     PhotoManager.clearFileCache();
+
+    //get a list of all assets and order them by date of creation to get most recent
     List<AssetPathEntity> list = await PhotoManager.getAssetPathList(
       onlyAll: true,
       filterOption: FilterOptionGroup(
@@ -267,6 +287,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     //only get the first two images, not anymore are needed in this view
     galleryList = await list[0].getAssetListRange(start: 0, end: 1);
 
+    //Set recent image to the recieved file and rebuild
     galleryList[0].file.then((value) {
       setState(() {
         recentImage = value;
@@ -274,7 +295,8 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     });
   }
 
-  //press to change camera mode, front and back
+  ///Camera Mode Button receives and image path string of the button icon
+  ///When the button is pressed it toggles between front and back cameras
   Widget cameraModeButton(String imagePath) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.05,
@@ -291,8 +313,8 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
             });
             _sensor.value = Sensors.FRONT;
           }
-          // initCamera(allCameras[inUseCamera]).then((value) {});
         },
+        //The image is rotated 180 degrees on the Y axis if mode is Front camera
         child: inUseCamera == 0
             ? Padding(
                 padding: const EdgeInsets.only(left: 10),
@@ -317,13 +339,15 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     );
   }
 
+  ///Flash Mode Button receives and image path string of the button icon
+  ///When the button is pressed it toggles between 3 available flash modes
+  /// Always > Never > Auto > Always (and so forth)
   Widget flashModeButton(String imagePath) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.05,
       child: GestureDetector(
         onTap: () {
           if (flashMode == UserFlashMode.always) {
-            // cameraController.setFlashMode(FlashMode.off);
             setState(() {
               flashMode = UserFlashMode.never;
             });
@@ -331,7 +355,6 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
             return;
           }
           if (flashMode == UserFlashMode.never) {
-            // cameraController.setFlashMode(FlashMode.auto);
             setState(() {
               flashMode = UserFlashMode.auto;
             });
@@ -339,7 +362,6 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
             return;
           }
           if (flashMode == UserFlashMode.auto) {
-            // cameraController.setFlashMode(FlashMode.always);
             setState(() {
               flashMode = UserFlashMode.always;
             });
@@ -359,6 +381,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     );
   }
 
+  ///Returns image path of the flash button icon according to chosen Flash mode
   String flashModeSwitchCase() {
     switch (flashMode) {
       case UserFlashMode.always:
@@ -375,6 +398,10 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     }
   }
 
+  ///Called When the take photo button is pressed.
+  ///Image is initially saved in temporary directory,
+  ///It is then saved to phone gallery,
+  ///and the new photo path is passed to PhotoEditScreen.
   Future takePhoto() async {
     final Directory tempDir = await getTemporaryDirectory();
     final imageDir =

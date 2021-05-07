@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
+    //make app work only in portrait
     SystemChrome.setPreferredOrientations(
       [
         DeviceOrientation.portraitUp,
