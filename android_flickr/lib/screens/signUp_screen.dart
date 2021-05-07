@@ -51,7 +51,7 @@ class _SignUpState extends State<SignUp> {
                   Container(
                     margin: EdgeInsets.only(top: 5, bottom: 5),
                     child: Text(
-                      'Sign up to flicker',
+                      'Sign up to Flicker',
                       style: TextStyle(
                         fontSize: 20,
                       ),
@@ -61,83 +61,84 @@ class _SignUpState extends State<SignUp> {
               ),
             ),
             Expanded(
-              child: Container(
-                margin: EdgeInsets.only(right: 20, left: 20, top: 10),
-                child: Column(children: <Widget>[
-                  _textInput(
-                      hint: 'First name',
-                      label: 'First name',
-                      keyboardType: TextInputType.name),
-                  _textInput(
-                      hint: 'Last name',
-                      label: 'Last name',
-                      keyboardType: TextInputType.name),
-                  _textInput(
-                      hint: 'Your age',
-                      label: 'Your age',
-                      keyboardType: TextInputType.number),
-                  _textInput(
-                      hint: 'Email address',
-                      label: 'Email address',
-                      keyboardType: TextInputType.emailAddress),
-                  _textInput(
-                      hint: 'Password',
-                      label: 'Password',
-                      keyboardType: TextInputType.visiblePassword,
-                      obscure: _secureText,
-                      suffixIcon: _secureText
-                          ? Icons.remove_red_eye_outlined
-                          : Icons.remove_red_eye,
-                      suffixIconPressed: () {
-                        setState(() {
-                          _secureText = !_secureText;
-                        });
-                      }),
-                  Container(
-                    child: RaisedButton(
-                      onPressed: () {
-/*                         setState(() {
-                            _buttonText = 'Sign in';
-                          }); */
-                      },
-                      child: Container(
-                        child: Text(
-                          _buttonText,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+              child: SingleChildScrollView(
+                child: Container(
+                  margin: EdgeInsets.only(right: 20, left: 20, top: 10),
+                  child: Column(children: <Widget>[
+                    _textInput(
+                        hint: 'First name',
+                        label: 'First name',
+                        keyboardType: TextInputType.name),
+                    _textInput(
+                        hint: 'Last name',
+                        label: 'Last name',
+                        keyboardType: TextInputType.name),
+                    _textInput(
+                        hint: 'Your age',
+                        label: 'Your age',
+                        keyboardType: TextInputType.number),
+                    _textInput(
+                        hint: 'Email address',
+                        label: 'Email address',
+                        keyboardType: TextInputType.emailAddress),
+                    _textInput(
+                        hint: 'Password',
+                        label: 'Password',
+                        keyboardType: TextInputType.visiblePassword,
+                        obscure: _secureText,
+                        suffixIcon: _secureText
+                            ? Icons.remove_red_eye_outlined
+                            : Icons.remove_red_eye,
+                        suffixIconPressed: () {
+                          setState(() {
+                            _secureText = !_secureText;
+                          });
+                        }),
+                    Container(
+                      child: RaisedButton(
+                        onPressed: () {
+                          /* Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => LogIn())); */
+                        },
+                        child: Container(
+                          child: Text(
+                            _buttonText,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
+                          width: double.infinity,
+                          height: 25,
+                          alignment: Alignment.center,
                         ),
-                        width: double.infinity,
-                        height: 25,
-                        alignment: Alignment.center,
+                        color: Colors.blue[600],
                       ),
-                      color: Colors.blue[600],
                     ),
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                  ),
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Already a Fotone member ?'),
-                        FlatButton(
-                            padding: EdgeInsets.all(0.0),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LogIn()));
-                            },
-                            child: Text('Log in here.',
-                                style: TextStyle(color: Colors.blue[600])))
-                      ],
+                    Divider(
+                      color: Colors.grey,
                     ),
-                  )
-                ]),
+                    Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Already a Fotone member ?'),
+                          FlatButton(
+                              padding: EdgeInsets.all(0.0),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LogIn()));
+                              },
+                              child: Text('Log in here.',
+                                  style: TextStyle(color: Colors.blue[600])))
+                        ],
+                      ),
+                    )
+                  ]),
+                ),
               ),
             ),
           ]),
