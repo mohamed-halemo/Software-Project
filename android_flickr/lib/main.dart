@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import './colors/blackSwatch.dart' as primBlack;
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
+import 'package:provider/provider.dart';
 
 //import './providers/flickr_post.dart';
 
