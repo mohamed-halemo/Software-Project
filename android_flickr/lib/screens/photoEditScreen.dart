@@ -73,7 +73,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   int editMode = 0;
   double dragAngel;
   double sliderValue;
-  BrushMode brushMode = BrushMode.Saturation;
+  BrushMode brushMode = BrushMode.Contrast;
 
   @override
   Widget build(BuildContext context) {
@@ -243,35 +243,36 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                             ),
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: getIcon(0, false),
+                              child: getIcon(brushMode.index, false),
                             ),
                           ),
-                          Align(
-                            child: SliderTheme(
-                              data: SliderThemeData(
-                                thumbShape: RoundSliderThumbShape(
-                                  enabledThumbRadius: 8,
+                          brushMode == BrushMode.Crop ||
+                                  brushMode == BrushMode.Rotate
+                              ? getRotateOrCrop()
+                              : SliderTheme(
+                                  data: SliderThemeData(
+                                    thumbShape: RoundSliderThumbShape(
+                                      enabledThumbRadius: 8,
+                                    ),
+                                    overlayColor: Colors.transparent,
+                                    overlayShape: RoundSliderOverlayShape(
+                                      overlayRadius: 0,
+                                    ),
+                                  ),
+                                  child: Slider(
+                                    value: sliderValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        sliderValue = value;
+                                      });
+                                    },
+                                    onChangeEnd: (value) {
+                                      applyChanges(brushMode);
+                                    },
+                                    activeColor: Colors.white,
+                                    inactiveColor: Colors.grey,
+                                  ),
                                 ),
-                                overlayColor: Colors.transparent,
-                                overlayShape: RoundSliderOverlayShape(
-                                  overlayRadius: 0,
-                                ),
-                              ),
-                              child: Slider(
-                                value: sliderValue,
-                                onChanged: (value) {
-                                  setState(() {
-                                    sliderValue = value;
-                                  });
-                                },
-                                onChangeEnd: (value) {
-                                  applyChanges(brushMode);
-                                },
-                                activeColor: Colors.white,
-                                inactiveColor: Colors.grey,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -283,23 +284,108 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     );
   }
 
+  Widget getRotateOrCrop() {
+    Bitmap editedBitmap = imageBitMap;
+    return brushMode == BrushMode.Rotate
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                  icon: Icon(
+                    Icons.rotate_left_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    editedBitmap = imageBitMap.apply(
+                      BitmapRotate.rotateCounterClockwise(),
+                    );
+                    setState(() {
+                      headedBitMap = editedBitmap.buildHeaded();
+                      imageBitMap = editedBitmap;
+                    });
+                  }),
+              SizedBox(
+                width: 20,
+              ),
+              IconButton(
+                  icon: Icon(
+                    Icons.rotate_right_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    editedBitmap = imageBitMap.apply(
+                      BitmapRotate.rotateClockwise(),
+                    );
+                    setState(() {
+                      headedBitMap = editedBitmap.buildHeaded();
+                      imageBitMap = editedBitmap;
+                    });
+                  }),
+            ],
+          )
+        : Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.crop_portrait_sharp,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  editedBitmap = imageBitMap.apply(BitmapCrop.fromLTWH(
+                    left: 100,
+                    top: 100,
+                    width: 300,
+                    height: 100,
+                  ));
+                  setState(() {
+                    headedBitMap = editedBitmap.buildHeaded();
+                  });
+                },
+              ),
+            ],
+          );
+  }
+
   void applyChanges(BrushMode burshMode) {
     switch (brushMode) {
       case BrushMode.Saturation:
-        Bitmap saturatedBitmap = imageBitMap.apply(
+        Bitmap editedBitMap = imageBitMap.apply(
           BitmapAdjustColor(saturation: sliderValue * 2),
         );
         setState(() {
-          headedBitMap = saturatedBitmap.buildHeaded();
+          headedBitMap = editedBitMap.buildHeaded();
         });
-
+        break;
+      case BrushMode.Exposure:
+        Bitmap editedBitMap = imageBitMap.apply(
+          BitmapAdjustColor(exposure: sliderValue * 4 - 2),
+        );
+        setState(() {
+          headedBitMap = editedBitMap.buildHeaded();
+        });
+        break;
+      case BrushMode.Contrast:
+        Bitmap editedBitMap = imageBitMap.apply(
+          BitmapContrast(sliderValue * 2),
+        );
+        setState(() {
+          headedBitMap = editedBitMap.buildHeaded();
+        });
+        break;
+      case BrushMode.Brightness:
+        Bitmap editedBitMap = imageBitMap.apply(
+          BitmapBrightness(sliderValue - 0.5),
+        );
+        setState(() {
+          headedBitMap = editedBitMap.buildHeaded();
+        });
         break;
       default:
-        Bitmap saturatedBitmap = imageBitMap.apply(
+        Bitmap editedBitMap = imageBitMap.apply(
           BitmapAdjustColor(saturation: sliderValue),
         );
         setState(() {
-          headedBitMap = saturatedBitmap.buildHeaded();
+          headedBitMap = editedBitMap.buildHeaded();
         });
     }
   }
