@@ -6,6 +6,9 @@ import Nav from './Nav';
 import CoverPicture from './Cover';
 import Photos from './Photos';
 
+/**
+ * Group Overview component
+ */
 class Groups extends Component {
   constructor(props) {
     super(props);

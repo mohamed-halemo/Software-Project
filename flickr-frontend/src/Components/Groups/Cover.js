@@ -2,6 +2,9 @@ import React from 'react';
 import './Cover.css';
 import Data from '../../db.json';
 
+/**
+ * Cover photo and profile picture component
+*/
 const Cover = () => (
   <div className="profile-container">
     <div className="profile-overlay">

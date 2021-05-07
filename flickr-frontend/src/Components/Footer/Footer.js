@@ -2,6 +2,9 @@ import React from 'react';
 import './Footer.css';
 import { GrTwitter, GrFacebook, GrInstagram } from 'react-icons/gr';
 
+/**
+ * Footer component
+ */
 const Footer = () => (
 
   <div className="footer">
