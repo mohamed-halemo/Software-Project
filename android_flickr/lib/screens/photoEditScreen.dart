@@ -109,7 +109,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
-                              PhotoUploadScreen()));
+                              PhotoUploadScreen(headedBitMap)));
                 },
                 child: Text(
                   'Next',
