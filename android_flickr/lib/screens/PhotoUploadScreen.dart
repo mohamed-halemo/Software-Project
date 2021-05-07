@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:bitmap/bitmap.dart';
+import 'dart:typed_data';
 
 class PhotoUploadScreen extends StatefulWidget {
+  final Uint8List headedBitmap;
+  PhotoUploadScreen(this.headedBitmap);
   @override
   _PhotoUploadScreenState createState() => _PhotoUploadScreenState();
 }
@@ -63,7 +67,10 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             Container(
               height: 100,
               width: 100,
-              color: Colors.black,
+              child: Image.memory(
+                widget.headedBitmap,
+                fit: BoxFit.cover,
+              ),
             ),
             SizedBox(
               height: 35,
