@@ -3,16 +3,13 @@ import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './colors/blackSwatch.dart' as primBlack;
-import './screens/photoEditScreen.dart';
-
-// import 'dart:html';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
