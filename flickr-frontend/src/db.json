@@ -1,0 +1,51 @@
+{
+    "photoData": [
+      {
+        "id": 1,
+        "photoName": "The First Photo",
+        "img": "https://www.shutterstock.com/image-photo/aerial-panorama-providence-skyline-rhode-island-1419951680",
+        "owner": {
+          "ownerName": "Sara",
+          "ownerId": "123"
+        },
+        "description": "Such a great description for a great photo",
+        "visibility": {
+          "isPublic": true,
+          "isFriend": false,
+          "isFamily": false
+        },
+        "commentNum": 5,
+        "favoritsNum": 4,
+        "date": "4h ago"
+      },
+      {
+        "id": 2,
+        "photoName": "The Second Photo",
+        "img": "https://www.shutterstock.com/image-photo/aerial-panorama-providence-skyline-rhode-island-1419951680",
+        "owner": {
+          "ownerName": "Aya",
+          "ownerId": "123"
+        },
+        "description": "Such a great description for a great photo",
+        "commentNum": 5,
+        "favoritsNum": 4,
+        "date": "4h ago"
+      }
+    ],
+    "Groups":[
+      {
+          "GroupName": "Just Street Photography",
+          "Members":84.708 ,
+          "PhotosNum":2.4000 ,
+          "Discussions" :297 ,
+          "Admin" :"Tozzophoto" ,
+          "date": "Apr 25,2005",
+          "intro":"Most images posted to this group are deleted. Look at the first page and make sure you are posting to the correct group. Urban Landscape photos are not the kinds of photos that should be posted here. Please do not upload images of just buildings or objects on a street; there should be a story element. NO LANDSCAPES, NO BUILDINGS, NO CLOSE UP PORTRAITS, NO STILL LIFE OBJECTS. If there is not a story or message in your photo do not post it.... 1 image per month allowed.",
+          "description":"Just Street Photography  is a group created by tozzo in April 2005 to showcase street photographs created by Flickr members.",
+          "rules": "Landscape photos are not the kinds of photos that should be posted here. Please do not upload images of just buildings or objects on a street; there should be a story element. NO LANDSCAPES, NO BUILDINGS, NO CLOSE UP PORTRAITS, NO STILL LIFE OBJECTS.",
+          "info":"" ,
+          "Profilepicture":"/Pictured Rocks.jpg",
+          "Coverphoto": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.planetware.com%2Fpictures%2Ffrance-f.htm&psig=AOvVaw3Hs2PyMbs1NJm2_iTY9WAu&ust=1620345303603000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCMCRvuPes_ACFQAAAAAdAAAAABAD"
+       }
+     ]
+}
