@@ -1,6 +1,9 @@
 import React from 'react';
 import './Photos.css';
 
+/**
+ * Photopool component
+ */
 const Photos = () => (
   <div className="grid-container">
     <img src="https://www.gettyimages.com/gi-resources/images/500px/983794168.jpg" alt="" />

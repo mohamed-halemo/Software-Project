@@ -1,5 +1,8 @@
 import './Nav.css';
 
+/**
+ * Sticky Navbar
+ */
 const Nav = () => (
   <div>
     <nav className="Nav">
