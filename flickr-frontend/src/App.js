@@ -21,10 +21,10 @@ function App() {
       <div className="App">
         <NavBar />
         <Switch>
-          <Route path="/Home" exact component={Home} />
-          <Route path="/" exact component={StartPage} />
+          <Route path="/Home" exact component={Home} title="Home | Flickr" />
+          <Route path="/" exact component={StartPage} title="Find your inspiration. | Flickr" />
 
-          <Route path="/SignUp" exact component={FormSignup} />
+          <Route path="/SignUp" exact component={FormSignup} title="Flickr Login" />
 
           <Route path="/about" component={About} />
         </Switch>
