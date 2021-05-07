@@ -9,7 +9,7 @@ const NavBar = (props) => {
   const history = useHistory();
 
   return (
-    <nav className="globalNavBar navbar-default navbar-fixed-top ">
+    <nav className="globalNavBar navbar-default navbar-fixed-top  ">
       <nav className="Hnavbar ">
         <img
           src="https://www.flickr.com/images/opensearch-flickr-logo.png"
