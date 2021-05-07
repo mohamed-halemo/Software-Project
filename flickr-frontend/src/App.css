@@ -50,4 +50,14 @@ body{
 }
 .OuterFeedContainer{
   background-color: rgb(243, 245, 246);
+
+}
+
+.pageContainer{
+  display: flex;
+  flex-direction: column;
+}
+
+.contentWrap{
+  flex: 1;
 }

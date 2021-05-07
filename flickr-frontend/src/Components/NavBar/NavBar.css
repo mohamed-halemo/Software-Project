@@ -11,10 +11,9 @@
   max-width: auto;
   background-color: rgba(33, 33, 36, 0.938);
   margin: 0 auto;
-  /* position: fixed; */
+  position: absolute;
   top: 0;
   width: 100%;
-  left: 0;
 }
 .Hnavbar {
   display: flex;
