@@ -10,7 +10,10 @@ import FormSignup from './Components/StartPage/SingUP/FormSignup';
 import Home from './Components/HomePage/Home';
 import NavBar from './Components/NavBar/NavBar';
 import About from './Components/NavBar/About';
-
+import Footer from './Components/Footer/Footer';
+import Profile from './Components/Profile/Profile';
+// import Home from './Components/HomePage/Home';
+// import NavBar from './Components/NavBar/NavBar';
 // import Button from "react-bootstrap/Button";
 
 function App() {
@@ -19,8 +22,10 @@ function App() {
       <div className="App">
         <NavBar />
         <Switch>
-          <Route path="/Home" exact component={Home} title="Home | Flickr" />
+
           <Route path="/" exact component={StartPage} title="Find your inspiration. | Flickr" />
+          <Route path="/Home" exact component={Home} title="Home | Flickr" />
+          <Route path="/profile" exact component={Profile} title="Home | Flickr" />
 
           <Route path="/SignUp" exact component={FormSignup} title="Flickr Login" />
 

@@ -1,7 +1,7 @@
 import './Profile.css';
-import {
-  BrowserRouter, Switch, Route,
-} from 'react-router-dom';
+// import {
+//   BrowserRouter, Switch, Route,
+// } from 'react-router-dom';
 import ProNa from './Ptools/PhotoStream';
 import Background from './ProBackground';
 import ProNav from './Ptools/ProNav';
@@ -15,7 +15,9 @@ const Home = () => (
       <ProNav />
     </div>
     <div>
-      <BrowserRouter>
+      <ProNa />
+
+      {/* <BrowserRouter>
         <Switch>
           <Route
             path="/Photostream"
@@ -24,7 +26,7 @@ const Home = () => (
             )}
           />
         </Switch>
-      </BrowserRouter>
+      </BrowserRouter> */}
     </div>
   </div>
 );

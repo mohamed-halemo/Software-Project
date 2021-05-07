@@ -3,7 +3,7 @@
 }
 
 /* Container needed to position the overlay. Adjust the width as needed */
-.container {
+.containerHome {
   position: relative;
   width: auto;
   /* max-width: 300px; */
@@ -12,14 +12,14 @@
 }
 
 /* Make the image to responsive */
-.image {
+.imageHome {
   display: block;
   width: auto;
   height: 250px;
 }
 
 /* The overlay effect - lays on top of the container and over the image */
-.imgOverlay {
+.imgOverlayHome {
   position: absolute;
   display: flex;
   bottom: 0;
@@ -36,7 +36,7 @@
 }
 
 /* When you mouse over the container, fade in the overlay title */
-.container:hover .imgOverlay {
+.containerHome:hover .imgOverlayHome {
   opacity: 1;
 }
 
@@ -44,7 +44,7 @@ h3 {
   font-size: large;
 }
 
-.imageHeader {
+.imageHeaderHome {
   display: flex;
   margin-right: 10px;
   height: 40px;
@@ -52,7 +52,7 @@ h3 {
   text-align: center;
   width: 100%;
 }
-.imageHeader h3 {
+.imageHeaderHome h3 {
   margin-right: 10px;
 }
 .avatar {
@@ -64,14 +64,14 @@ h3 {
 }
 
 /* Image Overlay RightContainer (engamement) */
-.overlayRightCont {
+.overlayRightContHome {
   float: right;
   width: 100px;
   display: flex;
 
 }
 
-.overlayLeftCont {
+.overlayLeftContHome {
   float: left;
   width: 100px;
 }

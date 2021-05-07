@@ -1,5 +1,5 @@
 import './PhotoStream.css';
-import Data from '../../../db.json';
+import Data from '../../../db2.json';
 
 // displays the elements of list
 function myFunction() {
@@ -26,32 +26,32 @@ const ProNa = () => (
   <div className="contain">
     <div className="contButns">
       <div>
-        <div className="dropdown">
+        <div className="dropdownP">
           <button
             type="button"
             onClick={() => {
               myFunction();
             }}
-            className="dropbtn"
+            className="dropbtnP"
           >
             Date Taken
           </button>
-          <div id="myDropdown" className="dropdown-content">
+          <div id="myDropdown" className="dropdownContentP">
             <a href="/">Date Uploaded</a>
             <a href="/">Date Taken</a>
           </div>
         </div>
-        <div className="dropdown">
+        <div className="dropdownP">
           <button
             type="button"
             onClick={() => {
               myFunction2();
             }}
-            className="dropbtn"
+            className="dropbtnP"
           >
             View All
           </button>
-          <div id="myDropdown2" className="dropdown-content">
+          <div id="myDropdown2" className="dropdownContentP">
             <a href="/">Public View</a>
             <a href="/">Friend View</a>
             <a href="/">Family View</a>
@@ -64,10 +64,10 @@ const ProNa = () => (
     <div className="clr"> </div>
     <div className="imgscont">
       <div className="imgovr">
-        <img src={Data.profileUsers.map((data) => (data.PhotoImg))} alt="" className="image" />
-        <div className="overlay">
-          <div className="picInfo">
-            <ul className="infolist">
+        <img src={Data.profileUsers.map((data) => (data.PhotoImg))} alt="" className="imageP" />
+        <div className="overlayP">
+          <div className="picInfoProfile">
+            <ul className="infolistProfile">
               {Data.profileUsers.map((data) => (<li>{`${data.description}`}</li>))}
               {Data.profileUsers.map((data) => (<li><a style={{ color: 'white', textDecoration: 'none' }} href="/Photostream">{`By  ${data.imgOwner}`}</a></li>))}
             </ul>
