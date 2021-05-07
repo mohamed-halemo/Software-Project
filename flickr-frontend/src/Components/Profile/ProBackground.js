@@ -1,6 +1,6 @@
 import React from 'react';
 import './Profile.css';
-import Data from '../../db.json';
+import Data from '../../db2.json';
 
 const Background = () => (
   <div className="profile-container">

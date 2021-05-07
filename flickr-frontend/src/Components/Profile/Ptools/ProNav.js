@@ -3,7 +3,7 @@ import './ProNav.css';
 const ProNav = () => (
   <div>
     <nav className="ProNv">
-      <div className="link">
+      <div className="Plink">
         <a href="/About">About </a>
         <a href="/Photostream">Photostream</a>
         <a href="/Albums">Albums</a>
