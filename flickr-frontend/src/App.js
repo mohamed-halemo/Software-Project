@@ -19,10 +19,10 @@ function App() {
       <div className="App">
         <NavBar />
         <Switch>
-          <Route path="/Home" exact component={Home} />
-          <Route path="/" exact>
-            <StartPage />
-          </Route>
+          <Route path="/Home" exact component={Home} title="Home | Flickr" />
+          <Route path="/" exact component={StartPage} title="Find your inspiration. | Flickr" />
+
+          <Route path="/SignUp" exact component={FormSignup} title="Flickr Login" />
 
           <Route path="/SignUp" exact>
             <FormSignup />
