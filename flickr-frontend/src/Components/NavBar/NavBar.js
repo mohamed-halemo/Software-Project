@@ -49,7 +49,7 @@ const NavBar = (props) => {
             </div>
           </div>
           <div className="dropdown">
-            <button className="dropbtn" type="button">Prints</button>
+            <button className="dropbtn" type="button" onClick={() => history.push('/group')}>Prints</button>
             <div className="dropdown-content">
               <a href="/">Prints &amp; Wall Art</a>
               <a href="/">Photo Books</a>
