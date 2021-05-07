@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:android_flickr/screens/PhotoUploadScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:circle_list/circle_list.dart';
@@ -29,12 +30,17 @@ class PhotoEditScreen extends StatefulWidget {
 
 class _PhotoEditScreenState extends State<PhotoEditScreen> {
   Bitmap imageBitMap;
+  Bitmap editedBitMap;
   Uint8List headedBitMap;
   List<Album> imageAlbums;
 
   @override
   void initState() {
     super.initState();
+    brushMode = BrushMode.Saturation;
+    totalAngleOfRotation = 0;
+    oldAngel = 0;
+    dragAngel = 0;
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     initImage();
   }
@@ -64,7 +70,6 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
 
     setState(() {
       headedBitMap = imageBitMap.buildHeaded();
-      dragAngel = 0;
     });
   }
 
@@ -73,11 +78,14 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   int editMode = 0;
   double dragAngel;
   double sliderValue;
-  BrushMode brushMode = BrushMode.Contrast;
+  BrushMode brushMode;
+  int brushModeChangeOnAngleUpdate;
+  double totalAngleOfRotation;
+  double oldAngel;
 
   @override
   Widget build(BuildContext context) {
-    final deviceHeight = MediaQuery.of(context).size.height;
+    // final deviceHeight = MediaQuery.of(context).size.height;
     final deviceWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 0, 0, 0),
@@ -95,11 +103,20 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                   : Image.memory(headedBitMap),
             ),
             Align(
-              child: Text(
-                'Next',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              PhotoUploadScreen()));
+                },
+                child: Text(
+                  'Next',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
                 ),
               ),
               alignment: Alignment.topRight,
@@ -173,24 +190,30 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                             ),
                             curve: Curves.fastLinearToSlowEaseIn,
                           ),
-                          initialAngle: dragAngel,
+                          initialAngle: 0,
+                          onDragStart: (_) {
+                            imageBitMap = editedBitMap;
+                            oldAngel = 0;
+                            dragAngel = 0;
+                          },
                           onDragUpdate: (updateCoord) {
+                            oldAngel = dragAngel;
                             dragAngel = updateCoord.angle;
+                            totalAngleOfRotation =
+                                totalAngleOfRotation + (dragAngel - oldAngel);
+                            if (totalAngleOfRotation >= 6.2)
+                              totalAngleOfRotation = 0;
+                            setState(() {
+                              print('ZAKA: ' + totalAngleOfRotation.toString());
+                              setBrushState(totalAngleOfRotation);
+                            });
                           },
-                          onDragEnd: () {
-                            setState(() {});
-                          },
-                          // onDragUpdate: (polarCoord) {
-                          //   polarCoord.angle == 0
-                          //       ? polarCoord.angle = pi / 3
-                          //       : polarCoord.angle = 2 * pi / 3;
-                          // },
                           children: List.generate(
                               6,
                               (index) => Container(
                                     width: 100,
                                     height: 50,
-                                    child: getIcon(index, true),
+                                    child: getIcon(6 - index, true),
                                   )),
                           centerWidget: GestureDetector(
                             onTap: () {
@@ -346,10 +369,50 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           );
   }
 
+  void setBrushState(double angle) {
+    if ((angle).abs() >= 0 && (angle).abs() <= 0.1) {
+      setState(() {
+        brushMode = BrushMode.Saturation;
+        sliderValue = 0.5;
+      });
+    }
+
+    if ((angle).abs() >= 0.95 && (angle).abs() <= 1.1) {
+      setState(() {
+        brushMode = BrushMode.Exposure;
+        sliderValue = 0.5;
+      });
+    }
+    if ((angle).abs() >= 1.9 && (angle).abs() <= 2.2) {
+      setState(() {
+        brushMode = BrushMode.Contrast;
+        sliderValue = 0.5;
+      });
+    }
+    if ((angle).abs() >= 3 && (angle).abs() <= 3.3) {
+      setState(() {
+        brushMode = BrushMode.Brightness;
+        sliderValue = 0.5;
+      });
+    }
+    if ((angle).abs() >= 4.15 && (angle).abs() <= 4.3) {
+      setState(() {
+        brushMode = BrushMode.Crop;
+        sliderValue = 0.5;
+      });
+    }
+    if ((angle).abs() >= 5.2 && (angle).abs() <= 5.3) {
+      setState(() {
+        brushMode = BrushMode.Rotate;
+        sliderValue = 0.5;
+      });
+    }
+  }
+
   void applyChanges(BrushMode burshMode) {
     switch (brushMode) {
       case BrushMode.Saturation:
-        Bitmap editedBitMap = imageBitMap.apply(
+        editedBitMap = imageBitMap.apply(
           BitmapAdjustColor(saturation: sliderValue * 2),
         );
         setState(() {
@@ -357,7 +420,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         });
         break;
       case BrushMode.Exposure:
-        Bitmap editedBitMap = imageBitMap.apply(
+        editedBitMap = imageBitMap.apply(
           BitmapAdjustColor(exposure: sliderValue * 4 - 2),
         );
         setState(() {
@@ -365,7 +428,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         });
         break;
       case BrushMode.Contrast:
-        Bitmap editedBitMap = imageBitMap.apply(
+        editedBitMap = imageBitMap.apply(
           BitmapContrast(sliderValue * 2),
         );
         setState(() {
@@ -373,7 +436,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         });
         break;
       case BrushMode.Brightness:
-        Bitmap editedBitMap = imageBitMap.apply(
+        editedBitMap = imageBitMap.apply(
           BitmapBrightness(sliderValue - 0.5),
         );
         setState(() {
@@ -381,7 +444,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         });
         break;
       default:
-        Bitmap editedBitMap = imageBitMap.apply(
+        editedBitMap = imageBitMap.apply(
           BitmapAdjustColor(saturation: sliderValue),
         );
         setState(() {
