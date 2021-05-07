@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { RiShareForwardLine } from 'react-icons/ri';
-import Data from '../../db.json';
+import Data from '../../db2.json';
 import './Groups.css';
 import Nav from './Nav';
 import CoverPicture from './Cover';

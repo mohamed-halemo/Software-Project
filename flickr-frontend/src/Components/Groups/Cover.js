@@ -1,6 +1,6 @@
 import React from 'react';
 import './Cover.css';
-import Data from '../../db.json';
+import Data from '../../db2.json';
 
 /**
  * Cover photo and profile picture component
