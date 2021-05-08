@@ -111,7 +111,6 @@ class PasswordTokenCheck(generics.GenericAPIView):
         try:
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = Account.objects.get(id=id)
-            # print("Aaaaaaaaaaaaa",user)
             if not PasswordResetTokenGenerator().check_token(user, token):
                 return Response({'error': 'Invalid Token, Request a new one'},
                                 status=status.HTTP_401_UNAUTHORIZED)

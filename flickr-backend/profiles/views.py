@@ -4,7 +4,7 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .serializers import ProfileSerializer
 from .models import Profile
 from rest_framework import permissions
-from profiles.permissions import IsOwner
+from project.permissions import IsOwner
 # Create your views here.
 
 
