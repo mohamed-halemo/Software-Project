@@ -20,16 +20,16 @@ input:-webkit-autofill:active
 }
 
 
- .formSignUpContent {
+.formSignUpContent {
   background-image: url('./signupbackground.jpg');
   background-repeat: no-repeat;
   background-position-x: center;
-  background-size:100% 110%;
+  background-size:100% 100%;
   
-  margin: 50px auto auto auto;
-  width:100%;
+  margin: 5px auto;
+  width: 100%;
   position: relative;
-  height: 600px;
+  height: 900px;
   display: grid;
   grid-template-columns: 1fr 1fr;
 
@@ -43,10 +43,10 @@ input:-webkit-autofill:active
 
 .Signup-form {
     position: absolute;
-    top: 55%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    height: 600px;
+    height: 700px;
     width: 300px;
     border-radius: 5px;
     display: flex;
@@ -81,9 +81,11 @@ input:-webkit-autofill:active
   }
   
   .Form-user-inputs p {
+    font-weight: 2;
     font-size: 0.8rem;
     margin-top: 0.5rem;
     color: #f00e0e;
+    text-align:left;
   }
   
   .Signup-button {
