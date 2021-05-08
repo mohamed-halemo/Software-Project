@@ -45,7 +45,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('profiles/', include('profiles.urls', namespace='profiles')),
-    
+    path('gallery/', include('gallery.urls', namespace='gallery')),
     path('photos/', include('photo.urls', namespace='photos')),
     path('photosets/', include('photosets.urls', namespace='photosets')),
     path('group/', include('group.urls', namespace='group')),

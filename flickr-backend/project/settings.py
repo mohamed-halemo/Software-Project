@@ -47,12 +47,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    
+    # my apps
     'accounts',
     'rest_framework',
     'drf_yasg',
     'profiles',
-    
+    'gallery',
     'photo',
     'django_filters',
     'django_google_maps',
