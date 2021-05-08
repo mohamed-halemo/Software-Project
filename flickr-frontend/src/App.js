@@ -25,7 +25,6 @@ function App() {
         <NavBar />
         <Switch>
 
-
           <Route path="/" exact component={StartPage} title="Find your inspiration. | Flickr" />
           <Route path="/Home" exact component={Home} title="Home | Flickr" />
           <Route path="/profile" exact component={Profile} title="Home | Flickr" />
@@ -35,7 +34,7 @@ function App() {
 
           <Route path="/about" component={About} />
         </Switch>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </Router>
 

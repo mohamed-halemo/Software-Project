@@ -9,7 +9,7 @@ const NavBar = (props) => {
   const history = useHistory();
 
   return (
-    <nav className="globalNavBar  fixed-top navbar-expand-lg navbar-light bg-dark-transparent ">
+    <nav className="navbar  fixed-top navbar-expand-lg navbar-dark bg-dark  ">
       <nav className="Hnavbar ">
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon" />
@@ -58,12 +58,12 @@ const NavBar = (props) => {
               </div>
             </div>
 
-          <div className="dropdown">
-            <button className="dropbtn" type="button" onClick={() => history.push('/group')}>Prints</button>
-            <div className="dropdown-content">
-              <a href="/">Prints &amp; Wall Art</a>
-              <a href="/">Photo Books</a>
-              <a href="/">View Cart</a>
+            <div className="dropdown">
+              <button className="dropbtn" type="button" onClick={() => history.push('/group')}>Prints</button>
+              <div className="dropdown-content">
+                <a href="/">Prints &amp; Wall Art</a>
+                <a href="/">Photo Books</a>
+                <a href="/">View Cart</a>
 
               </div>
             </div>
