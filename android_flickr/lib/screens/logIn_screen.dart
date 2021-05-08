@@ -63,56 +63,62 @@ class _LogInState extends State<LogIn> {
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.only(right: 20, left: 20, top: 10),
-                  child: Column(
-                    children: <Widget>[
-                      _EmailField(),
-                      _textInput(
-                          hint: 'Password',
-                          label: 'Password',
-                          keyboardType: TextInputType.visiblePassword,
-                          obscure: _secureText,
-                          suffixIcon: _secureText
-                              ? Icons.remove_red_eye_outlined
-                              : Icons.remove_red_eye,
-                          suffixIconPressed: () {
-                            setState(() {
-                              _secureText = !_secureText;
-                            });
-                          }),
-                      Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.all(0.0)),
-                          Checkbox(
-                              value: _rememberMe,
-                              onChanged: (value) {
-                                setState(() {
-                                  _rememberMe = value;
-                                });
-                              }),
-                          GestureDetector(
-                            child: Text('Remeber email address'),
-                            onTap: () {
+            Form(
+              key: _formKey,
+              child: Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 20, left: 20, top: 10),
+                    child: Column(
+                      children: <Widget>[
+                        _textInput(
+                          hint: 'Email address',
+                          label: 'Email address',
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        _textInput(
+                            hint: 'Password',
+                            label: 'Password',
+                            keyboardType: TextInputType.visiblePassword,
+                            obscure: _secureText,
+                            suffixIcon: _secureText
+                                ? Icons.remove_red_eye_outlined
+                                : Icons.remove_red_eye,
+                            suffixIconPressed: () {
                               setState(() {
-                                _rememberMe = !_rememberMe;
+                                _secureText = !_secureText;
                               });
-                            },
-                          )
-                        ],
-                      ),
-                      Form(
-                        key: _formKey,
-                        child: Container(
+                            }),
+                        Row(
+                          children: <Widget>[
+                            Padding(padding: EdgeInsets.all(0.0)),
+                            Checkbox(
+                                value: _rememberMe,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _rememberMe = value;
+                                  });
+                                }),
+                            GestureDetector(
+                              child: Text('Remeber email address'),
+                              onTap: () {
+                                setState(() {
+                                  _rememberMe = !_rememberMe;
+                                });
+                              },
+                            )
+                          ],
+                        ),
+                        Container(
                           child: RaisedButton(
                             onPressed: () {
                               final form = _formKey.currentState;
                               _formKey.currentState.validate();
-/*                         setState(() {
-                                  _buttonText = 'Sign in';
-                                }); */
+                              setState(() {
+                                _formKey.currentState.validate()
+                                    ? _buttonText = 'Sign in'
+                                    : null;
+                              });
                             },
                             child: Container(
                               child: Text(
@@ -130,39 +136,40 @@ class _LogInState extends State<LogIn> {
                             color: Colors.blue[600],
                           ),
                         ),
-                      ),
-                      Container(
-                        alignment: Alignment.center,
-                        child: FlatButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Forget password ?',
-                            style: TextStyle(color: Colors.blue[600]),
+                        Container(
+                          alignment: Alignment.center,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Forget password ?',
+                              style: TextStyle(color: Colors.blue[600]),
+                            ),
                           ),
                         ),
-                      ),
-                      Divider(
-                        color: Colors.grey,
-                      ),
-                      Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Not a Fotone member ?'),
-                            FlatButton(
-                                padding: EdgeInsets.all(0.0),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SignUp()));
-                                },
-                                child: Text('Sign up here.',
-                                    style: TextStyle(color: Colors.blue[600])))
-                          ],
+                        Divider(
+                          color: Colors.grey,
                         ),
-                      )
-                    ],
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Not a Fotone member ?'),
+                              FlatButton(
+                                  padding: EdgeInsets.all(0.0),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SignUp()));
+                                  },
+                                  child: Text('Sign up here.',
+                                      style:
+                                          TextStyle(color: Colors.blue[600])))
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -188,6 +195,12 @@ Widget _textInput({
       color: Colors.white,
     ),
     child: TextFormField(
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Required';
+        }
+        return null;
+      },
       decoration: InputDecoration(
         hintText: hint,
         labelText: label,
@@ -202,7 +215,7 @@ Widget _textInput({
   );
 }
 
-Widget _EmailField() {
+/* Widget _EmailField() {
   return Container(
       margin: EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
@@ -223,4 +236,4 @@ Widget _EmailField() {
             }
             return null;
           }));
-}
+} */

@@ -8,6 +8,7 @@ class SignUp extends StatefulWidget {
 
 bool _secureText = true;
 String _buttonText = 'Sign up';
+final _formKey = GlobalKey<FormState>();
 
 class _SignUpState extends State<SignUp> {
   @override
@@ -60,84 +61,91 @@ class _SignUpState extends State<SignUp> {
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.only(right: 20, left: 20, top: 10),
-                  child: Column(children: <Widget>[
-                    _textInput(
-                        hint: 'First name',
-                        label: 'First name',
-                        keyboardType: TextInputType.name),
-                    _textInput(
-                        hint: 'Last name',
-                        label: 'Last name',
-                        keyboardType: TextInputType.name),
-                    _textInput(
-                        hint: 'Your age',
-                        label: 'Your age',
-                        keyboardType: TextInputType.number),
-                    _textInput(
-                        hint: 'Email address',
-                        label: 'Email address',
-                        keyboardType: TextInputType.emailAddress),
-                    _textInput(
-                        hint: 'Password',
-                        label: 'Password',
-                        keyboardType: TextInputType.visiblePassword,
-                        obscure: _secureText,
-                        suffixIcon: _secureText
-                            ? Icons.remove_red_eye_outlined
-                            : Icons.remove_red_eye,
-                        suffixIconPressed: () {
-                          setState(() {
-                            _secureText = !_secureText;
-                          });
-                        }),
-                    Container(
-                      child: RaisedButton(
-                        onPressed: () {
-                          /* Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => LogIn())); */
-                        },
-                        child: Container(
-                          child: Text(
-                            _buttonText,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          width: double.infinity,
-                          height: 25,
-                          alignment: Alignment.center,
-                        ),
-                        color: Colors.blue[600],
-                      ),
-                    ),
-                    Divider(
-                      color: Colors.grey,
-                    ),
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Already a Fotone member ?'),
-                          FlatButton(
-                              padding: EdgeInsets.all(0.0),
-                              onPressed: () {
-                                Navigator.push(
+            Form(
+              key: _formKey,
+              child: Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 20, left: 20, top: 10),
+                    child: Column(children: <Widget>[
+                      _textInput(
+                          hint: 'First name',
+                          label: 'First name',
+                          keyboardType: TextInputType.name),
+                      _textInput(
+                          hint: 'Last name',
+                          label: 'Last name',
+                          keyboardType: TextInputType.name),
+                      _textInput(
+                          hint: 'Your age',
+                          label: 'Your age',
+                          keyboardType: TextInputType.number),
+                      _textInput(
+                          hint: 'Email address',
+                          label: 'Email address',
+                          keyboardType: TextInputType.emailAddress),
+                      _textInput(
+                          hint: 'Password',
+                          label: 'Password',
+                          keyboardType: TextInputType.visiblePassword,
+                          obscure: _secureText,
+                          suffixIcon: _secureText
+                              ? Icons.remove_red_eye_outlined
+                              : Icons.remove_red_eye,
+                          suffixIconPressed: () {
+                            setState(() {
+                              _secureText = !_secureText;
+                            });
+                          }),
+                      Container(
+                        child: RaisedButton(
+                          onPressed: () {
+                            _formKey.currentState.validate()
+                                ? Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => LogIn()));
-                              },
-                              child: Text('Log in here.',
-                                  style: TextStyle(color: Colors.blue[600])))
-                        ],
+                                        builder: (context) => LogIn()))
+                                : null;
+                          },
+                          child: Container(
+                            child: Text(
+                              _buttonText,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            width: double.infinity,
+                            height: 25,
+                            alignment: Alignment.center,
+                          ),
+                          color: Colors.blue[600],
+                        ),
                       ),
-                    )
-                  ]),
+                      Divider(
+                        color: Colors.grey,
+                      ),
+                      Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Already a Flicker member ?'),
+                            FlatButton(
+                                padding: EdgeInsets.all(0.0),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LogIn()));
+                                },
+                                child: Text('Log in here.',
+                                    style: TextStyle(color: Colors.blue[600])))
+                          ],
+                        ),
+                      )
+                    ]),
+                  ),
                 ),
               ),
             ),
@@ -161,7 +169,17 @@ Widget _textInput({
     decoration: BoxDecoration(
       color: Colors.white,
     ),
-    child: TextField(
+    child: TextFormField(
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Required';
+        }
+        if (hint == 'Password' && (value.length < 12) ||
+            value.startsWith(' ')) {
+          return 'Invalid password';
+        }
+        return null;
+      },
       decoration: InputDecoration(
         hintText: hint,
         labelText: label,
