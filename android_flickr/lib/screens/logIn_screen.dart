@@ -11,6 +11,7 @@ class _LogInState extends State<LogIn> {
   bool _secureText = true;
   String _buttonText = 'Next';
   bool _rememberMe = true;
+  bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -76,19 +77,21 @@ class _LogInState extends State<LogIn> {
                           label: 'Email address',
                           keyboardType: TextInputType.emailAddress,
                         ),
-                        _textInput(
-                            hint: 'Password',
-                            label: 'Password',
-                            keyboardType: TextInputType.visiblePassword,
-                            obscure: _secureText,
-                            suffixIcon: _secureText
-                                ? Icons.remove_red_eye_outlined
-                                : Icons.remove_red_eye,
-                            suffixIconPressed: () {
-                              setState(() {
-                                _secureText = !_secureText;
-                              });
-                            }),
+                        _isEmailValidated
+                            ? _textInput(
+                                hint: 'Password',
+                                label: 'Password',
+                                keyboardType: TextInputType.visiblePassword,
+                                obscure: _secureText,
+                                suffixIcon: _secureText
+                                    ? Icons.remove_red_eye_outlined
+                                    : Icons.remove_red_eye,
+                                suffixIconPressed: () {
+                                  setState(() {
+                                    _secureText = !_secureText;
+                                  });
+                                })
+                            : Container(),
                         Row(
                           children: <Widget>[
                             Padding(padding: EdgeInsets.all(0.0)),
@@ -115,9 +118,10 @@ class _LogInState extends State<LogIn> {
                               final form = _formKey.currentState;
                               _formKey.currentState.validate();
                               setState(() {
-                                _formKey.currentState.validate()
-                                    ? _buttonText = 'Sign in'
-                                    : null;
+                                if (_formKey.currentState.validate()) {
+                                  _buttonText = 'Sign in';
+                                  _isEmailValidated = true;
+                                }
                               });
                             },
                             child: Container(

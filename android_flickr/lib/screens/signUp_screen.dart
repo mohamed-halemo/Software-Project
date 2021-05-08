@@ -174,9 +174,12 @@ Widget _textInput({
         if (value.isEmpty) {
           return 'Required';
         }
-        if (hint == 'Password' && (value.length < 12) ||
-            value.startsWith(' ')) {
+        if (hint == 'Password' &&
+            ((value.length < 12) || value.startsWith(' '))) {
           return 'Invalid password';
+        }
+        if (hint == 'Your age' && int.parse(value) > 120) {
+          return 'Invalid age';
         }
         return null;
       },
