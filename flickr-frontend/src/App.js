@@ -1,6 +1,7 @@
 // import { router } from 'json-server';
 import React from 'react';
 import {
+
   BrowserRouter as Router, Route, Switch,
 } from 'react-router-dom';
 import StartPage from './Components/StartPage/StartPage';
@@ -23,6 +24,7 @@ function App() {
       <div className="App">
         <NavBar />
         <Switch>
+
 
           <Route path="/" exact component={StartPage} title="Find your inspiration. | Flickr" />
           <Route path="/Home" exact component={Home} title="Home | Flickr" />

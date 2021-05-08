@@ -7,8 +7,9 @@
   color: none;
 }
 .globalNavBar {
+  display: flex;
   max-width: auto;
-  background-color: rgb(33, 33, 36);
+  background-color: rgba(33, 33, 36, 0.938);
   margin: 0 auto;
   position: absolute;
   top: 0;
@@ -19,8 +20,10 @@
   align-items: center;
   max-width: 80%;
   margin: 0 auto;
-  background-color: rgba(33, 33, 36,0.5);
+  /* background-color: rgba(33, 33, 36,0.5); */
   height: 50px;
+  margin-left: 30px;
+
   
 }
 .Hnavbar h1 {
@@ -44,6 +47,7 @@
   font-size: 25px;
   font-weight: bold;
   margin-left: 0;
+  padding-left: 0;
 }
 
 .Hnavbar #appName:hover {
@@ -59,10 +63,14 @@
   padding-left: 30px;
 }
 
+.HnavRight{
+  display: flex;
+}
+
 /* Nav bar Hover */
 /* Dropdown Button */
 .dropbtn {
-  background-color:rgb(33, 33, 36);
+  background-color: rgba(33, 33, 36, 0);
   color: white;
   padding: 16px 16px 10px 16px;
   font-size: 16px;
