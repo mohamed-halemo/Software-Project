@@ -9,7 +9,7 @@ const NavBar = (props) => {
   const history = useHistory();
 
   return (
-    <nav className="globalNavBar  fixed-top navbar-expand-lg navbar-light bg-dark-transparent ">
+    <nav className="navbar  fixed-top navbar-expand-lg navbar-dark bg-dark  ">
       <nav className="Hnavbar ">
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon" />

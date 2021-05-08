@@ -41,7 +41,7 @@ const Home = () => {
           ) : (
             <div className="noActivity">
               <h2 id="noActivityH">There is no activity to show right now.</h2>
-              <p>
+              <p id="noActivityP">
                 Check out the recommended photographers below
                 and start following people to see their content here.
 
