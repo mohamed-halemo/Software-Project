@@ -15,28 +15,30 @@ const Photo = ({ pCard }) => (
       <h3>{pCard.date}</h3>
       <MdMoreHoriz style={{ color: 'rgb(137, 137, 137)', marginLeft: '7px' }} />
     </div>
-    <img src={pCard.img} alt="Avatar" className="imageHome" />
-    <div className="imgOverlayHome">
-      <div className="overlayLeftContHome">
-        <Link to="/viewImage">{pCard.photoName}</Link>
+    <div className="photoCardHolder">
+      <img src={pCard.img} alt="Avatar" className="imageCompHome" />
+      <div className="imgOverlayHome">
+        <div className="overlayLeftContHome">
+          <Link className="photoNameLinkHome" to="/viewImage">{pCard.photoName}</Link>
+
+        </div>
+        <div className="overlayRightContHome" />
+        <span className="overlayFave" role="button">
+          <AiOutlineStar />
+          <span>{pCard.favoritsNum}</span>
+
+        </span>
+        <span className="overlayCommentHome" role="button">
+          <RiChat3Line />
+          <span>{pCard.commentNum}</span>
+
+        </span>
+
+        <span className="overlayAddToHome" role="button">
+          <AiOutlinePlusSquare />
+        </span>
 
       </div>
-      <div className="overlayRightContHome" />
-      <span className="overlayFave" role="button">
-        <AiOutlineStar />
-        <span>{pCard.favoritsNum}</span>
-
-      </span>
-      <span className="overlayCommentHome" role="button">
-        <RiChat3Line />
-        <span>{pCard.commentNum}</span>
-
-      </span>
-
-      <span className="overlayAddToHome" role="button">
-        <AiOutlinePlusSquare />
-      </span>
-
     </div>
 
   </div>
