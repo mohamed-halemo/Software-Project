@@ -1,12 +1,11 @@
-body {
+.StartContainer {
     background-image: url('./startpagebackground.jpg');
     background-repeat: no-repeat;
     background-position-x: center;
     background-size:100% 110%;
-    margin: 100px auto;
-    width: 1000px;
+    margin: 50px auto auto auto;
+    width: 100%;
     position: relative;
-    border-radius: 10px;
     height: 600px;
     display: grid;
     grid-template-columns: 1fr 1fr;

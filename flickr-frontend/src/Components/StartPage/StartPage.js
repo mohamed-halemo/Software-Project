@@ -6,7 +6,7 @@ function StartPage(props) {
   const history = useHistory();
   return (
 
-    <div>
+    <div className="StartContainer">
       <h1 className="h1container"> Find your inspiration. </h1>
 
       <p className="Pcontainer">

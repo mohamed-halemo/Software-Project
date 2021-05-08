@@ -10,7 +10,7 @@ const FormSignup = () => {
   } = useform(Validate);
 
   return (
-    <div>
+    <div className="formSignUpContent">
 
       <form onSubmit={handleSubmit} className="Signup-form">
         <i className="Flickr-icon" />
