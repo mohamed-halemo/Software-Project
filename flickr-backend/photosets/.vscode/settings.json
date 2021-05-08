@@ -1,0 +1,6 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.banditEnabled": false,
+    "python.linting.pylintEnabled": true,
+    "python.pythonPath": "C:\\Users\\Yumna-HP\\anaconda3\\python.exe"
+}
