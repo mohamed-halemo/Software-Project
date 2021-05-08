@@ -90,6 +90,8 @@
 /*   vertical-align: middle; */
 /* } */
 /*  */
-.row1{
+.row{
   display: flex;
 }
+ 
+ 

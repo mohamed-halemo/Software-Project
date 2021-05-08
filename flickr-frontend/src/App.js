@@ -1,34 +1,16 @@
 import './index.css';
-import React, { useEffect, Fragment } from 'react';
-import SubNav from './Components/Explore/SubNav';
-import RecentPhotos from './Components/Explore/RecentPhotos';
-import Gallery from './Components/Explore/Gallery';
+import SubNav from './Components/Explore/RecentPhotos/SubNav';
+import RecentPhotos from './Components/Explore/RecentPhotos/RecentPhotos';
+/* import ImageGrid from './Components/Explore/RecentPhotos/ImageGrid'; */
 
 function App() {
-  const fetchPhoto = async () => {
-    const res = await fetch('http://localhost:5000/data');
-    const data = await res.json();
-    return data;
-  };
-
-  useEffect(() => {
-    const getPhoto = async () => {
-      const photoFromServer = await fetchPhoto();
-      getPhotoData(photoFromServer);
-    };
-  });
-
   return (
 
     <div className="App">
       <SubNav />
       <div>
         <RecentPhotos />
-        <>
-          <div className="gallery">
-            <Gallery imgarr={fetchPhoto} />
-          </div>
-        </>
+        {/* <ImageGrid /> */}
       </div>
 
     </div>

@@ -5,7 +5,7 @@ const SubNav = () => (
   <div className="subNavbar">
     <div className="scrollingLayout">
       <div>
-        <div className="container">
+        <div className="continer">
           <div>
             <a className="selectedLink" href="/"> Explore </a>
             {' '}
