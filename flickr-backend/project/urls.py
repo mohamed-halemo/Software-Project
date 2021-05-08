@@ -47,7 +47,7 @@ urlpatterns = [
     path('profiles/', include('profiles.urls', namespace='profiles')),
     
     path('photos/', include('photo.urls', namespace='photos')),
-
+    path('photosets/', include('photosets.urls', namespace='photosets')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

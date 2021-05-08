@@ -54,9 +54,9 @@ class Photo(models.Model):
     last_update = models.DateTimeField(auto_now=True)
 
     # Stats
-    views = models.PositiveBigIntegerField(default=0)
-    comments = models.PositiveBigIntegerField(default=0)
-    favourites = models.PositiveBigIntegerField(default=0)
+    views = models.PositiveIntegerField(default=0) #big
+    comments = models.PositiveIntegerField(default=0) #big 
+    favourites = models.PositiveIntegerField(default=0) #big
 
     # Tags & People Tagged Info
     count_tags = models.PositiveIntegerField(default=0)

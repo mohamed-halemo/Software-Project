@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'photo',
     'django_filters',
     'django_google_maps',
+    'photosets',
 ]
 
 SIMPLE_JWT = {
@@ -110,7 +111,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'Flickr',
+        'NAME': 'db',
     }
 }
 
