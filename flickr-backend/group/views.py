@@ -57,7 +57,7 @@ def topic(request, group_id):
             group_obj.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+#yomaaaaaaaaaaaaaaaaaa
     elif request.method == 'GET':
 
         paginator = PageNumberPagination()
