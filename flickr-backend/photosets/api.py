@@ -46,8 +46,9 @@ def get_lists(request, id):
     photosets = sets_serializer(results, many=True).data
     return Paginator.get_paginated_response({'photosets': photosets})
 
-@permission_classes((IsAuthenticated,))
+
 @api_view(['POST'])   
+@permission_classes((IsAuthenticated,))
 def create_set(request):
     if request.method == 'POST':
         serializer = sets_serializer(data=request.data)

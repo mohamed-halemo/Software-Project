@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_google_maps',
     'photosets',
+    'group',
 ]
 
 SIMPLE_JWT = {

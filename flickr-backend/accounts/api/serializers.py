@@ -84,24 +84,17 @@ class SetNewPasswordSerializer(serializers.Serializer):
     def validate(self, attrs):
         try:
             password = attrs.get('password')
-            print('AAAAA')
             token = attrs.get('token')
             uidb64 = attrs.get('uidb64')
-            print('BBBBB')
 
             id = force_str(urlsafe_base64_decode(uidb64))
-            print('hhhhh')
 
             user = Account.objects.get(id=id)
-            print('FFFF')
             print(user, token)
             if not PasswordResetTokenGenerator().check_token(user, token):
-                print("hohohohoho")
-                raise AuthenticationFailed('The sreset link is invalid.', 401)
-            print('CCCCCC')
+                raise AuthenticationFailed('The reset link is invalid.', 401)
             user.set_password(password)
             user.save()
-            print('DDDDDDDDD')
             return (user)
         except Exception as e:
-            raise AuthenticationFailed('The reset link is invalid yo.', 401)
+            raise AuthenticationFailed('The reset link is invalid.', 401)

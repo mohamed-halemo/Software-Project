@@ -48,6 +48,8 @@ urlpatterns = [
     
     path('photos/', include('photo.urls', namespace='photos')),
     path('photosets/', include('photosets.urls', namespace='photosets')),
+    path('group/', include('group.urls', namespace='group')),
+    
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
