@@ -1,9 +1,5 @@
-// import { router } from 'json-server';
 import React from 'react';
-import {
-
-  BrowserRouter as Router, Route, Switch,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import StartPage from './Components/StartPage/StartPage';
 import FormSignup from './Components/StartPage/SingUP/FormSignup';
 // import './App.css';
@@ -11,12 +7,9 @@ import FormSignup from './Components/StartPage/SingUP/FormSignup';
 import Home from './Components/HomePage/Home';
 import NavBar from './Components/NavBar/NavBar';
 import About from './Components/NavBar/About';
-import Footer from './Components/Footer/Footer';
+// import Footer from './Components/Footer/Footer';
 import Profile from './Components/Profile/Profile';
 import Groups from './Components/Groups/Groups';
-// import Home from './Components/HomePage/Home';
-// import NavBar from './Components/NavBar/NavBar';
-// import Button from "react-bootstrap/Button";
 
 function App() {
   return (

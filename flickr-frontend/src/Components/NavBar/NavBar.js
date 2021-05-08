@@ -5,6 +5,7 @@ import { useHistory, Link } from 'react-router-dom';
 
 import './NavBar.css';
 
+// eslint-disable-next-line no-unused-vars
 const NavBar = (props) => {
   const history = useHistory();
 
@@ -59,7 +60,7 @@ const NavBar = (props) => {
             </div>
 
             <div className="dropdown">
-              <button className="dropbtn" type="button" onClick={() => history.push('/group')}>Prints</button>
+              <button className="dropbtn" type="button" onClick={() => history.push('/prints')}>Prints</button>
               <div className="dropdown-content">
                 <a href="/">Prints &amp; Wall Art</a>
                 <a href="/">Photo Books</a>

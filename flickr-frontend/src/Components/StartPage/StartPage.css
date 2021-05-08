@@ -6,7 +6,7 @@
     margin: auto auto auto auto;
     width: 100%;
     position: relative;
-    height: 600px;
+    height: 700px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-content: center;
