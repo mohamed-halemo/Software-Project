@@ -53,6 +53,7 @@ class LogInSerializer(serializers.ModelSerializer):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
         user = auth.authenticate(email=email, password=password)
+        
         if not user:
             raise AuthenticationFailed('Invalid credential, try again')
         if not user.is_active:
