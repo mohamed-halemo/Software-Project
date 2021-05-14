@@ -1,5 +1,8 @@
 from django.urls import path
 from .api.views import *
+from rest_framework_simplejwt.views import TokenRefreshView
+
+
 app_name = 'accounts'
 
 urlpatterns = [
@@ -12,4 +15,6 @@ urlpatterns = [
          name="password-reset-confirm"),
     path('password-reset-complete/', SetNewPassword.as_view(),
          name="password-reset-complete"),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]
