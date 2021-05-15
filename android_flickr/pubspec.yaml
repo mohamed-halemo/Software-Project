@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_swiper: ^1.1.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -32,7 +33,7 @@ dependencies:
   image_picker: ^0.7.4
   path: ^1.8.0
   path_provider: ^2.0.1
-  photo_manager: ^1.1.6
+  photo_manager: ^1.1.4
   # adv_camera: ^2.0.0+1-nullsafety
   camerawesome: ^0.2.2
   # gallery_saver: ^2.1.0
@@ -61,9 +62,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
+    # - assets/images/GetStartedScreens/GetStartedScreenSlide2.png
+    # - assets/images/GetStartedScreens/GetStartedScreenSlide3.png
+    # - assets/images/GetStartedScreens/GetStartedScreenSlide4.png
+    # - assets/images/GetStartedScreens/GetStartedScreenSlide1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -82,11 +86,11 @@ flutter:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
-  #   - family: Trajan Pro
+  # - family: Trajan Pro
+  # fonts:
+  #   - family:  MyFlutterApp
   #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  #      - asset: android_flickr/fonts/MyFlutterApp.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
