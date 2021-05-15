@@ -1,3 +1,10 @@
+import 'package:android_flickr/providers/flickr_posts.dart';
+import 'package:android_flickr/screens/click_on_image_screen.dart';
+import 'package:android_flickr/screens/explore_screen.dart';
+import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
+import 'package:android_flickr/screens/get_started_page_screen.dart';
+import 'package:android_flickr/screens/splash_screen.dart';
+//import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -102,6 +109,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+        home: FlickrSplashScreen(
+          FlickrCameraScreen(),
+        ),
+        routes: {
+          ExploreScreen.routeName: (ctx) => ExploreScreen(),
+          ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),
+          GetStartedScreen.routeName: (ctx) => GetStartedScreen(),
+          //FlickrSplashScreen.routeName: (ctx) => FlickrSplashScreen(),
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
