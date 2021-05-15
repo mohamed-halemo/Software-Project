@@ -1,39 +1,68 @@
+//out of the box imports
 import 'dart:io';
 import 'dart:typed_data';
+//packages and Plugins
 
-import 'package:android_flickr/screens/PhotoUploadScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:circle_list/circle_list.dart';
 import 'package:photo_gallery/photo_gallery.dart';
-
 import 'package:bitmap/bitmap.dart';
-import 'dart:math';
 
-// import 'package:fab_circular_menu/fab_circular_menu.dart';
-// import '../icons/my_flutter_app_icons.dart' as myIcons;
-enum BrushMode {
-  Saturation,
-  Exposure,
-  Contrast,
-  Brightness,
-  Crop,
-  Rotate,
-}
+//Personal Imports
+import 'package:android_flickr/screens/PhotoUploadScreen.dart';
+import 'package:android_flickr/Enums/enums.dart';
+import '../Classes/switch_Case_Helper.dart';
 
+///Photo Editing Screen, Can be Opened after taking a picture using the Camera Screen
+///or can be opened from the Photo Screen using the Edit photo button.
 class PhotoEditScreen extends StatefulWidget {
+  ///Path and name of the image
   final imagePath;
+
+  ///Constructs the photo edit screen settting the imagePath variable.
   PhotoEditScreen(this.imagePath);
   @override
   _PhotoEditScreenState createState() => _PhotoEditScreenState();
 }
 
 class _PhotoEditScreenState extends State<PhotoEditScreen> {
+  ///Holds a bitmap of the chosen or Captured image.
   Bitmap imageBitMap;
+
+  ///Used to display the changes to the user, without overwriting the orignal bitmap.
   Bitmap editedBitMap;
+
+  ///Used to display the image on the screen after converting it from [Bitmap] to [Uint8List]
   Uint8List headedBitMap;
+
+  ///A list of Albums on the phone, used to Load the to be edited image.
   List<Album> imageAlbums;
 
+  /// is the user editing with brush or filters?
+  ///if editing, what is the edit mode? -1: Brush , 0: Not Editing , 1: Filters
+  int editMode = 0;
+
+  ///Drag angle of the list wheel
+  double dragAngel;
+
+  ///Slider Value of some editing modes
+  double sliderValue;
+
+  ///The Editing mode state variable
+  BrushMode brushMode;
+
+  ///An intiger that counts how many changes has occured due to rotating the wheel
+  int brushModeChangeOnAngleUpdate;
+
+  ///A double that keeps track of how far the wheel has rotated
+  double totalAngleOfRotation;
+
+  ///A double that holds the last angle of the wheel, subtract from drag angle and get absolute
+  ///to get total angle of rotation
+  double oldAngel;
+
+  ///Initialize State variables and hide notifications panel then Load the image
   @override
   void initState() {
     super.initState();
@@ -42,12 +71,14 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     oldAngel = 0;
     dragAngel = 0;
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    sliderValue = 0.5;
+    imageAlbums = [];
     initImage();
   }
 
+  ///clear previous cache and load image as a file from [Pictures] folder then
+  ///convert it into a [Bitmap] and build a headed [Uint8List] from this map.
   initImage() async {
-    sliderValue = 0.5;
-    imageAlbums = [];
     await PhotoGallery.cleanCache();
     imageAlbums = await PhotoGallery.listAlbums(
       hideIfEmpty: true,
@@ -72,16 +103,6 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
       headedBitMap = imageBitMap.buildHeaded();
     });
   }
-
-  // is the user editing with brush or filters?
-  //if editing, whats edit mode? -1: Brush , 0: Not Editing , 1: Filters
-  int editMode = 0;
-  double dragAngel;
-  double sliderValue;
-  BrushMode brushMode;
-  int brushModeChangeOnAngleUpdate;
-  double totalAngleOfRotation;
-  double oldAngel;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +157,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                               (index) => Container(
                                     width: 100,
                                     height: 50,
-                                    child: getIcon(index, true),
+                                    child:
+                                        SwitchCaseHelper.getIcon(index, true),
                                   )),
                           centerWidget: GestureDetector(
                             onTap: () {
@@ -213,7 +235,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                               (index) => Container(
                                     width: 100,
                                     height: 50,
-                                    child: getIcon(6 - index, true),
+                                    child: SwitchCaseHelper.getIcon(
+                                        6 - index, true),
                                   )),
                           centerWidget: GestureDetector(
                             onTap: () {
@@ -266,7 +289,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                             ),
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: getIcon(brushMode.index, false),
+                              child: SwitchCaseHelper.getIcon(
+                                  brushMode.index, false),
                             ),
                           ),
                           brushMode == BrushMode.Crop ||
@@ -307,6 +331,10 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     );
   }
 
+  ///Returns a Row of Icons Depending on the edit mode, if Crop, return crop options,
+  ///if Rotate, return rotation arrows.
+  //
+  //Crop was dropped in phase 3 as a part of the dropped 50%
   Widget getRotateOrCrop() {
     Bitmap editedBitmap = imageBitMap;
     return brushMode == BrushMode.Rotate
@@ -369,6 +397,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           );
   }
 
+  ///Set the brushMode state variable depending on the Angle of rotation of the
+  ///List wheel.
   void setBrushState(double angle) {
     if ((angle).abs() >= 0 && (angle).abs() <= 0.1) {
       setState(() {
@@ -409,6 +439,9 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     }
   }
 
+  ///Apply changes the user wants on the Bitmap and update the displayed headed bitmap accordingly.
+  ///The method Takes [brushMode] as a parameter and uses the local [sliderValue] variable
+  /// as enhancment factor for the image.
   void applyChanges(BrushMode burshMode) {
     switch (brushMode) {
       case BrushMode.Saturation:
@@ -450,166 +483,6 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         setState(() {
           headedBitMap = editedBitMap.buildHeaded();
         });
-    }
-  }
-
-  Widget getIcon(int i, bool isIcon) {
-    switch (i) {
-      //Saturation
-      case 0:
-        return isIcon
-            ? Row(mainAxisSize: MainAxisSize.max, children: [
-                Expanded(
-                  child: CircleAvatar(
-                    backgroundColor: Colors.cyan,
-                    radius: 40,
-                    child: Icon(
-                      Icons.flip_outlined,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                ),
-                Text(
-                  'Saturation',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Saturation',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Exposure
-      case 1:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.exposure,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Exposure',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Exposure',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Contrast
-      case 2:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.brightness_medium_rounded,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Contrast',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Contrast',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Brightness
-      case 3:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.wb_sunny_outlined,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Brightness',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Brightness',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Crop
-      case 4:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.crop,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Crop',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Crop',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Rotate
-      case 5:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.rotate_left,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Rotate',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Rotate',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Saturation
-
-      default:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.flip_outlined,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Saturation',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ])
-            : Text(
-                'Saturation',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
     }
   }
 }
