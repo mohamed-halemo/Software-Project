@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 from pathlib import Path
-import datetime
+import datetime,os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'demo1',
+        'NAME': 'demo3',
     }
 }
 
@@ -173,11 +173,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 GOOGLE_MAPS_API_KEY = 'AIzaSyA3cBIV6ygzdx68f1N3ZjeznbbdA6Tr7ao'
-
+# print(os.environ)
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'mohammed99kamel@gmail.com'
-EMAIL_HOST_PASSWORD = 'qflxdbmyyzuzmiql'
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER='mohammed99kamel@gmail.com'
+EMAIL_HOST_PASSWORD='qflxdbmyyzuzmiql'
+SECRET_KEY='111111111'
