@@ -1,8 +1,10 @@
+//out of the box imports
 import 'package:flutter/material.dart';
-import 'package:bitmap/bitmap.dart';
 import 'dart:typed_data';
 
+//Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
+  /// The headedBitmap from the Photo edit screen is passed to this widget through the constructor
   final Uint8List headedBitmap;
   PhotoUploadScreen(this.headedBitmap);
   @override
