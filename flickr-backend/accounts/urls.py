@@ -11,6 +11,7 @@ urlpatterns = [
     path('password-reset-email', RequestPasswordResetEmail.as_view(),
          name="reset=pass"),
     path('login/', LoginView.as_view(), name="login"),
+    path('logout/', LogoutView.as_view(), name="logout"),
     path('password-reset/<uidb64>/<token>/', PasswordTokenCheck.as_view(),
          name="password-reset-confirm"),
     path('password-reset-complete/', SetNewPassword.as_view(),
