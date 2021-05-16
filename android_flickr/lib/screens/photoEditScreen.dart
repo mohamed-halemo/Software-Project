@@ -49,6 +49,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   ///Slider Value of some editing modes
   double sliderValue;
 
+  List<double> sliderValueList;
+
   ///The Editing mode state variable
   BrushMode brushMode;
 
@@ -62,6 +64,8 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   ///to get total angle of rotation
   double oldAngel;
 
+  bool resetAllEnabler = false;
+
   ///Initialize State variables and hide notifications panel then Load the image
   @override
   void initState() {
@@ -72,6 +76,12 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     dragAngel = 0;
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     sliderValue = 0.5;
+    sliderValueList = [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+    ];
     imageAlbums = [];
     initImage();
     setState(() {});
@@ -143,6 +153,32 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
               ),
               alignment: Alignment.topRight,
             ),
+            resetAllEnabler
+                ? Align(
+                    child: GestureDetector(
+                      onTap: () {
+                        for (var i = 0; i < sliderValueList.length; i++) {
+                          sliderValueList[i] = 0.5;
+                        }
+                        setState(() {
+                          applyChanges(brushMode);
+                          resetAllEnabler = false;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          'Reset All',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    alignment: Alignment.topLeft,
+                  )
+                : Container(),
             editMode == 1
                 ? OverflowBox(
                     child: Padding(
@@ -215,7 +251,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                           ),
                           initialAngle: 0,
                           onDragStart: (_) {
-                            imageBitMap = editedBitMap;
+                            // imageBitMap = editedBitMap;
                             oldAngel = 0;
                             dragAngel = 0;
                           },
@@ -307,19 +343,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                                       overlayRadius: 0,
                                     ),
                                   ),
-                                  child: Slider(
-                                    value: sliderValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        sliderValue = value;
-                                      });
-                                    },
-                                    onChangeEnd: (value) {
-                                      applyChanges(brushMode);
-                                    },
-                                    activeColor: Colors.white,
-                                    inactiveColor: Colors.grey,
-                                  ),
+                                  child: getSlider(),
                                 ),
                         ],
                       ),
@@ -330,6 +354,90 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         ),
       ),
     );
+  }
+
+  Widget getSlider() {
+    resetAllEnabler = false;
+    for (var i = 0; i < sliderValueList.length; i++) {
+      if (sliderValueList[i] != 0.5) {
+        resetAllEnabler = true;
+
+        break;
+      }
+    }
+    switch (brushMode) {
+      case BrushMode.Saturation:
+        return Slider(
+          value: sliderValueList[0],
+          onChanged: (value) {
+            setState(() {
+              sliderValueList[0] = value;
+            });
+          },
+          onChangeEnd: (value) {
+            applyChanges(brushMode);
+          },
+          activeColor: Colors.white,
+          inactiveColor: Colors.grey,
+        );
+      case BrushMode.Exposure:
+        return Slider(
+          value: sliderValueList[1],
+          onChanged: (value) {
+            setState(() {
+              sliderValueList[1] = value;
+            });
+          },
+          onChangeEnd: (value) {
+            applyChanges(brushMode);
+          },
+          activeColor: Colors.white,
+          inactiveColor: Colors.grey,
+        );
+      case BrushMode.Contrast:
+        return Slider(
+          value: sliderValueList[2],
+          onChanged: (value) {
+            setState(() {
+              sliderValueList[2] = value;
+            });
+          },
+          onChangeEnd: (value) {
+            applyChanges(brushMode);
+          },
+          activeColor: Colors.white,
+          inactiveColor: Colors.grey,
+        );
+      case BrushMode.Brightness:
+        return Slider(
+          value: sliderValueList[3],
+          onChanged: (value) {
+            setState(() {
+              sliderValueList[3] = value;
+            });
+          },
+          onChangeEnd: (value) {
+            applyChanges(brushMode);
+          },
+          activeColor: Colors.white,
+          inactiveColor: Colors.grey,
+        );
+
+      default:
+        return Slider(
+          value: sliderValueList[0],
+          onChanged: (value) {
+            setState(() {
+              sliderValueList[0] = value;
+            });
+          },
+          onChangeEnd: (value) {
+            applyChanges(brushMode);
+          },
+          activeColor: Colors.white,
+          inactiveColor: Colors.grey,
+        );
+    }
   }
 
   ///Returns a Row of Icons Depending on the edit mode, if Crop, return crop options,
@@ -404,38 +512,32 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     if ((angle).abs() >= 0 && (angle).abs() <= 0.1) {
       setState(() {
         brushMode = BrushMode.Saturation;
-        sliderValue = 0.5;
       });
     }
 
     if ((angle).abs() >= 0.95 && (angle).abs() <= 1.1) {
       setState(() {
         brushMode = BrushMode.Exposure;
-        sliderValue = 0.5;
       });
     }
     if ((angle).abs() >= 1.9 && (angle).abs() <= 2.2) {
       setState(() {
         brushMode = BrushMode.Contrast;
-        sliderValue = 0.5;
       });
     }
     if ((angle).abs() >= 3 && (angle).abs() <= 3.3) {
       setState(() {
         brushMode = BrushMode.Brightness;
-        sliderValue = 0.5;
       });
     }
     if ((angle).abs() >= 4.15 && (angle).abs() <= 4.3) {
       setState(() {
         brushMode = BrushMode.Crop;
-        sliderValue = 0.5;
       });
     }
     if ((angle).abs() >= 5.2 && (angle).abs() <= 5.3) {
       setState(() {
         brushMode = BrushMode.Rotate;
-        sliderValue = 0.5;
       });
     }
   }
@@ -447,46 +549,20 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     if (imageBitMap == null) {
       await initImage();
     }
-    switch (brushMode) {
-      case BrushMode.Saturation:
-        editedBitMap = imageBitMap.apply(
-          BitmapAdjustColor(saturation: sliderValue * 2),
-        );
-        setState(() {
-          headedBitMap = editedBitMap.buildHeaded();
-        });
-        break;
-      case BrushMode.Exposure:
-        editedBitMap = imageBitMap.apply(
-          BitmapAdjustColor(exposure: sliderValue * 4 - 2),
-        );
-        setState(() {
-          headedBitMap = editedBitMap.buildHeaded();
-        });
-        break;
-      case BrushMode.Contrast:
-        editedBitMap = imageBitMap.apply(
-          BitmapContrast(sliderValue * 2),
-        );
-        setState(() {
-          headedBitMap = editedBitMap.buildHeaded();
-        });
-        break;
-      case BrushMode.Brightness:
-        editedBitMap = imageBitMap.apply(
-          BitmapBrightness(sliderValue - 0.5),
-        );
-        setState(() {
-          headedBitMap = editedBitMap.buildHeaded();
-        });
-        break;
-      default:
-        editedBitMap = imageBitMap.apply(
-          BitmapAdjustColor(saturation: sliderValue),
-        );
-        setState(() {
-          headedBitMap = editedBitMap.buildHeaded();
-        });
-    }
+    editedBitMap = imageBitMap.apply(
+      BitmapAdjustColor(saturation: sliderValueList[0] * 2),
+    );
+    editedBitMap = editedBitMap.apply(
+      BitmapAdjustColor(exposure: sliderValueList[1] * 4 - 2),
+    );
+    editedBitMap = editedBitMap.apply(
+      BitmapContrast(sliderValueList[2] * 2),
+    );
+    editedBitMap = editedBitMap.apply(
+      BitmapBrightness(sliderValueList[3] - 0.5),
+    );
+    setState(() {
+      headedBitMap = editedBitMap.buildHeaded();
+    });
   }
 }

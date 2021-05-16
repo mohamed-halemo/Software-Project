@@ -132,7 +132,10 @@ class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
 
   Widget getThumbnails(int index) {
     try {
-      return Image.file(thumbnailData[index]);
+      return Image.file(
+        thumbnailData[index],
+        fit: BoxFit.cover,
+      );
     } catch (e) {}
     return Container();
   }
