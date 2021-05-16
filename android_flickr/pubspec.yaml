@@ -52,6 +52,7 @@ dependencies:
   circle_list: ^1.0.4
   fab_circular_menu: ^1.0.2
   bitmap: ^0.1.2
+  image: ^2.1.19
 
 # dependency_overrides:
   # flutter_svg: ^0.18.0

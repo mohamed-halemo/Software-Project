@@ -33,6 +33,10 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   ///Used to display the changes to the user, without overwriting the orignal bitmap.
   Bitmap editedBitMap;
 
+  /// 0 = no rotation, 1 = clock wise, -1 = anti clock wise, 2 or -2 = 180 degrees
+  int rotationApplied = 0;
+  int actualRotationApplied = 0;
+
   ///Used to display the image on the screen after converting it from [Bitmap] to [Uint8List]
   Uint8List headedBitMap;
 
@@ -137,11 +141,18 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
             Align(
               child: GestureDetector(
                 onTap: () {
+                  if (editedBitMap == null) {
+                    editedBitMap = imageBitMap;
+                  }
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              PhotoUploadScreen(headedBitMap)));
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => PhotoUploadScreen(
+                        headedBitMap,
+                        editedBitMap,
+                      ),
+                    ),
+                  );
                 },
                 child: Text(
                   'Next',
@@ -160,6 +171,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                         for (var i = 0; i < sliderValueList.length; i++) {
                           sliderValueList[i] = 0.5;
                         }
+                        rotationApplied = 0;
                         setState(() {
                           applyChanges(brushMode);
                           resetAllEnabler = false;
@@ -456,12 +468,24 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    editedBitmap = imageBitMap.apply(
+                    editedBitmap = editedBitmap.apply(
                       BitmapRotate.rotateCounterClockwise(),
                     );
+
+                    rotationApplied--;
+                    if (rotationApplied == -3) {
+                      rotationApplied = 1;
+                    }
+                    actualRotationApplied = rotationApplied;
                     setState(() {
+                      if (actualRotationApplied != 0) {
+                        resetAllEnabler = true;
+                      } else {
+                        resetAllEnabler = false;
+                      }
                       headedBitMap = editedBitmap.buildHeaded();
                       imageBitMap = editedBitmap;
+                      applyChanges(brushMode);
                     });
                   }),
               SizedBox(
@@ -473,12 +497,23 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    editedBitmap = imageBitMap.apply(
+                    editedBitmap = editedBitmap.apply(
                       BitmapRotate.rotateClockwise(),
                     );
+                    rotationApplied++;
+                    if (rotationApplied == 3) {
+                      rotationApplied = -1;
+                    }
+                    actualRotationApplied = rotationApplied;
                     setState(() {
+                      if (actualRotationApplied != 0) {
+                        resetAllEnabler = true;
+                      } else {
+                        resetAllEnabler = false;
+                      }
                       headedBitMap = editedBitmap.buildHeaded();
                       imageBitMap = editedBitmap;
+                      applyChanges(brushMode);
                     });
                   }),
             ],
@@ -549,6 +584,27 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     if (imageBitMap == null) {
       await initImage();
     }
+    if (rotationApplied == 0 && rotationApplied != actualRotationApplied) {
+      switch (actualRotationApplied) {
+        case 1:
+          imageBitMap =
+              imageBitMap.apply(BitmapRotate.rotateCounterClockwise());
+          break;
+        case -1:
+          imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
+          break;
+        case 2:
+          imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
+          imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
+          break;
+        case -2:
+          imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
+          imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
+          break;
+        default:
+      }
+      actualRotationApplied = 0;
+    }
     editedBitMap = imageBitMap.apply(
       BitmapAdjustColor(saturation: sliderValueList[0] * 2),
     );
@@ -561,6 +617,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     editedBitMap = editedBitMap.apply(
       BitmapBrightness(sliderValueList[3] - 0.5),
     );
+
     setState(() {
       headedBitMap = editedBitMap.buildHeaded();
     });
