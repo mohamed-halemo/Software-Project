@@ -17,8 +17,13 @@ class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
   List<File> thumbnailData = [];
 
   Future initAlbum() async {
-    await widget._album.listMedia().then((value) async {
-      for (var i = 0; i < widget._album.count; i++) {
+    await widget._album
+        .listMedia(
+      newest: true,
+      skip: 0,
+    )
+        .then((value) async {
+      for (var i = widget._album.count - 1; i > -1; i--) {
         // value.items[i].getThumbnail().then((value) {
         //   thumbnailData.add(value);
         // });

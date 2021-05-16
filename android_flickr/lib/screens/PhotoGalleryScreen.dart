@@ -59,6 +59,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
         width: 70,
         highQuality: true,
         albumId: gallery[i].id,
+        mediumType: MediumType.image,
       ).then((value) => albumThumbnailData.add(value));
       folderCount++;
     }
