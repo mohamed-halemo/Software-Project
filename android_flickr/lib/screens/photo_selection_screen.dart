@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 
@@ -12,23 +14,29 @@ class PhotoSelectionScreen extends StatefulWidget {
 
 class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
   int selected = 0;
-  List<List<int>> thumbnailData = [];
+  List<File> thumbnailData = [];
 
   Future initAlbum() async {
-    for (var i = 0; i < widget._album.count; i++) {
-      await widget._album.listMedia().then((value) async {
-        await value.items[i].getThumbnail().then((value) {
-          thumbnailData.add(value);
+    await widget._album.listMedia().then((value) async {
+      for (var i = 0; i < widget._album.count; i++) {
+        // value.items[i].getThumbnail().then((value) {
+        //   thumbnailData.add(value);
+        // });
+        await value.items[i].getFile().then((value) {
+          setState(() {
+            thumbnailData.add(value);
+          });
         });
-      });
-    }
+      }
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    initAlbum();
-    setState(() {});
+    initAlbum().then((value) {
+      setState(() {});
+    });
   }
 
   @override
@@ -101,10 +109,14 @@ class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
                   itemCount: widget._album.count,
                   itemBuilder: (context, index) {
                     return Container(
-                        child: getThumbnails(index),
+                        child: GestureDetector(
+                          onTap: () {
+                            pushEditScreen(index);
+                          },
+                          child: getThumbnails(index),
+                        ),
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Colors.white,
                           border: Border.all(
                             width: 2,
                             color: Colors.black,
@@ -118,11 +130,27 @@ class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     );
   }
 
-  Image getThumbnails(int index) {
-    return Image.memory(
-      Uint8List.fromList(
-        thumbnailData[index],
-      ),
+  Widget getThumbnails(int index) {
+    try {
+      return Image.file(thumbnailData[index]);
+    } catch (e) {}
+    return Container();
+  }
+
+  void pushEditScreen(int index) async {
+    String imagePath;
+    await widget._album.listMedia().then(
+      (value) {
+        value.items[index].getFile().then((value) {
+          imagePath = value.path;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => PhotoEditScreen(imagePath),
+            ),
+          );
+        });
+      },
     );
   }
 }

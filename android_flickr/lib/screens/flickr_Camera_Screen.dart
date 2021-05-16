@@ -406,16 +406,20 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
         await Directory('${tempDir.path}/test').create(recursive: true);
     final String filePath =
         '${imageDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await _pictureController.takePicture(filePath);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => PhotoEditScreen(filePath)));
-    if (filePath != null) {
-      final result = await ImageGallerySaver.saveFile(filePath);
-      print(result);
-    } else {
-      print('Null path');
-    }
+    await _pictureController.takePicture(filePath).then(
+          (value) => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => PhotoEditScreen(filePath),
+            ),
+          ),
+        );
+
+    // if (filePath != null) {
+    //   final result = await ImageGallerySaver.saveFile(filePath);
+    //   print(result);
+    // } else {
+    //   print('Null path');
+    // }
   }
 }
