@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//ignore: must_be_immutable
 class AddTagsScreen extends StatefulWidget {
   List<String> tags;
   AddTagsScreen(this.tags);
@@ -32,7 +33,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
         leading: IconButton(
           icon: Icon(Icons.keyboard_backspace_rounded),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(widget.tags);
           },
         ),
         title: Text('Add/remove tags'),
@@ -53,7 +54,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.of(context).pop(widget.tags);
                   },
                   child: Text(
                     'Done',
@@ -114,7 +115,9 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height -
+                  AppBar().preferredSize.height -
+                  50,
               child: ListView.builder(
                 itemCount: widget.tags.length,
                 itemBuilder: (context, index) {

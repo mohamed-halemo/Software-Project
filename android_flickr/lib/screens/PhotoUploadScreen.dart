@@ -128,11 +128,13 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   MaterialPageRoute(
                     builder: (BuildContext context) => AddTagsScreen(tags),
                   ),
-                );
+                ).then((value) {
+                  setState(() {});
+                });
               },
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Icon(
                     Icons.label_outlined,
@@ -141,12 +143,21 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   SizedBox(
                     width: 10,
                   ),
-                  Text('Tags'),
+                  getTagsText(),
+                  Icon(
+                    Icons.edit,
+                    color: Colors.black,
+                    size: 15,
+                  ),
                 ],
               ),
             ),
             SizedBox(
-              height: 30,
+              height: 10,
+            ),
+            Divider(),
+            SizedBox(
+              height: 20,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -162,6 +173,27 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget getTagsText() {
+    if (tags.isEmpty) {
+      return Text('Tags');
+    }
+    String text = '';
+    for (var i = 0; i < tags.length; i++) {
+      text.isEmpty ? text = tags[i] : text = text + ', ' + tags[i];
+    }
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 18,
         ),
       ),
     );
