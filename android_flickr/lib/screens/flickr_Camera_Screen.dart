@@ -9,7 +9,6 @@ import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import './PhotoGalleryScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
