@@ -55,6 +55,7 @@ dependencies:
   image: ^2.1.19
   circle_wheel_scroll: ^0.0.1+1
   photo_view: ^0.11.1
+  o_popup: ^1.0.0
 
 # dependency_overrides:
   # flutter_svg: ^0.18.0

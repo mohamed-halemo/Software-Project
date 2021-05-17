@@ -1,5 +1,6 @@
 //out of the box imports
 
+import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:typed_data' as typedData;
@@ -23,6 +24,8 @@ class PhotoUploadScreen extends StatefulWidget {
 }
 
 class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
+  List<String> tags = [];
+
   @override
   dispose() {
     SystemChrome.setPreferredOrientations([
@@ -116,55 +119,34 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 30,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text('Location'),
-              ],
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.filter_none_rounded,
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text('Album'),
-              ],
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => AddTagsScreen(tags),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.label_outlined,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text('Tags'),
+                ],
+              ),
             ),
             SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.label_outlined,
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text('Tags'),
-              ],
-            ),
-            SizedBox(
-              height: 15,
+              height: 30,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
