@@ -1,24 +1,23 @@
+// Out of the box imports
 import 'dart:io';
 import 'dart:math';
 
-import 'package:android_flickr/screens/photoEditScreen.dart';
+//packages and Plugins
 import 'package:camerawesome/models/orientations.dart';
 import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
-// import 'package:gallery_saver/gallery_saver.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-
 import './PhotoGalleryScreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-enum UserFlashMode {
-  always,
-  auto,
-  never,
-}
+//Personal Imports
+import 'package:android_flickr/screens/photoEditScreen.dart';
+import 'package:android_flickr/Enums/enums.dart';
+import 'package:android_flickr/Classes/switch_Case_Helper.dart';
+
+///Flash mode Enum, [always] On , [auto] use, [never] use.
 
 ///Main Camera View where users take images or videos,
 ///Its a widget that occupies the full screen.
@@ -29,42 +28,49 @@ class FlickrCameraScreen extends StatefulWidget {
 
 class _FlickrCameraScreen extends State<FlickrCameraScreen>
     with TickerProviderStateMixin {
-  //Camera Notifiers.
+  ///Camera Notifiers.
 
-  //flash mode notifier, accepts CameraFlashes ENUM.
+  ///flash mode notifier, accepts CameraFlashes ENUM.
   ValueNotifier<CameraFlashes> _switchFlash = ValueNotifier(CameraFlashes.NONE);
-  //current sensor notifiers, back or front, accepts Sensors ENUM.
+
+  ///current sensor notifiers, back or front, accepts Sensors ENUM.
   ValueNotifier<Sensors> _sensor = ValueNotifier(Sensors.BACK);
-  //Capture mode notifier, Photo or video, accepts CaptureModes ENUM.
+  ////Capture mode notifier, Photo or video, accepts CaptureModes ENUM.
   ValueNotifier<CaptureModes> _captureMode = ValueNotifier(CaptureModes.PHOTO);
-  //photo resultion notifier, Accepts a size (width, height).
+
+  ///photo resultion notifier, Accepts a size (width, height).
   ValueNotifier<Size> _photoSize = ValueNotifier(Size(3840, 2160));
-  //zoom level notifier, accepts a double between 0 and 1.
+
+  ///zoom level notifier, accepts a double between 0 and 1.
   ValueNotifier<double> _zoom = ValueNotifier(0);
 
-  // Controllers.
+  /// Controllers.
 
-  //Picture Controller which is called to take pictures.
+  ///Picture Controller which is called to take pictures.
   PictureController _pictureController = new PictureController();
-  //Video Controller which is called to take Start and stop recording videos.
-  // VideoController _videoController = new VideoController();
 
+  ///Video Controller which is called to take Start and stop recording videos.
+  VideoController _videoController = new VideoController();
+
+  //TODO Replace With better Plugin used in loading library.
   // List of images on the device (customized to only load the first 2 images,
-  // we get the recent image from this list.
+  /// we get the recent image from this list.
   List<AssetEntity> galleryList;
-  // the last image stored on the device.
+
+  /// the last image stored on the device.
   File recentImage;
 
-// bool that reflects the user choice of either photo or video, State variable.
+  /// bool that reflects the user choice of either photo or video,a State variable.
   bool isVideoMode = false;
 
-  //index of the camera mode chosen by user, 0 = back camera, 1 = front, State variable.
+  ///index of the camera mode chosen by user, 0 = back camera, 1 = front, a State variable.
   int inUseCamera;
-  // flash mode chosen by user.State variable.
+
+  /// flash mode chosen by user. its a State variable.
   UserFlashMode flashMode = UserFlashMode.auto;
 
-  //Discards any resources used by any of the objects. After this is called,
-  //the object is not in a usable state and should be discarded.
+  ///Discards any resources used by any of the objects. After this is called,
+  ///the object is not in a usable state and should be discarded.
   @override
   void dispose() {
     _photoSize.dispose();
@@ -75,7 +81,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     super.dispose();
   }
 
-  //hide notification panel and then initialize Camera and Gallery
+  ///hide notification panel and then initialize Camera and Gallery
   @override
   void initState() {
     super.initState();
@@ -83,6 +89,12 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     initGallary();
   }
 
+  ///Camera Screen widget Builder method.
+  ///
+  ///The widget Tree Consists of a main Scaffold That holds a body of a Container,
+  ///The container holds a Stack, and a column of stacks. The first stack holds the camera preview,
+  ///while the column of stacks presents two bars that hold some buttons including the Switch Camera
+  ///mode, flash mode and upload from gallery.
   @override
   Widget build(BuildContext context) {
     final deviceHeight = MediaQuery.of(context).size.height;
@@ -151,7 +163,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
                       child: Padding(
                         padding: EdgeInsets.only(top: deviceHeight * 0.025),
                         child: flashModeButton(
-                          flashModeSwitchCase(),
+                          SwitchCaseHelper.getFlashMode(flashMode),
                         ),
                       ),
                     ),
@@ -238,7 +250,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
                         height: 70,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacement(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
@@ -266,7 +278,8 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     );
   }
 
-  //Initialize Camera and Gallery, retreive gallery list
+  ///Initialize Camera and Gallery, retreive gallery list
+  //initialization method, No unit Test.
   Future initGallary() async {
     await PhotoManager.requestPermission();
     await Permission.storage.request();
@@ -295,7 +308,7 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     });
   }
 
-  ///Camera Mode Button receives and image path string of the button icon
+  ///Camera Mode Button receives an image path string of the button icon
   ///When the button is pressed it toggles between front and back cameras
   Widget cameraModeButton(String imagePath) {
     return Container(
@@ -314,7 +327,8 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
             _sensor.value = Sensors.FRONT;
           }
         },
-        //The image is rotated 180 degrees on the Y axis if mode is Front camera
+
+        ///The image is rotated 180 degrees on the Y axis if mode is Front camera
         child: inUseCamera == 0
             ? Padding(
                 padding: const EdgeInsets.only(left: 10),
@@ -381,23 +395,6 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
     );
   }
 
-  ///Returns image path of the flash button icon according to chosen Flash mode
-  String flashModeSwitchCase() {
-    switch (flashMode) {
-      case UserFlashMode.always:
-        return 'assets/images/FlashAlways.png';
-        break;
-      case UserFlashMode.auto:
-        return 'assets/images/FlashAuto.png';
-        break;
-      case UserFlashMode.never:
-        return 'assets/images/FlashNever.png';
-        break;
-      default:
-        return 'assets/images/FlashAuto.png';
-    }
-  }
-
   ///Called When the take photo button is pressed.
   ///Image is initially saved in temporary directory,
   ///It is then saved to phone gallery,
@@ -408,16 +405,20 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
         await Directory('${tempDir.path}/test').create(recursive: true);
     final String filePath =
         '${imageDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    await _pictureController.takePicture(filePath);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => PhotoEditScreen(filePath)));
-    if (filePath != null) {
-      final result = await ImageGallerySaver.saveFile(filePath);
-      print(result);
-    } else {
-      print('Null path');
-    }
+    await _pictureController.takePicture(filePath).then(
+          (value) => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => PhotoEditScreen(filePath),
+            ),
+          ),
+        );
+
+    // if (filePath != null) {
+    //   final result = await ImageGallerySaver.saveFile(filePath);
+    //   print(result);
+    // } else {
+    //   print('Null path');
+    // }
   }
 }

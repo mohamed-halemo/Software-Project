@@ -1,10 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:bitmap/bitmap.dart';
-import 'dart:typed_data';
+//out of the box imports
 
+import 'package:flutter/material.dart';
+
+import 'dart:typed_data' as typedData;
+import 'dart:io';
+
+//Packages and Plugins
+import 'package:bitmap/bitmap.dart' as btm;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:image/image.dart' as img;
+
+//Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
-  final Uint8List headedBitmap;
-  PhotoUploadScreen(this.headedBitmap);
+  /// The headedBitmap from the Photo edit screen is passed to this widget through the constructor
+  final typedData.Uint8List headedBitmap;
+  final btm.Bitmap editedBitmap;
+  PhotoUploadScreen(this.headedBitmap, this.editedBitmap);
   @override
   _PhotoUploadScreenState createState() => _PhotoUploadScreenState();
 }
@@ -38,7 +50,9 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   ),
                 ),
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    postAndSaveImage();
+                  },
                   child: Text(
                     'Post',
                     style: TextStyle(
@@ -157,5 +171,24 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
         ),
       ),
     );
+  }
+
+  void postAndSaveImage() async {
+    String path;
+    await getTemporaryDirectory().then(
+      (value) => path = value.path,
+    );
+    String fullPath = path;
+    fullPath = path + DateTime.now().day.toString() + '.jpg';
+    img.Image imageToBeSaved =
+        img.decodeBmp(widget.editedBitmap.buildHeaded().toList());
+    await File(fullPath).writeAsBytes(img.encodeJpg(imageToBeSaved));
+
+    if (fullPath != null) {
+      final result = await ImageGallerySaver.saveFile(fullPath);
+      print(result);
+    } else {
+      print('Null path');
+    }
   }
 }
