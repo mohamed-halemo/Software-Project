@@ -6,7 +6,9 @@ class SignUp extends StatefulWidget {
   _SignUpState createState() => _SignUpState();
 }
 
+// If true the text is visible e;se it is not
 bool _secureText = true;
+// The text written on the button in login screen
 String _buttonText = 'Sign up';
 final _formKey = GlobalKey<FormState>();
 
@@ -17,6 +19,7 @@ class _SignUpState extends State<SignUp> {
       appBar: AppBar(
         leading: null,
         backgroundColor: Colors.grey[900],
+        // Showing the logo and the title in the appbar
         title: Row(
           children: <Widget>[
             Image.asset(
@@ -38,6 +41,7 @@ class _SignUpState extends State<SignUp> {
         ),
         child: Container(
           child: Column(children: <Widget>[
+            // Showing the logo and the title under the appbar
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Column(
@@ -61,6 +65,7 @@ class _SignUpState extends State<SignUp> {
                 ],
               ),
             ),
+            // Text fields to collect the user login information
             Form(
               key: _formKey,
               child: Expanded(
@@ -92,6 +97,7 @@ class _SignUpState extends State<SignUp> {
                           suffixIcon: _secureText
                               ? Icons.remove_red_eye_outlined
                               : Icons.remove_red_eye,
+                          // Changes the state of the password (Visible or not)
                           suffixIconPressed: () {
                             setState(() {
                               _secureText = !_secureText;
@@ -101,6 +107,7 @@ class _SignUpState extends State<SignUp> {
                         child: RaisedButton(
                           onPressed: () {
                             _formKey.currentState.validate()
+                                // Moving to the log in page
                                 ? Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -129,6 +136,7 @@ class _SignUpState extends State<SignUp> {
                       Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          // Moving to the log in page
                           children: [
                             Text('Already a Flicker member ?'),
                             FlatButton(
@@ -171,13 +179,16 @@ Widget _textInput({
     ),
     child: TextFormField(
       validator: (String value) {
+        // Checks if the text field is empty or not
         if (value.isEmpty) {
           return 'Required';
         }
+        // No white space in the begging of the password is allowed and the passwors length can't be less than 12
         if (hint == 'Password' &&
             ((value.length < 12) || value.startsWith(' '))) {
           return 'Invalid password';
         }
+        // No number bigger than 120 is accepted in the age field
         if (hint == 'Your age' && int.parse(value) > 120) {
           return 'Invalid age';
         }

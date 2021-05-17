@@ -8,9 +8,13 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+  // If true the text is visible e;se it is not
   bool _secureText = true;
+  // The text written on the button in login screen
   String _buttonText = 'Next';
+  // Remeber email address
   bool _rememberMe = true;
+  // Checks if the email valid or not
   bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
   @override
@@ -19,6 +23,7 @@ class _LogInState extends State<LogIn> {
       appBar: AppBar(
         leading: null,
         backgroundColor: Colors.grey[900],
+        // Showing the logo and the title in the appbar
         title: Row(
           children: <Widget>[
             Image.asset(
@@ -41,6 +46,7 @@ class _LogInState extends State<LogIn> {
         child: Container(
             child: Column(
           children: <Widget>[
+            // Showing the logo and the title under the appbar
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Column(
@@ -71,12 +77,14 @@ class _LogInState extends State<LogIn> {
                   child: Container(
                     margin: EdgeInsets.only(right: 20, left: 20, top: 10),
                     child: Column(
+                      // Text fields to collect the user login information
                       children: <Widget>[
                         _textInput(
                           hint: 'Email address',
                           label: 'Email address',
                           keyboardType: TextInputType.emailAddress,
                         ),
+                        //Checks if the email is valid or not
                         _isEmailValidated
                             ? _textInput(
                                 hint: 'Password',
@@ -86,6 +94,7 @@ class _LogInState extends State<LogIn> {
                                 suffixIcon: _secureText
                                     ? Icons.remove_red_eye_outlined
                                     : Icons.remove_red_eye,
+                                // Changes the state of the password (Visible or not)
                                 suffixIconPressed: () {
                                   setState(() {
                                     _secureText = !_secureText;
@@ -102,6 +111,7 @@ class _LogInState extends State<LogIn> {
                                     _rememberMe = value;
                                   });
                                 }),
+                            // Remeber email address checks when pressing on the check box or the sentence beside it
                             GestureDetector(
                               child: Text('Remeber email address'),
                               onTap: () {
@@ -150,6 +160,7 @@ class _LogInState extends State<LogIn> {
                             ),
                           ),
                         ),
+                        // A line that divides the screen
                         Divider(
                           color: Colors.grey,
                         ),
@@ -158,6 +169,7 @@ class _LogInState extends State<LogIn> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('Not a Fotone member ?'),
+                              // Moving to the sign up page
                               FlatButton(
                                   padding: EdgeInsets.all(0.0),
                                   onPressed: () {
@@ -185,6 +197,7 @@ class _LogInState extends State<LogIn> {
   }
 }
 
+// Text input fields
 Widget _textInput({
   hint,
   label,
@@ -199,6 +212,7 @@ Widget _textInput({
       color: Colors.white,
     ),
     child: TextFormField(
+      // Checks if the text field is empty or not
       validator: (String value) {
         if (value.isEmpty) {
           return 'Required';
