@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:circle_list/circle_list.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 import 'package:bitmap/bitmap.dart';
+import 'package:circle_wheel_scroll/circle_wheel_render.dart';
+import 'package:circle_wheel_scroll/circle_wheel_scroll_view.dart';
 
 //Personal Imports
 import 'package:android_flickr/screens/PhotoUploadScreen.dart';
@@ -69,11 +71,27 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   double oldAngel;
 
   bool resetAllEnabler = false;
+  @override
+  dispose() {
+    super.dispose();
+    SystemChrome.setPreferredOrientations(
+      [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ],
+    );
+  }
 
   ///Initialize State variables and hide notifications panel then Load the image
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     brushMode = BrushMode.Saturation;
     totalAngleOfRotation = 0;
     oldAngel = 0;
@@ -144,6 +162,12 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                   if (editedBitMap == null) {
                     editedBitMap = imageBitMap;
                   }
+                  SystemChrome.setPreferredOrientations(
+                    [
+                      DeviceOrientation.portraitUp,
+                      DeviceOrientation.portraitDown,
+                    ],
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -164,6 +188,123 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
               ),
               alignment: Alignment.topRight,
             ),
+            editMode == -1
+                ? OrientationBuilder(
+                    builder: (context, orientation) {
+                      return OverflowBox(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: orientation == Orientation.portrait
+                                ? MediaQuery.of(context).size.width * 0.2
+                                : MediaQuery.of(context).size.width * 0.6,
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: CircleListScrollView(
+                              renderChildrenOutsideViewport: true,
+                              physics: CircleFixedExtentScrollPhysics(),
+                              clipToSize: false,
+                              axis: Axis.vertical,
+                              itemExtent: 150,
+                              children: List.generate(
+                                5,
+                                (index) =>
+                                    SwitchCaseHelper.getIcon(index, true),
+                              ),
+                              radius: orientation == Orientation.portrait
+                                  ? MediaQuery.of(context).size.height * 0.2
+                                  : MediaQuery.of(context).size.height * 0.3,
+                              onSelectedItemChanged: (value) {
+                                setBrushState(value);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            editMode = -1;
+                          });
+                        },
+                        child: Image.asset(
+                          'assets/images/Brush_Transparent.png',
+                          width: 25,
+                          height: 25,
+                        ),
+                      ),
+                    ),
+                  ),
+            editMode == -1
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              editMode = 0;
+                              brushMode = BrushMode.Saturation;
+                            });
+                          },
+                          child: Image.asset(
+                            'assets/images/Brush_Transparent.png',
+                            width: 25,
+                            height: 25,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
+            editMode == -1
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 80,
+                      width: deviceWidth * 0.9,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 15,
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: SwitchCaseHelper.getIcon(
+                                  brushMode.index, false),
+                            ),
+                          ),
+                          brushMode == BrushMode.Rotate
+                              ? getRotateOrCrop()
+                              : SliderTheme(
+                                  data: SliderThemeData(
+                                    thumbShape: RoundSliderThumbShape(
+                                      enabledThumbRadius: 8,
+                                    ),
+                                    overlayColor: Colors.transparent,
+                                    overlayShape: RoundSliderOverlayShape(
+                                      overlayRadius: 0,
+                                    ),
+                                  ),
+                                  child: getSlider(),
+                                ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Container(),
             resetAllEnabler
                 ? Align(
                     child: GestureDetector(
@@ -189,177 +330,6 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
                       ),
                     ),
                     alignment: Alignment.topLeft,
-                  )
-                : Container(),
-            editMode == 1
-                ? OverflowBox(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: CircleList(
-                          origin: Offset(deviceWidth * 0.4, 0),
-                          innerRadius: 10,
-                          outerRadius: 200,
-                          children: List.generate(
-                              6,
-                              (index) => Container(
-                                    width: 100,
-                                    height: 50,
-                                    child:
-                                        SwitchCaseHelper.getIcon(index, true),
-                                  )),
-                          centerWidget: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                editMode = 0;
-                              });
-                            },
-                            child: Image.asset(
-                              'assets/images/Filter_Transparent.png',
-                              width: 25,
-                              height: 25,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            editMode = 1;
-                          });
-                        },
-                        child: Image.asset(
-                          'assets/images/Filter_Transparent.png',
-                          width: 25,
-                          height: 25,
-                        ),
-                      ),
-                    ),
-                  ),
-            editMode == -1
-                ? OverflowBox(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: CircleList(
-                          origin: Offset(-deviceWidth * 0.46, 0),
-                          innerRadius: 10,
-                          outerRadius: 200,
-                          rotateMode: RotateMode.onlyChildrenRotate,
-                          showInitialAnimation: true,
-                          animationSetting: AnimationSetting(
-                            duration: Duration(
-                              milliseconds: 500,
-                            ),
-                            curve: Curves.fastLinearToSlowEaseIn,
-                          ),
-                          initialAngle: 0,
-                          onDragStart: (_) {
-                            // imageBitMap = editedBitMap;
-                            oldAngel = 0;
-                            dragAngel = 0;
-                          },
-                          onDragUpdate: (updateCoord) {
-                            oldAngel = dragAngel;
-                            dragAngel = updateCoord.angle;
-                            totalAngleOfRotation =
-                                totalAngleOfRotation + (dragAngel - oldAngel);
-                            if (totalAngleOfRotation >= 6.2)
-                              totalAngleOfRotation = 0;
-                            setState(() {
-                              print('ZAKA: ' + totalAngleOfRotation.toString());
-                              setBrushState(totalAngleOfRotation);
-                            });
-                          },
-                          children: List.generate(
-                              6,
-                              (index) => Container(
-                                    width: 100,
-                                    height: 50,
-                                    child: SwitchCaseHelper.getIcon(
-                                        6 - index, true),
-                                  )),
-                          centerWidget: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                editMode = 0;
-                              });
-                            },
-                            child: Image.asset(
-                              'assets/images/Brush_Transparent.png',
-                              width: 100,
-                              height: 70,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            editMode = -1;
-                          });
-                        },
-                        child: Image.asset(
-                          'assets/images/Brush_Transparent.png',
-                          width: 25,
-                          height: 25,
-                        ),
-                      ),
-                    ),
-                  ),
-            editMode == -1
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      height: 80,
-                      width: deviceWidth * 0.9,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 15,
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: SwitchCaseHelper.getIcon(
-                                  brushMode.index, false),
-                            ),
-                          ),
-                          brushMode == BrushMode.Crop ||
-                                  brushMode == BrushMode.Rotate
-                              ? getRotateOrCrop()
-                              : SliderTheme(
-                                  data: SliderThemeData(
-                                    thumbShape: RoundSliderThumbShape(
-                                      enabledThumbRadius: 8,
-                                    ),
-                                    overlayColor: Colors.transparent,
-                                    overlayShape: RoundSliderOverlayShape(
-                                      overlayRadius: 0,
-                                    ),
-                                  ),
-                                  child: getSlider(),
-                                ),
-                        ],
-                      ),
-                    ),
                   )
                 : Container(),
           ],
@@ -458,119 +428,92 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   //Crop was dropped in phase 3 as a part of the dropped 50%
   Widget getRotateOrCrop() {
     Bitmap editedBitmap = imageBitMap;
-    return brushMode == BrushMode.Rotate
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                  icon: Icon(
-                    Icons.rotate_left_rounded,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    editedBitmap = editedBitmap.apply(
-                      BitmapRotate.rotateCounterClockwise(),
-                    );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+            icon: Icon(
+              Icons.rotate_left_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              editedBitmap = editedBitmap.apply(
+                BitmapRotate.rotateCounterClockwise(),
+              );
 
-                    rotationApplied--;
-                    if (rotationApplied == -3) {
-                      rotationApplied = 1;
-                    }
-                    actualRotationApplied = rotationApplied;
-                    setState(() {
-                      if (actualRotationApplied != 0) {
-                        resetAllEnabler = true;
-                      } else {
-                        resetAllEnabler = false;
-                      }
-                      headedBitMap = editedBitmap.buildHeaded();
-                      imageBitMap = editedBitmap;
-                      applyChanges(brushMode);
-                    });
-                  }),
-              SizedBox(
-                width: 20,
-              ),
-              IconButton(
-                  icon: Icon(
-                    Icons.rotate_right_rounded,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    editedBitmap = editedBitmap.apply(
-                      BitmapRotate.rotateClockwise(),
-                    );
-                    rotationApplied++;
-                    if (rotationApplied == 3) {
-                      rotationApplied = -1;
-                    }
-                    actualRotationApplied = rotationApplied;
-                    setState(() {
-                      if (actualRotationApplied != 0) {
-                        resetAllEnabler = true;
-                      } else {
-                        resetAllEnabler = false;
-                      }
-                      headedBitMap = editedBitmap.buildHeaded();
-                      imageBitMap = editedBitmap;
-                      applyChanges(brushMode);
-                    });
-                  }),
-            ],
-          )
-        : Row(
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.crop_portrait_sharp,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  editedBitmap = imageBitMap.apply(BitmapCrop.fromLTWH(
-                    left: 100,
-                    top: 100,
-                    width: 300,
-                    height: 100,
-                  ));
-                  setState(() {
-                    headedBitMap = editedBitmap.buildHeaded();
-                  });
-                },
-              ),
-            ],
-          );
+              rotationApplied--;
+              if (rotationApplied == -3) {
+                rotationApplied = 1;
+              }
+              actualRotationApplied = rotationApplied;
+              setState(() {
+                if (actualRotationApplied != 0) {
+                  resetAllEnabler = true;
+                } else {
+                  resetAllEnabler = false;
+                }
+                headedBitMap = editedBitmap.buildHeaded();
+                imageBitMap = editedBitmap;
+                applyChanges(brushMode);
+              });
+            }),
+        SizedBox(
+          width: 20,
+        ),
+        IconButton(
+            icon: Icon(
+              Icons.rotate_right_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              editedBitmap = editedBitmap.apply(
+                BitmapRotate.rotateClockwise(),
+              );
+              rotationApplied++;
+              if (rotationApplied == 3) {
+                rotationApplied = -1;
+              }
+              actualRotationApplied = rotationApplied;
+              setState(() {
+                if (actualRotationApplied != 0) {
+                  resetAllEnabler = true;
+                } else {
+                  resetAllEnabler = false;
+                }
+                headedBitMap = editedBitmap.buildHeaded();
+                imageBitMap = editedBitmap;
+                applyChanges(brushMode);
+              });
+            }),
+      ],
+    );
   }
 
   ///Set the brushMode state variable depending on the Angle of rotation of the
   ///List wheel.
-  void setBrushState(double angle) {
-    if ((angle).abs() >= 0 && (angle).abs() <= 0.1) {
+  void setBrushState(int angle) {
+    if (angle == 0) {
       setState(() {
         brushMode = BrushMode.Saturation;
       });
     }
 
-    if ((angle).abs() >= 0.95 && (angle).abs() <= 1.1) {
+    if (angle == 1) {
       setState(() {
         brushMode = BrushMode.Exposure;
       });
     }
-    if ((angle).abs() >= 1.9 && (angle).abs() <= 2.2) {
+    if (angle == 2) {
       setState(() {
         brushMode = BrushMode.Contrast;
       });
     }
-    if ((angle).abs() >= 3 && (angle).abs() <= 3.3) {
+    if (angle == 3) {
       setState(() {
         brushMode = BrushMode.Brightness;
       });
     }
-    if ((angle).abs() >= 4.15 && (angle).abs() <= 4.3) {
-      setState(() {
-        brushMode = BrushMode.Crop;
-      });
-    }
-    if ((angle).abs() >= 5.2 && (angle).abs() <= 5.3) {
+    if (angle == 4) {
       setState(() {
         brushMode = BrushMode.Rotate;
       });

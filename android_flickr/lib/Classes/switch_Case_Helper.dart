@@ -27,25 +27,31 @@ class SwitchCaseHelper {
       //Saturation
       case 0:
         return isIcon
-            ? Row(mainAxisSize: MainAxisSize.max, children: [
-                Expanded(
-                  child: CircleAvatar(
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
                     backgroundColor: Colors.cyan,
-                    radius: 40,
+                    radius: 30,
                     child: Icon(
                       Icons.flip_outlined,
                       color: Colors.white,
-                      size: 40,
+                      size: 30,
                     ),
                   ),
-                ),
-                Text(
-                  'Saturation',
-                  style: TextStyle(
-                    color: Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Saturation',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ])
+                ],
+              )
             : Text(
                 'Saturation',
                 style: TextStyle(
@@ -55,18 +61,31 @@ class SwitchCaseHelper {
       //Exposure
       case 1:
         return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.exposure,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Exposure',
-                  style: TextStyle(
-                    color: Colors.white,
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.amber,
+                    radius: 30,
+                    child: Icon(
+                      Icons.exposure,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
-                ),
-              ])
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Exposure',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             : Text(
                 'Exposure',
                 style: TextStyle(
@@ -76,18 +95,31 @@ class SwitchCaseHelper {
       //Contrast
       case 2:
         return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.brightness_medium_rounded,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Contrast',
-                  style: TextStyle(
-                    color: Colors.white,
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.green,
+                    radius: 30,
+                    child: Icon(
+                      Icons.brightness_medium_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
-                ),
-              ])
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Contrast',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             : Text(
                 'Contrast',
                 style: TextStyle(
@@ -97,60 +129,66 @@ class SwitchCaseHelper {
       //Brightness
       case 3:
         return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.wb_sunny_outlined,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Brightness',
-                  style: TextStyle(
-                    color: Colors.white,
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.red,
+                    radius: 30,
+                    child: Icon(
+                      Icons.wb_sunny_outlined,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
-                ),
-              ])
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Brightness',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             : Text(
                 'Brightness',
                 style: TextStyle(
                   color: Colors.white,
                 ),
               );
-      //Crop
+
+      //Rotate
       case 4:
         return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.crop,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Crop',
-                  style: TextStyle(
-                    color: Colors.white,
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.pink,
+                    radius: 30,
+                    child: Icon(
+                      Icons.rotate_left,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
-                ),
-              ])
-            : Text(
-                'Crop',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              );
-      //Rotate
-      case 5:
-        return isIcon
-            ? Row(children: [
-                Icon(
-                  Icons.rotate_left,
-                  color: Colors.white,
-                ),
-                Text(
-                  'Rotate',
-                  style: TextStyle(
-                    color: Colors.white,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Rotate',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              ])
+                ],
+              )
             : Text(
                 'Rotate',
                 style: TextStyle(

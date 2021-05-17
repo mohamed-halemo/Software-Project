@@ -11,6 +11,5 @@ enum BrushMode {
   Exposure,
   Contrast,
   Brightness,
-  Crop,
   Rotate,
 }
