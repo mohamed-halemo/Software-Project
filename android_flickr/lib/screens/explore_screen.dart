@@ -1,6 +1,7 @@
+import 'package:android_flickr/widgets/profile_display.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../widgets/Explore_display.dart';
+import '../widgets/explore_display.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 
@@ -27,6 +28,7 @@ class ExploreScreen extends StatelessWidget {
                 elevation: 0,
                 toolbarHeight: 0,
                 floating: true,
+                pinned: false,
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.grey.shade900,
                 bottom: TabBar(
@@ -80,12 +82,11 @@ class ExploreScreen extends StatelessWidget {
                 },
                 child: Explore(), //display the explore posts
               ),
+
               Center(
                 child: Text("no search"),
               ),
-              Center(
-                child: Text("no profile"),
-              ),
+              ProfileDisplay(),
               Center(
                 child: Text("no notifications"),
               ),
