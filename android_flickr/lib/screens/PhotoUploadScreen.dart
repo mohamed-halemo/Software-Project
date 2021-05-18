@@ -1,10 +1,13 @@
 //out of the box imports
 
+import 'dart:convert';
+
 import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:typed_data' as typedData;
 import 'dart:io';
+import 'package:convert/convert.dart';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
@@ -12,6 +15,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 //Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
@@ -25,6 +29,9 @@ class PhotoUploadScreen extends StatefulWidget {
 
 class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
   List<String> tags = [];
+  String privacy = 'Public';
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
 
   @override
   dispose() {
@@ -105,6 +112,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               height: 35,
             ),
             TextFormField(
+              controller: titleController,
               maxLength: 100,
               decoration: InputDecoration(
                 hintText: 'Title...',
@@ -114,6 +122,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
               height: 5,
             ),
             TextFormField(
+              controller: descriptionController,
               decoration: InputDecoration(
                 hintText: 'Description...',
               ),
@@ -132,25 +141,32 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   setState(() {});
                 });
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Icon(
-                    Icons.label_outlined,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  getTagsText(),
-                  Icon(
-                    Icons.edit,
-                    color: Colors.black,
-                    size: 15,
-                  ),
-                ],
-              ),
+              child: Stack(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Icon(
+                      Icons.label_outlined,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    getTagsText(),
+                  ],
+                ),
+                tags.isEmpty
+                    ? Container()
+                    : Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.black,
+                          size: 15,
+                        ),
+                      ),
+              ]),
             ),
             SizedBox(
               height: 10,
@@ -159,18 +175,80 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
             SizedBox(
               height: 20,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.lock_open_sharp,
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text('Public'),
-              ],
+            GestureDetector(
+              onTap: () {
+                var alertDelete = AlertDialog(
+                  content: Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Edit privacy',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Divider(),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              privacy = 'Public';
+                            });
+                            Navigator.pop(context);
+                            return;
+                          },
+                          child: Text(
+                            'Public',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                        Divider(),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              privacy = 'Private';
+                            });
+                            Navigator.pop(context);
+                            return;
+                          },
+                          child: Text(
+                            'Private',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+                showDialog(
+                  context: context,
+                  builder: (_) => alertDelete,
+                  barrierDismissible: true,
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    privacy == 'Public'
+                        ? Icons.lock_open_sharp
+                        : Icons.lock_outline_sharp,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(privacy),
+                ],
+              ),
             ),
           ],
         ),
@@ -216,5 +294,20 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     } else {
       print('Null path');
     }
+    var mockUrl =
+        Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
+    var toBeEncodedMap = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'is_public': privacy == 'Public' ? true : false
+    };
+    var jsonBody = json.encode(toBeEncodedMap);
+    print('Post Request: ' + jsonBody);
+    await http
+        .post(
+          mockUrl,
+          body: jsonBody,
+        )
+        .then((value) => print('Response body: ' + value.body));
   }
 }
