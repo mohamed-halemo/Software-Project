@@ -13,7 +13,7 @@ class ClickOnImageScreen extends StatefulWidget {
 class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
   bool isDetailsOfPostDisplayed = true;
   var photoViewController = PhotoViewController();
-  var photoscale = PhotoViewComputedScale.contained;
+  var photoscale = 1.0;
 
   //returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
   Widget favesText(PostDetails postInformation) {
@@ -80,8 +80,7 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
         onTap: () {
           setState(
             () {
-              photoscale =
-                  PhotoViewComputedScale.contained * photoViewController.scale;
+              photoscale = photoViewController.scale;
               isDetailsOfPostDisplayed = !isDetailsOfPostDisplayed;
             },
           );
