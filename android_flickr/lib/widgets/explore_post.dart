@@ -15,8 +15,8 @@ class ExplorePost extends StatelessWidget {
     );
   }
 
-  /* we set up a listener here to class Posts using provider.of<PostDetails>(context)*/
-  
+  // we set up a listener here to class Posts using provider.of<PostDetails>(context)
+
   @override
   Widget build(BuildContext context) {
     final postInformation = Provider.of<PostDetails>(context);
