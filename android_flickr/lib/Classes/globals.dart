@@ -1,9 +1,6 @@
 library my_prj.globals;
 
-import 'package:http/http.dart';
-import 'dart:convert';
-
-bool isMockService = false;
+bool isMockService = true;
 
 class HttpSingleton {
   static final HttpSingleton _singleton = HttpSingleton._internal();

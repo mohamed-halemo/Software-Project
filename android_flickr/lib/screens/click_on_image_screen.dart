@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
+import 'package:photo_view/photo_view.dart';
 //import 'package:provider/provider.dart';
 
 //this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
@@ -11,6 +12,8 @@ class ClickOnImageScreen extends StatefulWidget {
 
 class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
   bool isDetailsOfPostDisplayed = true;
+  var photoViewController = PhotoViewController();
+  var photoscale = PhotoViewComputedScale.contained;
 
   //returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
   Widget favesText(PostDetails postInformation) {
@@ -77,6 +80,8 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
         onTap: () {
           setState(
             () {
+              photoscale =
+                  PhotoViewComputedScale.contained * photoViewController.scale;
               isDetailsOfPostDisplayed = !isDetailsOfPostDisplayed;
             },
           );
@@ -119,10 +124,14 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                         MediaQuery.of(context).size.height / 4,
                   ),
                   child: ClipRRect(
-                    child: Image.network(
-                      postInformation.postImageUrl,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+                    child: PhotoView(
+                      minScale: PhotoViewComputedScale.contained,
+                      maxScale: 8.0,
+                      controller: photoViewController,
+                      initialScale: photoscale,
+                      imageProvider: NetworkImage(
+                        postInformation.postImageUrl,
+                      ),
                     ),
                   ),
                 ),
