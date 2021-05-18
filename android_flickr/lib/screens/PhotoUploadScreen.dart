@@ -1,13 +1,12 @@
 //out of the box imports
 
-import 'dart:convert';
-
 import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'dart:typed_data' as typedData;
 import 'dart:io';
-import 'package:convert/convert.dart';
+
+import 'dart:convert';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
@@ -16,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import '../Classes/globals.dart' as globals;
 
 //Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
@@ -295,19 +295,20 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
       print('Null path');
     }
     var mockUrl =
-        Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
+        // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
+        Uri.http(globals.HttpSingleton().getBaseUrl(), 'Photo');
+
     var toBeEncodedMap = {
       'title': titleController.text,
       'description': descriptionController.text,
-      'is_public': privacy == 'Public' ? true : false
+      'is_public': privacy == 'Public' ? true : false,
     };
     var jsonBody = json.encode(toBeEncodedMap);
     print('Post Request: ' + jsonBody);
-    await http
-        .post(
-          mockUrl,
-          body: jsonBody,
-        )
-        .then((value) => print('Response body: ' + value.body));
+    await http.post(
+      mockUrl,
+      body: jsonBody,
+      headers: {"Content-Type": "application/json"},
+    );
   }
 }

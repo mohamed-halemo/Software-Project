@@ -4,7 +4,8 @@
       "id": 0,
       "title": "ti",
       "description": "typicode",
-      "is_public": false
+      "is_public": "Public",
+      "media_file": ""
     },
     {
       "id": 1
@@ -38,18 +39,6 @@
     },
     {
       "id": 11
-    },
-    {
-      "id": 12
-    },
-    {
-      "id": 13
-    },
-    {
-      "id": 14
-    },
-    {
-      "id": 15
     }
   ]
 }
