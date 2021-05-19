@@ -19,6 +19,7 @@ class Profile(models.Model):
     fav_count = models.IntegerField(default=0)
     group_count = models.IntegerField(default=0)
     tag_count = models.IntegerField(default=0)
+    galleries_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.owner.email
