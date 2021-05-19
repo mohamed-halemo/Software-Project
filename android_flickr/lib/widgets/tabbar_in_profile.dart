@@ -1,3 +1,4 @@
+import 'package:android_flickr/widgets/camera_roll.dart';
 import 'package:android_flickr/widgets/profile_public.dart';
 import 'package:flutter/material.dart';
 
@@ -56,9 +57,7 @@ class TabbarInProfile extends StatelessWidget {
             Center(
               child: Text("no Stats"),
             ),
-            Center(
-              child: Text("no Camera roll"),
-            ),
+            CameraRoll(),
             ProfilePublic(),
             Center(
               child: Text("no Albums"),
