@@ -26,7 +26,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        print(validated_data,"AAAAAAAAAAAAAAAAAAAAAAAA")
         return Account.objects.create_user(**validated_data)
 
 
