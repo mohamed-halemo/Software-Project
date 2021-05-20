@@ -7,6 +7,7 @@ app_name = 'accounts'
 
 urlpatterns = [
     path('sign-up/', SignUpView.as_view(), name="signup"),
+     path('change-password/', ChangePassword.as_view(), name='change-password'),
     path('email-verify/', VerifyEmail.as_view(), name="email-verify"),
     path('password-reset-email', RequestPasswordResetEmail.as_view(),
          name="reset=pass"),
@@ -17,5 +18,6 @@ urlpatterns = [
     path('password-reset-complete/', SetNewPassword.as_view(),
          name="password-reset-complete"),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('delete-account', DeleteAccount.as_view(), name='delete-account'),
 
 ]
