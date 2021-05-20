@@ -47,6 +47,12 @@ class SignUpView(generics.GenericAPIView):
                 'to_email': user.email,
                 'email_subject': 'Verify Your Email'}
         Util.send_email(data)
+        
+        
+        
+        
+        
+        
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 
@@ -79,6 +85,13 @@ class VerifyEmail(views.APIView):
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LogInSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+class CheckPassword(generics.GenericAPIView):
+    serializer_class = CheckPasswordSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -172,11 +185,17 @@ class ChangePassword(generics.GenericAPIView):
             }
             return Response(response, status = status.HTTP_200_OK)
 
-class DeleteAccount(generics.DestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,IsOwner)
-    # serializer_class = DeleteAccountSerializer
-
-    def get_object(self):
-        return self.request.user
     
 
+@api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
+def DeleteAccount(request):
+    user = request.user
+    user=auth.authenticate(email=user.email, password=request.data['password'])
+    if not user:
+        return Response(
+            {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
+    user.delete()
+    return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
+
+    
