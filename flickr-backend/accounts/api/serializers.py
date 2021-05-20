@@ -14,17 +14,19 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password','first_name','last_name','age']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
         username = attrs.get('username', '')
+        age = attrs.get('age', '')
         if not username.isalnum():
             raise serializers.ValidationError(
                 'The username should only contain alphanumeric characters')
         return attrs
 
     def create(self, validated_data):
+        print(validated_data,"AAAAAAAAAAAAAAAAAAAAAAAA")
         return Account.objects.create_user(**validated_data)
 
 
@@ -37,6 +39,36 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 
 class LogInSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255, min_length=6)
+    password = serializers.CharField(max_length=68, min_length=8,
+                                     write_only=True)
+    username = serializers.CharField(max_length=255, min_length=6,
+                                     read_only=True)
+    tokens = serializers.CharField(max_length=68, min_length=8,
+                                   read_only=True)
+
+    class Meta:
+        model = Account
+        fields = ['email', 'password', 'username', 'tokens']
+
+    def validate(self, attrs):
+        email = attrs.get('email', '')
+        password = attrs.get('password', '')
+        user = auth.authenticate(email=email, password=password)
+        
+        if not user:
+            raise AuthenticationFailed('Invalid credential, try again')
+        if not user.is_active:
+            raise AuthenticationFailed('Account disabled, contact admin')
+        if not user.is_verified:
+            raise AuthenticationFailed('Email is not verified')
+        return {
+            'email': user.email,
+            'username': user.username,
+            'tokens': user.tokens
+        }
+        
+class CheckPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=6)
     password = serializers.CharField(max_length=68, min_length=8,
                                      write_only=True)
@@ -118,6 +150,10 @@ class SetNewPasswordSerializer(serializers.Serializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(max_length=68, min_length=8,required=True)
     new_password = serializers.CharField(max_length=68, min_length=8,required=True)
+    
+    
+
+    
     
 
 

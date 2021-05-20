@@ -20,6 +20,7 @@ class Profile(models.Model):
     group_count = models.IntegerField(default=0)
     tag_count = models.IntegerField(default=0)
     galleries_count = models.IntegerField(default=0)
+    #photoset count
 
     def __str__(self):
         return self.owner.email

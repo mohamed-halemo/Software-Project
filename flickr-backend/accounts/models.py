@@ -1,32 +1,44 @@
 from django.db import models
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager)
 from django.contrib.auth.models import PermissionsMixin
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 # Create your models here.
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    def create_user(self, email, username,first_name ,last_name , age, password=None):
         if not email:
             raise ValueError('Users must have an email address')
         if not username:
             raise ValueError('Users must have a username')
+        if not first_name:
+            raise ValueError('Users must have a first name')
+        if not last_name:
+            raise ValueError('Users must have a last name')
+        if not age:
+            raise ValueError('Users must have an age')
 
         user = self.model(
             email=self.normalize_email(email),
             username=username,
+            first_name=first_name,
+            last_name=last_name,
+            age=age
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password):
+    def create_superuser(self, email, username, password, first_name ,last_name , age):
         user = self.create_user(
             email=self.normalize_email(email),
             password=password,
             username=username,
+            first_name=first_name,
+            last_name=last_name,
+            age=age
         )
         user.is_admin = True
         user.is_staff = True
@@ -41,6 +53,12 @@ AUTH_PROVIDERS = {'facebook': 'facebook',
 class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
     username = models.CharField(max_length=30, unique=True, db_index=True)
+    first_name = models.CharField(verbose_name='first-name', max_length=60)
+    last_name = models.CharField(verbose_name='last-name', max_length=60)
+    age = models.IntegerField( validators=[
+            MaxValueValidator(110),
+            MinValueValidator(0)
+        ])
     date_joined = models.DateTimeField(verbose_name='date joined',
                                        auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
