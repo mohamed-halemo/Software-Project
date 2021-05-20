@@ -120,12 +120,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'demo4',
-        # 'CLIENT': {
-        #             'host': "mongodb+srv://Fotone:1234567890@cluster0.khmwk.mongodb.net/flickr_databse?retryWrites=true&w=majority",
-        #             'username': 'Fotone',
-        #             'password': '1234567890',
-        #             },
+        'NAME': 'flickr_database',
+        'CLIENT': {
+                    'host': "mongodb+srv://Fotone:1234567890@cluster0.khmwk.mongodb.net/flickr_databse?retryWrites=true&w=majority",
+                    'username': 'Fotone',
+                    'password': '1234567890',
+                    },
     }
 }
 # mongodb compass

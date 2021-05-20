@@ -58,7 +58,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     age = models.IntegerField( validators=[
             MaxValueValidator(110),
             MinValueValidator(0)
-        ])
+        ],default=0)
     date_joined = models.DateTimeField(verbose_name='date joined',
                                        auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
