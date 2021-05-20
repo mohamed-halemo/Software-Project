@@ -7,6 +7,7 @@ from django.utils.encoding import smart_str, force_str, smart_bytes
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework_simplejwt.tokens import RefreshToken
+
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=68, min_length=8,
                                      write_only=True)
@@ -113,3 +114,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
             return (user)
         except Exception as e:
             raise AuthenticationFailed('The reset link is invalid.', 401)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=68, min_length=8,required=True)
+    new_password = serializers.CharField(max_length=68, min_length=8,required=True)
+    

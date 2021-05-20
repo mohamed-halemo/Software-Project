@@ -1,4 +1,4 @@
-from djongo import models
+from django.db import models
 from accounts.models import *
 from photo.models import *
 
@@ -43,7 +43,7 @@ class Comments(models.Model):
         on_delete=models.CASCADE, related_name='user_gallery_comments')
     # the gallery where comment belongs, one gallery can have many comments
     gallery = models.ForeignKey(
-        gallery, related_name='comments', on_delete=models.CASCADE)
+        Gallery, related_name='comments', on_delete=models.CASCADE)
     # text of the comment
     content = models.TextField(max_length=1000)
     # dates automatically filled
