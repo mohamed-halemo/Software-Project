@@ -1,3 +1,4 @@
+from django.http import request
 from rest_framework import generics, status, views
 from django.shortcuts import render, redirect
 from .serializers import *
@@ -18,8 +19,11 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from project.utils import Util
-from rest_framework import permissions
+from rest_framework import permissions,viewsets
 from project.permissions import IsOwner
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+
 
 
 
@@ -167,6 +171,12 @@ class ChangePassword(generics.GenericAPIView):
                 'message': 'Password updated successfully',
             }
             return Response(response, status = status.HTTP_200_OK)
-            
-        
-        
+
+class DeleteAccount(generics.DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,IsOwner)
+    # serializer_class = DeleteAccountSerializer
+
+    def get_object(self):
+        return self.request.user
+    
+

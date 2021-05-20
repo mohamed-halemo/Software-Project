@@ -18,4 +18,6 @@ urlpatterns = [
     path('password-reset-complete/', SetNewPassword.as_view(),
          name="password-reset-complete"),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('delete-account', DeleteAccount.as_view(), name='delete-account'),
+
 ]
