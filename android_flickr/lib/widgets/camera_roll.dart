@@ -1,5 +1,6 @@
 import 'package:android_flickr/screens/PhotoGalleryScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_gallery/photo_gallery.dart';
 
 class CameraRoll extends StatefulWidget {
   @override
@@ -9,9 +10,69 @@ class CameraRoll extends StatefulWidget {
 class _CameraRollState extends State<CameraRoll> {
   bool hasImages = false;
 
+  ///List of all Albums that hold [Image] assets
+  Album flickrAlbum;
+
+  ///List of Merged Albums, holding both Images and Videos
+  List<Album> gallery = [];
+
+  List<Medium> photos = [];
+
+  List<DateTime> dateTimeList = [];
+  List<DateTime> listOfDays = [];
+
   @override
   void initState() {
     super.initState();
+    initGallery();
+  }
+
+  Future initGallery() async {
+    await PhotoGallery.cleanCache();
+    gallery = await PhotoGallery.listAlbums(
+      hideIfEmpty: true,
+      mediumType: MediumType.image,
+    );
+    flickrAlbum =
+        gallery.firstWhere((element) => element.name == 'Flickr', orElse: null);
+    if (flickrAlbum == null) {
+      setState(() {
+        hasImages = false;
+      });
+      return;
+    }
+    await flickrAlbum
+        .listMedia(
+          newest: true,
+        )
+        .then((value) => photos = value.items);
+
+    photos.sort(
+      (a, b) => a.creationDate.compareTo(b.creationDate),
+    );
+
+    for (var i = 0; i < photos.length; i++) {
+      dateTimeList.add(photos[i].creationDate);
+    }
+    DateTime previous = dateTimeList[0];
+    for (var i = 0; i < dateTimeList.length; i++) {
+      if (i == 0) {
+        listOfDays.add(previous);
+        continue;
+      }
+      if (dateTimeList[i].year == previous.year &&
+          dateTimeList[i].month == previous.month &&
+          dateTimeList[i].day == previous.day) {
+        continue;
+      }
+      listOfDays.add(dateTimeList[i]);
+      previous = dateTimeList[i];
+    }
+    print(listOfDays);
+
+    setState(() {
+      hasImages = true;
+    });
   }
 
   @override
