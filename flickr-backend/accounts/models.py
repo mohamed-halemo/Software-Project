@@ -52,7 +52,7 @@ AUTH_PROVIDERS = {'facebook': 'facebook',
                   'email': 'email'}
 class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
-    username = models.CharField(max_length=30, unique=True, db_index=True)
+    username = models.CharField( max_length=16,unique=True, db_index=True)
     first_name = models.CharField(verbose_name='first-name', max_length=60)
     last_name = models.CharField(verbose_name='last-name', max_length=60)
     age = models.IntegerField( validators=[

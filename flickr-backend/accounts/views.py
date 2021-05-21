@@ -123,8 +123,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             relative_link = reverse('accounts:password-reset-confirm',
                                     kwargs={'uidb64': uidb64, 'token': token})
             absurl = 'http://'+current_site+relative_link
-            email_body = 'Hello,\n Use link below to reset your password  \n'
-            + absurl
+            email_body = 'Hello,\n Use link below to reset your password  \n' + absurl
             data = {'email_body': email_body, 'to_email': user.email,
                     'email_subject': 'Reset you password'}
 
@@ -139,6 +138,8 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 class PasswordTokenCheck(generics.GenericAPIView):
     def get(self, request, uidb64, token):
         try:
+            print(token)
+            
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = Account.objects.get(id=id)
             if not PasswordResetTokenGenerator().check_token(user, token):
@@ -171,10 +172,17 @@ class ChangePassword(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         
         if serializer.is_valid(raise_exception=True):
+            
             # Check the old password
             if not user.check_password(serializer.data.get('old_password')):
                 return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
             # Change to the new password
+            if serializer.data.get('old_password') == serializer.data.get('new_password'):
+                raise serializers.ValidationError('New password cannot be same as old one!')
+
+            password,error2=validate_password(serializer.data.get('new_password'),user.username)
+            if len(password)==0:
+                raise serializers.ValidationError(error2)
             user.set_password(serializer.data.get('new_password'))
             user.save()
             response = {

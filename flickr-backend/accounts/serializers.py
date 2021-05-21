@@ -7,9 +7,9 @@ from django.utils.encoding import smart_str, force_str, smart_bytes
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from project.utils import *
 class SignUpSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(max_length=68, min_length=8,
+    password = serializers.CharField(max_length=16, min_length=8,
                                      write_only=True)
 
     class Meta:
@@ -17,12 +17,14 @@ class SignUpSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'password','first_name','last_name','age']
 
     def validate(self, attrs):
-        email = attrs.get('email', '')
+        password = attrs.get('password', '')
         username = attrs.get('username', '')
-        age = attrs.get('age', '')
-        if not username.isalnum():
-            raise serializers.ValidationError(
-                'The username should only contain alphanumeric characters')
+        username,error1=validate_username(username)
+        password,error2=validate_password(password,username)
+        if len(username)==0:
+            raise serializers.ValidationError(error1)
+        if len(password)==0:
+            raise serializers.ValidationError(error2)
         return attrs
 
     def create(self, validated_data):
@@ -39,7 +41,7 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 class LogInSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=6)
-    password = serializers.CharField(max_length=68, min_length=8,
+    password = serializers.CharField(max_length=16, min_length=8,
                                      write_only=True)
     username = serializers.CharField(max_length=255, min_length=6,
                                      read_only=True)
@@ -53,10 +55,11 @@ class LogInSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
+        email=email.lower()
         user = auth.authenticate(email=email, password=password)
         
         if not user:
-            raise AuthenticationFailed('Invalid credential, try again')
+            raise AuthenticationFailed('Invalid email or password.')
         if not user.is_active:
             raise AuthenticationFailed('Account disabled, contact admin')
         if not user.is_verified:
@@ -69,7 +72,7 @@ class LogInSerializer(serializers.ModelSerializer):
         
 class CheckPasswordSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=6)
-    password = serializers.CharField(max_length=68, min_length=8,
+    password = serializers.CharField(max_length=16, min_length=8,
                                      write_only=True)
     username = serializers.CharField(max_length=255, min_length=6,
                                      read_only=True)
@@ -130,25 +133,26 @@ class SetNewPasswordSerializer(serializers.Serializer):
         fields = ['password', 'token', 'uidb64']
 
     def validate(self, attrs):
-        try:
-            password = attrs.get('password')
-            token = attrs.get('token')
-            uidb64 = attrs.get('uidb64')
+        password = attrs.get('password')
+        token = attrs.get('token')
+        uidb64 = attrs.get('uidb64')
 
-            id = force_str(urlsafe_base64_decode(uidb64))
+        id = force_str(urlsafe_base64_decode(uidb64))
 
-            user = Account.objects.get(id=id)
-            if not PasswordResetTokenGenerator().check_token(user, token):
-                raise AuthenticationFailed('The reset link is invalid.', 401)
-            user.set_password(password)
-            user.save()
-            return (user)
-        except Exception as e:
+        user = Account.objects.get(id=id)
+        if not PasswordResetTokenGenerator().check_token(user, token):
             raise AuthenticationFailed('The reset link is invalid.', 401)
+        
+        password,error2=validate_password(password,user.username)
+        if len(password)==0:
+            raise serializers.ValidationError(error2)
+        user.set_password(password)
+        user.save()
+        return (user)
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(max_length=68, min_length=8,required=True)
-    new_password = serializers.CharField(max_length=68, min_length=8,required=True)
+    old_password = serializers.CharField(max_length=16, min_length=8,required=True)
+    new_password = serializers.CharField(max_length=16, min_length=8,required=True)
     
 class ChangeToPro(serializers.Serializer):
     is_pro = serializers.BooleanField(default=False)
