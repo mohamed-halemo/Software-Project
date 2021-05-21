@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from .models import Profile
-from accounts.models import Account
-
+from .models import *
+from accounts.models import *
 
 # class OwnerSerializer(serializers.ModelSerializer):
 #     # owner = serializers.CharField(read_only=True)
@@ -15,7 +14,29 @@ class ProfileSerializer(serializers.ModelSerializer):
     # owner= OwnerSerializer()
     class Meta:
         model = Profile
-        # fields='__all__'
+        fields='__all__'
         # depth = 1
-        exclude=('owner',)
+        # exclude=('owner',)
 
+
+class PhotoUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['profile_pic']
+
+
+class CoverUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['cover_photo']
+
+class FollowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contacts
+        fields = ['followed']
+
+
+class FollowerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contacts
+        fields = ['user']   
