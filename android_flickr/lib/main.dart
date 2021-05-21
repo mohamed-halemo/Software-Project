@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: FlickrSplashScreen(
-          GetStartedScreen(),
+          FlickrCameraScreen(),
         ),
         //NonProfileScreen()
         /*  FlickrSplashScreen(

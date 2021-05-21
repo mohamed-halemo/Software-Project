@@ -10,6 +10,7 @@ import 'dart:convert';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
+import 'package:save_in_gallery/save_in_gallery.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
@@ -284,16 +285,38 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
     String fullPath = path;
     fullPath = path + DateTime.now().day.toString() + '.jpg';
-    img.Image imageToBeSaved =
-        img.decodeBmp(widget.editedBitmap.buildHeaded().toList());
-    await File(fullPath).writeAsBytes(img.encodeJpg(imageToBeSaved));
+    // img.Image imageToBeSaved = img.decodeBmp();
 
-    if (fullPath != null) {
-      final result = await ImageGallerySaver.saveFile(fullPath);
-      print(result);
-    } else {
-      print('Null path');
-    }
+    // final byteData = img.encodeJpg(imageToBeSaved);
+
+    // await File(fullPath).writeAsBytes(img.encodeJpg(imageToBeSaved));
+
+    // if (fullPath != null) {
+    //   final result = await ImageGallerySaver.saveFile(fullPath);
+    //   print(result);
+    // } else {
+    //   print('Null path');
+    // }
+    String imageName = DateTime.now().year.toString() +
+        '-' +
+        DateTime.now().month.toString() +
+        '-' +
+        DateTime.now().day.toString() +
+        '_' +
+        DateTime.now().hour.toString() +
+        '-' +
+        DateTime.now().minute.toString() +
+        '-' +
+        DateTime.now().second.toString();
+    final _imageSaver = ImageSaver();
+    final res = await _imageSaver.saveImage(
+      imageBytes: widget.editedBitmap.buildHeaded(),
+      directoryName: "Flickr",
+      imageName: imageName + '.jpg',
+    );
+    print(res);
+    print(imageName);
+
     var mockUrl =
         // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
         Uri.http(globals.HttpSingleton().getBaseUrl(), 'Photo');
