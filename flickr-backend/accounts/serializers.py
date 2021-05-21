@@ -6,9 +6,10 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_str, smart_bytes
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from project.utils import *
 class SignUpSerializer(serializers.ModelSerializer):
+    '''Serializer for Signing up'''
     password = serializers.CharField(max_length=16, min_length=8,
                                      write_only=True)
 
@@ -32,6 +33,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class EmailVerificationSerializer(serializers.ModelSerializer):
+    '''Serializer for Email Verification'''
     token = serializers.CharField(max_length=555)
 
     class Meta:
@@ -40,6 +42,8 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 
 class LogInSerializer(serializers.ModelSerializer):
+    '''Serializer for Log in'''
+    
     email = serializers.EmailField(max_length=255, min_length=6)
     password = serializers.CharField(max_length=16, min_length=8,
                                      write_only=True)
@@ -70,37 +74,10 @@ class LogInSerializer(serializers.ModelSerializer):
             'tokens': user.tokens
         }
         
-class CheckPasswordSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=255, min_length=6)
-    password = serializers.CharField(max_length=16, min_length=8,
-                                     write_only=True)
-    username = serializers.CharField(max_length=255, min_length=6,
-                                     read_only=True)
-    tokens = serializers.CharField(max_length=68, min_length=8,
-                                   read_only=True)
-
-    class Meta:
-        model = Account
-        fields = ['email', 'password', 'username', 'tokens']
-
-    def validate(self, attrs):
-        email = attrs.get('email', '')
-        password = attrs.get('password', '')
-        user = auth.authenticate(email=email, password=password)
-        
-        if not user:
-            raise AuthenticationFailed('Invalid credential, try again')
-        if not user.is_active:
-            raise AuthenticationFailed('Account disabled, contact admin')
-        if not user.is_verified:
-            raise AuthenticationFailed('Email is not verified')
-        return {
-            'email': user.email,
-            'username': user.username,
-            'tokens': user.tokens
-        }
 
 class LogoutSerializer(serializers.Serializer):
+    '''Serializer for Log out'''
+    
     refresh = serializers.CharField()
     
     default_error_messages = {
@@ -118,6 +95,8 @@ class LogoutSerializer(serializers.Serializer):
             
 
 class RequestPasswordResetEmailSerializer(serializers.Serializer):
+    '''Serializer for Reset Password'''
+    
     email = serializers.EmailField(min_length=2)
 
     class Meta:
@@ -125,6 +104,8 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
 
 
 class SetNewPasswordSerializer(serializers.Serializer):
+    '''Serializer for setting new password after password reset'''
+    
     password = serializers.CharField(min_length=8, write_only=True)
     token = serializers.CharField(min_length=1, write_only=True)
     uidb64 = serializers.CharField(min_length=1, write_only=True)
@@ -151,14 +132,18 @@ class SetNewPasswordSerializer(serializers.Serializer):
         return (user)
 
 class ChangePasswordSerializer(serializers.Serializer):
+    '''Serializer for changing Password'''
+    
     old_password = serializers.CharField(max_length=16, min_length=8,required=True)
     new_password = serializers.CharField(max_length=16, min_length=8,required=True)
     
 class ChangeToPro(serializers.Serializer):
+    '''Serializer for changing Account type'''
     is_pro = serializers.BooleanField(default=False)
     
+    
 class OwnerSerializer(serializers.ModelSerializer):
-    # owner = serializers.CharField(read_only=True)
+    '''Serializer to get Account info '''
     class Meta:
         model = Account
         exclude=("password","date_joined", "updated_at",
