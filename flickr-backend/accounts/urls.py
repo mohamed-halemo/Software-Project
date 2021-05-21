@@ -1,6 +1,5 @@
 from django.urls import path
-from .api.views import *
-from .api import views
+from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -19,6 +18,7 @@ urlpatterns = [
     path('password-reset-complete/', SetNewPassword.as_view(),
          name="password-reset-complete"),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('delete-account/', views.DeleteAccount, name='delete-account'),
+    path('delete-account/', DeleteAccount, name='delete-account'),
+    path('change-to-pro/', ChangeToPro.as_view(), name="change-to-pro"),
 
 ]

@@ -150,6 +150,8 @@ class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(max_length=68, min_length=8,required=True)
     new_password = serializers.CharField(max_length=68, min_length=8,required=True)
     
+class ChangeToPro(serializers.Serializer):
+    is_pro = serializers.BooleanField(default=False)
     
 
     

@@ -169,7 +169,6 @@ class ChangePassword(generics.GenericAPIView):
     
     def put(self, request, *args, **kwargs):
         user = self.request.user
-        print(user)
         serializer = self.serializer_class(data=request.data)
         
         if serializer.is_valid(raise_exception=True):
@@ -184,8 +183,43 @@ class ChangePassword(generics.GenericAPIView):
                 'message': 'Password updated successfully',
             }
             return Response(response, status = status.HTTP_200_OK)
+class ChangeToPro(generics.GenericAPIView):
+    serializer_class = ChangeToPro
+    permission_classes = (permissions.IsAuthenticated,)
+    def put(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.serializer_class(data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
+            if user.is_pro and serializer.data['is_pro'] == True:
+                return Response({'status': 'failed',
+                                 'message': 'User already a pro!'}, status = status.HTTP_400_BAD_REQUEST)    
+            elif user.is_pro and serializer.data['is_pro'] == False:
+                user.is_pro =False
+                user.save()
+                response = {
+                    'status': 'success',
+                    'message': 'Returned back to normal!',
+                }
+                return Response(response, status = status.HTTP_200_OK)
+            elif not user.is_pro and serializer.data['is_pro'] == True:
+                user.is_pro =True
+                user.save()
+                response = {
+                    'status': 'success',
+                    'message': 'Changed to Pro!',
+                }
+                return Response(response, status = status.HTTP_200_OK)
+            elif not user.is_pro and serializer.data['is_pro'] == False:
+                response = {
+                    'status': 'failed',
+                    'message': 'User already normal!',
+                }
+                return Response(response, status = status.HTTP_200_OK)
+            
+                
 
-    
+                
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
