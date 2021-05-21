@@ -56,7 +56,6 @@ class Photo(models.Model):
     # Stats
     views = models.PositiveIntegerField(default=0) #big
     comments = models.PositiveIntegerField(default=0) #big 
-    favourites = models.PositiveIntegerField(default=0) #big
 
     # Tags & People Tagged Info
     count_tags = models.PositiveIntegerField(default=0)
@@ -89,7 +88,15 @@ class Photo(models.Model):
 
     # Video Duration
     video_duration = models.PositiveSmallIntegerField()
-
+    #   Faves fields
+    # users who faved this photo, many users can favourite one photo and
+    # one user can favourite many photos
+    favourites = models.ManyToManyField(
+        Account, related_name='post_favourite', blank=True)
+    # check if it is faved or not by the calling user to cusomize the button
+    is_faved = models.BooleanField(default=False)
+    # count of how many times this photo is faved (no of users)
+    count_favourites = models.IntegerField(default=0)
 
 class Tagging(models.Model):
 

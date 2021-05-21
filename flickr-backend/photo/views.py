@@ -1,6 +1,7 @@
 from .models import *
 from accounts.models import *
 from .serializers import *
+from accounts.serializers import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -350,3 +351,67 @@ def get_views(request, id):
                          'message': 'Photo not found'
                          ' or invalid photo ID'},
                         status=status.HTTP_404_NOT_FOUND)
+
+# Favourites
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def faves_list(request):
+    # get the favourites photos list for the requested user
+    # GET
+    user = request.user
+    faves_list = user.post_favourite.all()
+    serializer = PhotoMetaSerializer(
+        faves_list, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def photo_faves(request, id):
+    # get list of the users who faved a specific photo given the photo id
+    try:
+        photo_obj = Photo.objects.get(media_id=id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    users = photo_obj.favourites.all()
+    serializer = OwnerSerializer(
+        users, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticated,))
+def fav_photo(request, id):
+    # add or remove a specific photo to the favourites photos
+    # given the photo id
+    try:
+        photo_obj = Photo.objects.get(media_id=id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        if(photo_obj.owner == request.user):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        if request.user not in photo_obj.favourites.all():
+            photo_obj.favourites.add(request.user)
+            # increment the count of the users who faved this photo by 1
+            photo_obj.count_favourites += 1
+            photo_obj.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        if request.user in photo_obj.favourites.all():
+            photo_obj.favourites.remove(request.user)
+            # decrement the count of the users who faved this photo by 1
+            photo_obj.count_favourites -= 1
+            photo_obj.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+'''
+# in git info photo
+    if request.user in photo_obj.favourite.all():
+        photo_obj.is_faved= True
+    else:
+        photo_obj.is_faved= False
+'''

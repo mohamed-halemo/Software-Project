@@ -1,3 +1,4 @@
+from profiles.models import *
 from django.http import request
 from rest_framework import generics, status, views
 from django.shortcuts import render, redirect
@@ -37,7 +38,7 @@ class SignUpView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
-
+        print(user_data)
         #Setting email message
         user = Account.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
@@ -50,6 +51,9 @@ class SignUpView(generics.GenericAPIView):
                 'email_subject': 'Verify Your Email'}
         Util.send_email(data)
         
+        # Creating user profile
+        Profile.objects.create(owner=user)
+
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 

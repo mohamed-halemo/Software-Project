@@ -27,6 +27,15 @@ urlpatterns = [
 
     # Get photo views API
     path('<int:id>/views', views.get_views, name='get_views'),
+    
+    # Faves
+    # get the favourites photos list API
+    path('faves', views.faves_list, name='faves_list'),
 
+    # get List of the users who faved a photo API
+    path('<int:id>/faves', views.photo_faves, name='photo_faves'),
+
+    # add or remove a specific photo to the favourites photos API
+    path('<int:id>/fav', views.fav_photo, name='fav_photo'),
 
 ]
