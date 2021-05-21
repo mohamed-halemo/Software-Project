@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../providers/flickr_post.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:http/http.dart' show get;
+import 'image_info_screen.dart';
 //import 'package:provider/provider.dart';
 
 //this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
@@ -71,8 +77,13 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final postInformation = ModalRoute.of(context).settings.arguments
-        as PostDetails; // instance of Post details that contains info about the post we are currently displaying
+    final settingsMap =
+        ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
+    // instance of Post details that contains info about the post we are currently displaying
+    final postInformation = settingsMap['postDetails'];
+
+    bool isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
+
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
       backgroundColor: Colors.black87,
@@ -173,25 +184,75 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        //displays bottom bar which includes fave 0, comment button, share button, info button and faves and comments total number
-                        IconButton(
-                          icon: postInformation.favesDetails.isFaved
-                              ? Icon(
-                                  Icons.star,
-                                  color: Colors.blue,
-                                )
-                              : Icon(
-                                  Icons.star_border_outlined,
+                        isFromPersonalProfile
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.edit_outlined,
                                   color: Colors.white,
                                 ),
-                          onPressed: () {
-                            setState(
-                              () {
-                                postInformation.toggleFavoriteStatus();
-                              },
-                            );
-                          },
-                        ),
+                                onPressed: () async {
+                                  var _alertDownload = AlertDialog(
+                                    content: Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: Text(
+                                        'Downloading',
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  );
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => _alertDownload,
+                                    barrierDismissible: false,
+                                  );
+                                  Uri uri =
+                                      Uri.parse(postInformation.postImageUrl);
+                                  var response = await get(uri);
+                                  var tempDir = await getTemporaryDirectory();
+                                  var firstPath = tempDir.path + "/images";
+                                  var filePathAndName =
+                                      tempDir.path + '/images/pic.jpg';
+                                  await Directory(firstPath)
+                                      .create(recursive: true)
+                                      .then(
+                                    (value) {
+                                      File file = new File(filePathAndName);
+                                      file.writeAsBytesSync(response.bodyBytes);
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              PhotoEditScreen(filePathAndName),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              )
+                            :
+                            //displays bottom bar which includes fave 0, comment button, share button, info button and faves and comments total number
+                            IconButton(
+                                icon: postInformation.favesDetails.isFaved
+                                    ? Icon(
+                                        Icons.star,
+                                        color: Colors.blue,
+                                      )
+                                    : Icon(
+                                        Icons.star_border_outlined,
+                                        color: Colors.white,
+                                      ),
+                                onPressed: () {
+                                  setState(
+                                    () {
+                                      postInformation.toggleFavoriteStatus();
+                                    },
+                                  );
+                                },
+                              ),
                         IconButton(
                           icon: Icon(
                             Icons.comment_outlined,
@@ -211,7 +272,15 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                             Icons.info_outline,
                             color: Colors.white,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ImageInfoScreen(postInformation),
+                              ),
+                            );
+                          },
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,

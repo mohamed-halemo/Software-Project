@@ -11,7 +11,10 @@ class ExplorePost extends StatelessWidget {
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
-      arguments: postInformation,
+      arguments: {
+        'postDetails': postInformation,
+        'isFromPersonalProfile': false
+      },
     );
   }
 

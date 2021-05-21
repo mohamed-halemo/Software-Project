@@ -187,6 +187,10 @@ class Posts with ChangeNotifier {
             lastComment: {
               postDetails['lastCommentUser']: postDetails['lastCommentText'],
             },
+            dateTaken: DateTime.parse(postDetails['date_taken']),
+            description: postDetails['description'],
+            privacy: postDetails['privacy'],
+            tags: postDetails['tags'],
           ));
         },
       );
