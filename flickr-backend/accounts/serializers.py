@@ -153,9 +153,13 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ChangeToPro(serializers.Serializer):
     is_pro = serializers.BooleanField(default=False)
     
+class OwnerSerializer(serializers.ModelSerializer):
+    # owner = serializers.CharField(read_only=True)
+    class Meta:
+        model = Account
+        exclude=("password","date_joined", "updated_at",
+        "last_login", "auth_provider", "groups","user_permissions")
 
-    
-    
 
 
 

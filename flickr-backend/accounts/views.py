@@ -153,7 +153,6 @@ class PasswordTokenCheck(generics.GenericAPIView):
             return Response({'error': 'Invalid Token, Request a new one'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
-
 class SetNewPassword(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
 
@@ -218,8 +217,18 @@ class ChangeToPro(generics.GenericAPIView):
                 return Response(response, status = status.HTTP_200_OK)
             
                 
+class UserInfo(generics.RetrieveAPIView):
+    
+    serializer_class = OwnerSerializer       
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = Account.objects.all()
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = queryset.get(id=self.request.user.id)
+        
+        return obj
+    
 
-                
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
