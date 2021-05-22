@@ -1,6 +1,6 @@
 library my_prj.globals;
 
-bool isMockService = true;
+bool isMockService = false;
 
 class HttpSingleton {
   static final HttpSingleton _singleton = HttpSingleton._internal();
@@ -12,8 +12,6 @@ class HttpSingleton {
   HttpSingleton._internal();
 
   String getBaseUrl() {
-    return isMockService == true
-        ? '10.0.2.2:3000'
-        : 'mockservice-zaka-default-rtdb.firebaseio.com';
+    return isMockService == true ? '10.0.2.2:3000' : 'https://fotone.me/api';
   }
 }
