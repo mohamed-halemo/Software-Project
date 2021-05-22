@@ -1,23 +1,36 @@
+//out of the box imports
+import 'package:flutter/material.dart';
+
+//packages and plugins
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+//personal imports
+import '../providers/flickr_posts.dart';
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/screens/PhotoGalleryScreen.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../providers/flickr_posts.dart';
-import 'package:provider/provider.dart';
 
+///Camera Roll page where the user can view his images, open and edit them,
+///set privacy and delete.
 class CameraRoll extends StatefulWidget {
   @override
-  _CameraRollState createState() => _CameraRollState();
+  CameraRollState createState() => CameraRollState();
 }
 
-class _CameraRollState extends State<CameraRoll> {
+///Camera Roll state class, contains the main widget tree of camera roll,
+///as well as all it's state variables
+class CameraRollState extends State<CameraRoll> {
+  ///Bool used to determine if the user library has Posts or not.
   bool hasImages = false;
 
+  ///List of all user Posts.
   List<PostDetails> postsToDisplay;
 
+  ///Main widget tree, rebuilds with every state update.
   @override
   Widget build(BuildContext context) {
+    //get posts from provider
     postsToDisplay = Provider.of<Posts>(context).posts;
     if (postsToDisplay.isEmpty) {
       setState(() {
@@ -100,6 +113,9 @@ class _CameraRollState extends State<CameraRoll> {
           );
   }
 
+  ///Returns A String of the photo's Date Posted and bellow that a grid of images,
+  /// that were posted that day and has a max of
+  /// four images per row.
   Widget gridBuilder() {
     return ListView.builder(
       itemBuilder: (context, listindex) {
@@ -128,6 +144,7 @@ class _CameraRollState extends State<CameraRoll> {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                 ),
+                //TODO dynamic count
                 itemCount: 6,
                 itemBuilder: (context, gridindex) {
                   return Container(
@@ -171,6 +188,7 @@ class _CameraRollState extends State<CameraRoll> {
           ],
         );
       },
+      //TODO dynamic count
       itemCount: 10,
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 
 ///A Screen Where the user is able to add tags to a photo he is uploading
 //ignore: must_be_immutable
