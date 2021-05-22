@@ -11,10 +11,10 @@ import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 ///A screen where the user picks an album, then chooses and image to upload to the server.
 class PhotoGalleryScreen extends StatefulWidget {
   @override
-  _PhotoGalleryScreenState createState() => _PhotoGalleryScreenState();
+  PhotoGalleryScreenState createState() => PhotoGalleryScreenState();
 }
 
-class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
+class PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   ///List of all Albums that hold [Image] assets
   List<Album> imageAlbums;
 

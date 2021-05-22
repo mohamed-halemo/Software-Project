@@ -25,10 +25,10 @@ class PhotoEditScreen extends StatefulWidget {
   ///Constructs the photo edit screen settting the imagePath variable.
   PhotoEditScreen(this.imagePath);
   @override
-  _PhotoEditScreenState createState() => _PhotoEditScreenState();
+  PhotoEditScreenState createState() => PhotoEditScreenState();
 }
 
-class _PhotoEditScreenState extends State<PhotoEditScreen> {
+class PhotoEditScreenState extends State<PhotoEditScreen> {
   ///Holds a bitmap of the chosen or Captured image.
   Bitmap imageBitMap;
 

@@ -13,10 +13,10 @@ import 'image_info_screen.dart';
 class ClickOnImageScreen extends StatefulWidget {
   static const routeName = '/click-on-image-screen';
   @override
-  _ClickOnImageScreenState createState() => _ClickOnImageScreenState();
+  ClickOnImageScreenState createState() => ClickOnImageScreenState();
 }
 
-class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
+class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   bool isDetailsOfPostDisplayed = true;
   var photoViewController = PhotoViewController();
   var photoscale = 1.0;

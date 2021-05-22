@@ -9,10 +9,10 @@ class PhotoSelectionScreen extends StatefulWidget {
   final Album _album;
   PhotoSelectionScreen(this._album);
   @override
-  _PhotoSelectionScreenState createState() => _PhotoSelectionScreenState();
+  PhotoSelectionScreenState createState() => PhotoSelectionScreenState();
 }
 
-class _PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
+class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
   int selected = 0;
   List<File> thumbnailData = [];
 

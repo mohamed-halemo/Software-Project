@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../Classes/globals.dart' as globals;
 import 'dart:io';
 
+//ignore: must_be_immutable
 class ImageInfoScreen extends StatefulWidget {
   PostDetails postDetails;
 

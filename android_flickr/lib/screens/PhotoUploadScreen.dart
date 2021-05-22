@@ -25,10 +25,10 @@ class PhotoUploadScreen extends StatefulWidget {
   final btm.Bitmap editedBitmap;
   PhotoUploadScreen(this.headedBitmap, this.editedBitmap);
   @override
-  _PhotoUploadScreenState createState() => _PhotoUploadScreenState();
+  PhotoUploadScreenState createState() => PhotoUploadScreenState();
 }
 
-class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
+class PhotoUploadScreenState extends State<PhotoUploadScreen> {
   List<String> tags = [];
   String privacy = 'Public';
   final titleController = TextEditingController();
