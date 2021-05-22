@@ -3,9 +3,6 @@ import 'package:android_flickr/screens/PhotoGalleryScreen.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
-import 'package:photo_gallery/photo_gallery.dart';
-import '../Classes/globals.dart';
 import '../providers/flickr_posts.dart';
 import 'package:provider/provider.dart';
 
@@ -16,17 +13,6 @@ class CameraRoll extends StatefulWidget {
 
 class _CameraRollState extends State<CameraRoll> {
   bool hasImages = false;
-
-  // ///List of all Albums that hold [Image] assets
-  // Album flickrAlbum;
-
-  // ///List of Merged Albums, holding both Images and Videos
-  // List<Album> gallery = [];
-
-  // List<Medium> photos = [];
-
-  // List<DateTime> dateTimeList = [];
-  // List<DateTime> listOfDays = [];
 
   List<PostDetails> postsToDisplay;
 

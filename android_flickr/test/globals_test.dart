@@ -1,7 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/Classes/globals.dart' as globals;
 
+//This Test Follows the Arrange Act Assert pattern for tasting
+//Arrange: prepare the matcher and do any initializations
+//Act: Proceed with the method Call and get the Actual value
+//Assert: Expect Actual to be equal to matcher, if yes test pass
 void main() {
+  //HttpSingleton Testing, if isMockService flag is true, returns mock url
+  //if false, returns real server url
   group('HttpSingleton', () {
     test('Baseurl_Mock_true', () {
       //Arrange

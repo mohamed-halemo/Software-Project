@@ -112,25 +112,6 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   ///clear previous cache and load image as a file from [Pictures] folder then
   ///convert it into a [Bitmap] and build a headed [Uint8List] from this map.
   initImage() async {
-    // await PhotoGallery.cleanCache();
-    // imageAlbums = await PhotoGallery.listAlbums(
-    //   hideIfEmpty: true,
-    //   mediumType: MediumType.image,
-    // );
-
-    // Album workingAlbum =
-    //     imageAlbums.firstWhere((element) => element.name == 'Pictures');
-
-    // File file;
-    // await workingAlbum
-    //     .listMedia(
-    //       newest: true,
-    //     )
-    //     .then(
-    //       (value) => value.items.first.getFile().then((value) => file = value),
-    //     );
-
-    // imageBitMap = await Bitmap.fromProvider(FileImage(file));
     imageBitMap = await Bitmap.fromProvider(FileImage(File(widget.imagePath)));
     setState(() {
       headedBitMap = imageBitMap.buildHeaded();

@@ -9,7 +9,7 @@ import 'package:http/http.dart' show get;
 import 'image_info_screen.dart';
 //import 'package:provider/provider.dart';
 
-//this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
+///this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
 class ClickOnImageScreen extends StatefulWidget {
   static const routeName = '/click-on-image-screen';
   @override
@@ -190,47 +190,8 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                                   Icons.edit_outlined,
                                   color: Colors.white,
                                 ),
-                                onPressed: () async {
-                                  var _alertDownload = AlertDialog(
-                                    content: Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: Text(
-                                        'Downloading',
-                                        style: TextStyle(
-                                          fontSize: 26,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  );
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => _alertDownload,
-                                    barrierDismissible: false,
-                                  );
-                                  Uri uri =
-                                      Uri.parse(postInformation.postImageUrl);
-                                  var response = await get(uri);
-                                  var tempDir = await getTemporaryDirectory();
-                                  var firstPath = tempDir.path + "/images";
-                                  var filePathAndName =
-                                      tempDir.path + '/images/pic.jpg';
-                                  await Directory(firstPath)
-                                      .create(recursive: true)
-                                      .then(
-                                    (value) {
-                                      File file = new File(filePathAndName);
-                                      file.writeAsBytesSync(response.bodyBytes);
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              PhotoEditScreen(filePathAndName),
-                                        ),
-                                      );
-                                    },
-                                  );
+                                onPressed: () {
+                                  downloadImage(postInformation);
                                 },
                               )
                             :
@@ -297,6 +258,44 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void downloadImage(PostDetails postInformation) async {
+    var _alertDownload = AlertDialog(
+      content: Padding(
+        padding: EdgeInsets.all(20),
+        child: Text(
+          'Downloading',
+          style: TextStyle(
+            fontSize: 26,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+    showDialog(
+      context: context,
+      builder: (_) => _alertDownload,
+      barrierDismissible: false,
+    );
+    Uri uri = Uri.parse(postInformation.postImageUrl);
+    var response = await get(uri);
+    var tempDir = await getTemporaryDirectory();
+    var firstPath = tempDir.path + "/images";
+    var filePathAndName = tempDir.path + '/images/pic.jpg';
+    await Directory(firstPath).create(recursive: true).then(
+      (value) {
+        File file = new File(filePathAndName);
+        file.writeAsBytesSync(response.bodyBytes);
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => PhotoEditScreen(filePathAndName),
+          ),
+        );
+      },
     );
   }
 }

@@ -285,18 +285,6 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
     String fullPath = path;
     fullPath = path + DateTime.now().day.toString() + '.jpg';
-    // img.Image imageToBeSaved = img.decodeBmp();
-
-    // final byteData = img.encodeJpg(imageToBeSaved);
-
-    // await File(fullPath).writeAsBytes(img.encodeJpg(imageToBeSaved));
-
-    // if (fullPath != null) {
-    //   final result = await ImageGallerySaver.saveFile(fullPath);
-    //   print(result);
-    // } else {
-    //   print('Null path');
-    // }
     String imageName = DateTime.now().year.toString() +
         '-' +
         DateTime.now().month.toString() +

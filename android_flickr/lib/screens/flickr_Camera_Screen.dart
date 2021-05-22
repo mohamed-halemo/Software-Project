@@ -17,16 +17,15 @@ import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:android_flickr/Enums/enums.dart';
 import 'package:android_flickr/Classes/switch_Case_Helper.dart';
 
-///Flash mode Enum, [always] On , [auto] use, [never] use.
-
 ///Main Camera View where users take images or videos,
 ///Its a widget that occupies the full screen.
 class FlickrCameraScreen extends StatefulWidget {
   @override
-  _FlickrCameraScreen createState() => _FlickrCameraScreen();
+  FlickrCameraScreenState createState() => FlickrCameraScreenState();
 }
 
-class _FlickrCameraScreen extends State<FlickrCameraScreen>
+///StateObject
+class FlickrCameraScreenState extends State<FlickrCameraScreen>
     with TickerProviderStateMixin {
   ///Camera Notifiers.
 
@@ -48,9 +47,6 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
 
   ///Picture Controller which is called to take pictures.
   PictureController _pictureController = new PictureController();
-
-  ///Video Controller which is called to take Start and stop recording videos.
-  VideoController _videoController = new VideoController();
 
   //TODO Replace With better Plugin used in loading library.
   // List of images on the device (customized to only load the first 2 images,
