@@ -8,9 +8,14 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+  // If true the text is visible e;se it is not
   bool _secureText = true;
+  // The text written on the button in login screen
   String _buttonText = 'Next';
+  // Remeber email address
   bool _rememberMe = true;
+  // Checks if the email valid or not
+  bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -18,6 +23,7 @@ class _LogInState extends State<LogIn> {
       appBar: AppBar(
         leading: null,
         backgroundColor: Colors.grey[900],
+        // Showing the logo and the title in the appbar
         title: Row(
           children: <Widget>[
             Image.asset(
@@ -40,6 +46,7 @@ class _LogInState extends State<LogIn> {
         child: Container(
             child: Column(
           children: <Widget>[
+            // Showing the logo and the title under the appbar
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Column(
@@ -63,56 +70,69 @@ class _LogInState extends State<LogIn> {
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.only(right: 20, left: 20, top: 10),
-                  child: Column(
-                    children: <Widget>[
-                      _EmailField(),
-                      _textInput(
-                          hint: 'Password',
-                          label: 'Password',
-                          keyboardType: TextInputType.visiblePassword,
-                          obscure: _secureText,
-                          suffixIcon: _secureText
-                              ? Icons.remove_red_eye_outlined
-                              : Icons.remove_red_eye,
-                          suffixIconPressed: () {
-                            setState(() {
-                              _secureText = !_secureText;
-                            });
-                          }),
-                      Row(
-                        children: <Widget>[
-                          Padding(padding: EdgeInsets.all(0.0)),
-                          Checkbox(
-                              value: _rememberMe,
-                              onChanged: (value) {
+            Form(
+              key: _formKey,
+              child: Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 20, left: 20, top: 10),
+                    child: Column(
+                      // Text fields to collect the user login information
+                      children: <Widget>[
+                        _textInput(
+                          hint: 'Email address',
+                          label: 'Email address',
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        //Checks if the email is valid or not
+                        _isEmailValidated
+                            ? _textInput(
+                                hint: 'Password',
+                                label: 'Password',
+                                keyboardType: TextInputType.visiblePassword,
+                                obscure: _secureText,
+                                suffixIcon: _secureText
+                                    ? Icons.remove_red_eye_outlined
+                                    : Icons.remove_red_eye,
+                                // Changes the state of the password (Visible or not)
+                                suffixIconPressed: () {
+                                  setState(() {
+                                    _secureText = !_secureText;
+                                  });
+                                })
+                            : Container(),
+                        Row(
+                          children: <Widget>[
+                            Padding(padding: EdgeInsets.all(0.0)),
+                            Checkbox(
+                                value: _rememberMe,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _rememberMe = value;
+                                  });
+                                }),
+                            // Remeber email address checks when pressing on the check box or the sentence beside it
+                            GestureDetector(
+                              child: Text('Remeber email address'),
+                              onTap: () {
                                 setState(() {
-                                  _rememberMe = value;
+                                  _rememberMe = !_rememberMe;
                                 });
-                              }),
-                          GestureDetector(
-                            child: Text('Remeber email address'),
-                            onTap: () {
-                              setState(() {
-                                _rememberMe = !_rememberMe;
-                              });
-                            },
-                          )
-                        ],
-                      ),
-                      Form(
-                        key: _formKey,
-                        child: Container(
+                              },
+                            )
+                          ],
+                        ),
+                        Container(
                           child: RaisedButton(
                             onPressed: () {
                               final form = _formKey.currentState;
                               _formKey.currentState.validate();
-/*                         setState(() {
+                              setState(() {
+                                if (_formKey.currentState.validate()) {
                                   _buttonText = 'Sign in';
-                                }); */
+                                  _isEmailValidated = true;
+                                }
+                              });
                             },
                             child: Container(
                               child: Text(
@@ -130,39 +150,42 @@ class _LogInState extends State<LogIn> {
                             color: Colors.blue[600],
                           ),
                         ),
-                      ),
-                      Container(
-                        alignment: Alignment.center,
-                        child: FlatButton(
-                          onPressed: () {},
-                          child: Text(
-                            'Forget password ?',
-                            style: TextStyle(color: Colors.blue[600]),
+                        Container(
+                          alignment: Alignment.center,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Forget password ?',
+                              style: TextStyle(color: Colors.blue[600]),
+                            ),
                           ),
                         ),
-                      ),
-                      Divider(
-                        color: Colors.grey,
-                      ),
-                      Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Not a Fotone member ?'),
-                            FlatButton(
-                                padding: EdgeInsets.all(0.0),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SignUp()));
-                                },
-                                child: Text('Sign up here.',
-                                    style: TextStyle(color: Colors.blue[600])))
-                          ],
+                        // A line that divides the screen
+                        Divider(
+                          color: Colors.grey,
                         ),
-                      )
-                    ],
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Not a Fotone member ?'),
+                              // Moving to the sign up page
+                              FlatButton(
+                                  padding: EdgeInsets.all(0.0),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SignUp()));
+                                  },
+                                  child: Text('Sign up here.',
+                                      style:
+                                          TextStyle(color: Colors.blue[600])))
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -174,6 +197,7 @@ class _LogInState extends State<LogIn> {
   }
 }
 
+// Text input fields
 Widget _textInput({
   hint,
   label,
@@ -188,6 +212,13 @@ Widget _textInput({
       color: Colors.white,
     ),
     child: TextFormField(
+      // Checks if the text field is empty or not
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Required';
+        }
+        return null;
+      },
       decoration: InputDecoration(
         hintText: hint,
         labelText: label,
@@ -202,7 +233,7 @@ Widget _textInput({
   );
 }
 
-Widget _EmailField() {
+/* Widget _EmailField() {
   return Container(
       margin: EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
@@ -223,4 +254,4 @@ Widget _EmailField() {
             }
             return null;
           }));
-}
+} */

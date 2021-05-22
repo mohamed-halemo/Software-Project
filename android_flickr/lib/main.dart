@@ -3,6 +3,7 @@ import 'package:android_flickr/screens/click_on_image_screen.dart';
 import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:android_flickr/screens/get_started_page_screen.dart';
+import 'package:android_flickr/screens/non_profile_screen.dart';
 import 'package:android_flickr/screens/splash_screen.dart';
 //import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
@@ -45,8 +46,12 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: FlickrSplashScreen(
-          FlickrCameraScreen(),
+          ExploreScreen(),
         ),
+        //NonProfileScreen()
+        /*  FlickrSplashScreen(
+          GetStartedScreen(),
+        ), */
         routes: {
           ExploreScreen.routeName: (ctx) => ExploreScreen(),
           ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),
