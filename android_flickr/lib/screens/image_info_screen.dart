@@ -100,7 +100,7 @@ class _ImageInfoScreenState extends State<ImageInfoScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  testApi();
+                  //testApi();
                 },
                 child: Row(
                   children: [
@@ -189,61 +189,76 @@ class _ImageInfoScreenState extends State<ImageInfoScreen> {
               SizedBox(
                 height: 10,
               ),
-              Column(
-                children: [
-                  widget.postDetails.privacy
-                      ? Row(
-                          children: [
-                            Icon(
-                              Icons.lock_open,
+              GestureDetector(
+                onTap: () {},
+                child: widget.postDetails.privacy
+                    ? Row(
+                        children: [
+                          Icon(
+                            Icons.lock_open,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'Public',
+                            style: TextStyle(
                               color: Colors.white,
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Public',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Icon(
-                              Icons.lock,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                          ),
+                          Icon(
+                            Icons.image_outlined,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'Photo',
+                            style: TextStyle(
                               color: Colors.white,
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Private',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.2,
-                            ),
-                            Icon(
-                              Icons.image_outlined,
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.lock,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'Private',
+                            style: TextStyle(
                               color: Colors.white,
                             ),
-                            SizedBox(
-                              width: 10,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.2,
+                          ),
+                          Icon(
+                            Icons.image_outlined,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'Photo',
+                            style: TextStyle(
+                              color: Colors.white,
                             ),
-                            Text(
-                              'Photo',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                ],
-              )
+                          ),
+                        ],
+                      ),
+              ),
             ],
           ),
         ),
@@ -251,32 +266,32 @@ class _ImageInfoScreenState extends State<ImageInfoScreen> {
     );
   }
 
-  void testApi() {
-    var urlUri = Uri.parse(globals.HttpSingleton().getBaseUrl() + '/gallery/');
+  // void testApi() {
+  //   var urlUri = Uri.parse(globals.HttpSingleton().getBaseUrl() + '/gallery/');
 
-    //https://fotone.me/api/gallery/1/comments
-    print(HttpHeaders.authorizationHeader);
+  //   //https://fotone.me/api/gallery/1/comments
+  //   print(HttpHeaders.authorizationHeader);
 
-    http.get(
-      urlUri,
-      headers: {
-        "Content-Type": "application/json",
-        HttpHeaders.authorizationHeader: 'Bearer ' +
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIxNjQwNjAyLCJqdGkiOiI4Mjk2ZDFjMjZhOTE0YTU1YmIyMWMxZmI2MzAyNzc2NCIsInVzZXJfaWQiOjF9.XL8IQzrg4KWDOXlMl3YNkXL8WGrpO3o1xrLSyo_28Vg'
-      },
+  //   http.get(
+  //     urlUri,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       HttpHeaders.authorizationHeader: 'Bearer ' +
+  //           'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIxNjQwNjAyLCJqdGkiOiI4Mjk2ZDFjMjZhOTE0YTU1YmIyMWMxZmI2MzAyNzc2NCIsInVzZXJfaWQiOjF9.XL8IQzrg4KWDOXlMl3YNkXL8WGrpO3o1xrLSyo_28Vg'
+  //     },
 
-      //user
-      //favs
-      //gallery
-      //contacts
-      //
-    ).then((value) {
-      print(value.body);
-      if (value.statusCode == 200) {
-        var resp = value;
-        json.decode(resp.body);
-        print(resp.statusCode);
-      }
-    });
-  }
+  //     //user
+  //     //favs
+  //     //gallery
+  //     //contacts
+  //     //
+  //   ).then((value) {
+  //     print(value.body);
+  //     if (value.statusCode == 200) {
+  //       var resp = value;
+  //       json.decode(resp.body);
+  //       print(resp.statusCode);
+  //     }
+  //   });
+  // }
 }
