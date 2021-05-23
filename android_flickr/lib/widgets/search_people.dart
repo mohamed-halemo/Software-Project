@@ -33,6 +33,7 @@ class SearchPeople extends StatelessWidget {
           subtitle: Text(
             "${500}" + " photos - " + "${500}" + " followers",
             overflow: TextOverflow.fade,
+            softWrap: true,
           ),
           trailing: FlatButton(
             shape: Border.all(

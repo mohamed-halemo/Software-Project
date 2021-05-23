@@ -10,7 +10,7 @@ class SearchScreen extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        //backgroundColor: Colors.black,
+        backgroundColor: Colors.grey.shade200,
         appBar: AppBar(
           backgroundColor: Colors.black87,
           leading: Icon(Icons.search),
