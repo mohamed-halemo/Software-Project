@@ -1,27 +1,38 @@
+//out of the box imports
 import 'dart:io';
-
-import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:flutter/material.dart';
+
+//packages and plugins
 import 'package:path_provider/path_provider.dart';
-import '../providers/flickr_post.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' show get;
+import 'package:photo_view/photo_view.dart';
+
+//Personal imports
+import '../providers/flickr_post.dart';
 import 'image_info_screen.dart';
-//import 'package:provider/provider.dart';
+import 'package:android_flickr/screens/photoEditScreen.dart';
 
 ///this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
 class ClickOnImageScreen extends StatefulWidget {
+  ///Route name used for Navigation
   static const routeName = '/click-on-image-screen';
   @override
   ClickOnImageScreenState createState() => ClickOnImageScreenState();
 }
 
+///ClickOnImageScreen State Object
 class ClickOnImageScreenState extends State<ClickOnImageScreen> {
+  ///true if the post details is displayed, false if hidden. Hide post details by tapping on image
+  ///, tap again to show again.
   bool isDetailsOfPostDisplayed = true;
+
+  ///Controller for PhotoView Plugin
   var photoViewController = PhotoViewController();
+
+  ///Scale of the Zoom of the photo.
   var photoscale = 1.0;
 
-  //returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
+  ///returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
   Widget favesText(PostDetails postInformation) {
     if ((postInformation.favesDetails.favesTotalNumber > 1 ||
             postInformation.commentsTotalNumber != 0) &&
@@ -48,7 +59,7 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     }
   }
 
-  //returns a widget which tells me the which string in Text widget that will be displayed based on the commentsTotalNumber
+  ///returns a widget which tells me the which string in Text widget that will be displayed based on the commentsTotalNumber
   Widget commentsText(PostDetails postInformation) {
     if ((postInformation.commentsTotalNumber > 1 ||
             postInformation.favesDetails.favesTotalNumber != 0) &&
@@ -75,11 +86,13 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     }
   }
 
+  ///Main Build method. Rebuilds with state update.
   @override
   Widget build(BuildContext context) {
     final settingsMap =
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
-    // instance of Post details that contains info about the post we are currently displaying
+
+    /// instance of Post details that contains info about the post we are currently displaying
     final postInformation = settingsMap['postDetails'];
 
     bool isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
@@ -261,6 +274,9 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     );
   }
 
+  ///When the User presses the Edit button (if the photo is owned by this user), Displays a
+  /// dialog that asks the user to wait till download is finished. Once finished, Downloaded image's
+  ///  path is pushed to the photo edit screen.
   void downloadImage(PostDetails postInformation) async {
     var _alertDownload = AlertDialog(
       content: Padding(

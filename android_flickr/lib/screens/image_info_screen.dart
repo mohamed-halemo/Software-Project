@@ -1,22 +1,24 @@
-import 'dart:convert';
-
-import 'package:android_flickr/providers/flickr_post.dart';
+//out of the box imports
 import 'package:flutter/material.dart';
+//packages and plugins
+import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import '../Classes/globals.dart' as globals;
-import 'dart:io';
 
+///A page that displays info of the Current Image
 //ignore: must_be_immutable
 class ImageInfoScreen extends StatefulWidget {
+  ///Post Details , holds information about the image such as title, description, tags and so on.
   PostDetails postDetails;
 
+  ///Constructor, takes PostDetails
   ImageInfoScreen(this.postDetails);
   @override
-  _ImageInfoScreenState createState() => _ImageInfoScreenState();
+  ImageInfoScreenState createState() => ImageInfoScreenState();
 }
 
-class _ImageInfoScreenState extends State<ImageInfoScreen> {
+///Image Info State Object
+class ImageInfoScreenState extends State<ImageInfoScreen> {
+  ///Main build method, Rebuilds with state update.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

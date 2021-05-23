@@ -1,14 +1,12 @@
 //out of the box imports
 import 'dart:io';
 import 'dart:typed_data';
-//packages and Plugins
 
+//packages and Plugins
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:circle_list/circle_list.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 import 'package:bitmap/bitmap.dart';
-import 'package:circle_wheel_scroll/circle_wheel_render.dart';
 import 'package:circle_wheel_scroll/circle_wheel_scroll_view.dart';
 
 //Personal Imports

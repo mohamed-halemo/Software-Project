@@ -1,39 +1,51 @@
 //out of the box imports
 
-import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'package:flutter/material.dart';
-
 import 'dart:typed_data' as typedData;
-import 'dart:io';
-
 import 'dart:convert';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
 import 'package:save_in_gallery/save_in_gallery.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import '../Classes/globals.dart' as globals;
 
-//Photo upload screen where user adds image info before uploading it to the server
+//personal imports
+import '../Classes/globals.dart' as globals;
+import 'package:android_flickr/screens/add_tags_screen.dart';
+
+///Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
   /// The headedBitmap from the Photo edit screen is passed to this widget through the constructor
+  /// it is a [Uint8List] and is used to render image on screen
   final typedData.Uint8List headedBitmap;
+
+  ///The final bitmap of the image after all edits are done, if user chooses to post image
+  ///, this bitmap is encoded to jpg format and is saved on device
   final btm.Bitmap editedBitmap;
+
+  ///Constructor, takes a [Uint8List] and a [Bitmap]
   PhotoUploadScreen(this.headedBitmap, this.editedBitmap);
   @override
   PhotoUploadScreenState createState() => PhotoUploadScreenState();
 }
 
+///state object of Photo Upload Screen
 class PhotoUploadScreenState extends State<PhotoUploadScreen> {
+  ///List of Tags added by the user
   List<String> tags = [];
+
+  ///Privacy of the image, if public, image is added to camera roll and public,
+  /// if private, it is addes to only camera roll.
   String privacy = 'Public';
+
+  ///Text Editing controller for title field
   final titleController = TextEditingController();
+
+  ///Text Editing controller for description field
   final descriptionController = TextEditingController();
 
+  ///Overrides the default dispose method to allow Landscape mode in edit View
   @override
   dispose() {
     SystemChrome.setPreferredOrientations([
@@ -45,6 +57,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     super.dispose();
   }
 
+  ///Main build method. rebuilds with state update
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -257,6 +270,8 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
   }
 
+  ///Returns a Text widget with static 'Tags' if [tags] list is empty.
+  /// If it is not empty, returns a String with the tags in [tags] list.
   Widget getTagsText() {
     if (tags.isEmpty) {
       return Text('Tags');
@@ -278,13 +293,14 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
   }
 
+  ///On Post button press, Generate file name in the format of:
+  ///
+  /// YYYY-MM-DD_hh-mm-ss
+  ///
+  ///Then the image is saved on the local device in 'Flickr' folder, with jpg extension.
+  /// After Saving to device, the image is uploaded to the server along with any
+  /// available image info.
   void postAndSaveImage() async {
-    String path;
-    await getTemporaryDirectory().then(
-      (value) => path = value.path,
-    );
-    String fullPath = path;
-    fullPath = path + DateTime.now().day.toString() + '.jpg';
     String imageName = DateTime.now().year.toString() +
         '-' +
         DateTime.now().month.toString() +

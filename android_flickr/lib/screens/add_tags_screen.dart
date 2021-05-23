@@ -1,3 +1,4 @@
+// out of the box imports
 import 'package:flutter/material.dart';
 
 ///A Screen Where the user is able to add tags to a photo he is uploading

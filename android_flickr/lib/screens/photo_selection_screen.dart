@@ -1,21 +1,34 @@
+//out of the box imports
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:flutter/material.dart';
+
+//packages and plugins
 import 'package:photo_gallery/photo_gallery.dart';
 
+//personal imports
+import 'package:android_flickr/screens/photoEditScreen.dart';
+
+///A Screen where the user can tap on an image to pick it for upload
 class PhotoSelectionScreen extends StatefulWidget {
+  ///The Album That the user picked in the Gallery Screen. The Album media is displayed in this screen
+  ///and the user should choose an image to upload.
   final Album _album;
+
+  ///Constructor, takes an album.
   PhotoSelectionScreen(this._album);
   @override
   PhotoSelectionScreenState createState() => PhotoSelectionScreenState();
 }
 
+///Photo Selection Screen State Object
 class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
+  /// used to display number of images selected (Can Only Select One Image).
   int selected = 0;
+
+  ///A List of Files holding image thumbnails to display.
   List<File> thumbnailData = [];
 
+  ///Initialize Thumbnail List with thumbnails recieved from albums.
   Future initAlbum() async {
     await widget._album
         .listMedia(
@@ -24,9 +37,6 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     )
         .then((value) async {
       for (var i = widget._album.count - 1; i > -1; i--) {
-        // value.items[i].getThumbnail().then((value) {
-        //   thumbnailData.add(value);
-        // });
         await value.items[i].getFile().then((value) {
           setState(() {
             thumbnailData.add(value);
@@ -36,6 +46,8 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     });
   }
 
+  ///Overrides default initState method by initializing album and Filling thumbnail data
+  ///, once done, then setState and rebuild.
   @override
   void initState() {
     super.initState();
@@ -44,6 +56,7 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     });
   }
 
+  ///main build method, rebuilds with state update.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,6 +148,8 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     );
   }
 
+  ///For the thumbnail of the passed index, Create an image widget of type File and use
+  ///thumbnail file.
   Widget getThumbnails(int index) {
     try {
       return Image.file(
@@ -145,6 +160,8 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     return Container();
   }
 
+  ///For the Image of the passed index, Get the image file, get the image path, and pass it
+  ///to the PhotoEditScreen and oush it to start editing the image.
   void pushEditScreen(int index) async {
     String imagePath;
     await widget._album.listMedia().then(
