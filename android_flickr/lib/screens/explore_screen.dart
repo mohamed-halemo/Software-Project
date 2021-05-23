@@ -1,4 +1,6 @@
+import 'package:android_flickr/screens/search_screen.dart';
 import 'package:android_flickr/widgets/profile_display.dart';
+import 'package:android_flickr/widgets/search_display.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../widgets/explore_display.dart';
@@ -42,8 +44,10 @@ class ExploreScreen extends StatelessWidget {
                       //text: 'Categories',
                     ),
                     Tab(
-                      icon: Icon(
-                        Icons.search,
+                      icon: GestureDetector(
+                        child: Icon(
+                          Icons.search,
+                        ),
                       ),
                       //text: 'Favorites',
                     ),
@@ -83,9 +87,7 @@ class ExploreScreen extends StatelessWidget {
                 child: Explore(), //display the explore posts
               ),
 
-              Center(
-                child: Text("no search"),
-              ),
+              SearchDisplay(),
               ProfileDisplay(),
               Center(
                 child: Text("no notifications"),

@@ -4,6 +4,7 @@ import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:android_flickr/screens/get_started_page_screen.dart';
 import 'package:android_flickr/screens/non_profile_screen.dart';
+import 'package:android_flickr/screens/search_screen.dart';
 import 'package:android_flickr/screens/splash_screen.dart';
 //import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,13 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
+        onGenerateRoute: (settings) {
+          if (settings.name == SearchScreen.routeName) {
+            return MaterialPageRoute(
+              builder: (ctx) => SearchScreen(),
+            );
+          }
+        },
         title: 'Flickr',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -57,6 +65,7 @@ class MyApp extends StatelessWidget {
           ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),
           GetStartedScreen.routeName: (ctx) => GetStartedScreen(),
           //FlickrSplashScreen.routeName: (ctx) => FlickrSplashScreen(),
+          SearchScreen.routeName: (ctx) => SearchScreen(),
         },
       ),
     );
