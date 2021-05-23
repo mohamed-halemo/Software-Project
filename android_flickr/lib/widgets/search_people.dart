@@ -35,15 +35,25 @@ class SearchPeople extends StatelessWidget {
             overflow: TextOverflow.fade,
             softWrap: true,
           ),
-          trailing: FlatButton(
-            shape: Border.all(
-              color: Colors.black,
-              width: 2,
-            ),
-            color: Colors.transparent,
-            onPressed: () {},
-            child: Text("+" + " Follow"),
-          ),
+          trailing: peopleSearchDetails[index].picPoster.isFollowedByUser
+              ? FlatButton(
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  ),
+                  color: Colors.transparent,
+                  onPressed: () {},
+                  child: Icon(Icons.beenhere_outlined),
+                )
+              : FlatButton(
+                  shape: Border.all(
+                    color: Colors.black,
+                    width: 2,
+                  ),
+                  color: Colors.transparent,
+                  onPressed: () {},
+                  child: Text("+" + " Follow"),
+                ),
         );
       },
     );
