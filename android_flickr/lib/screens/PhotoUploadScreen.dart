@@ -24,6 +24,30 @@ class PhotoUploadScreen extends StatefulWidget {
   ///, this bitmap is encoded to jpg format and is saved on device
   final btm.Bitmap editedBitmap;
 
+  ///List of Tags added by the user
+  List<String> tags = [];
+
+  Widget getTagsText(BuildContext context) {
+    if (tags.isEmpty) {
+      return Text('Tags');
+    }
+    String text = '';
+    for (var i = 0; i < tags.length; i++) {
+      text.isEmpty ? text = tags[i] : text = text + ', ' + tags[i];
+    }
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 18,
+        ),
+      ),
+    );
+  }
+
   ///Constructor, takes a [Uint8List] and a [Bitmap]
   PhotoUploadScreen(this.headedBitmap, this.editedBitmap);
   @override
@@ -32,9 +56,6 @@ class PhotoUploadScreen extends StatefulWidget {
 
 ///state object of Photo Upload Screen
 class PhotoUploadScreenState extends State<PhotoUploadScreen> {
-  ///List of Tags added by the user
-  List<String> tags = [];
-
   ///Privacy of the image, if public, image is added to camera roll and public,
   /// if private, it is addes to only camera roll.
   String privacy = 'Public';
@@ -149,7 +170,8 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (BuildContext context) => AddTagsScreen(tags),
+                    builder: (BuildContext context) =>
+                        AddTagsScreen(widget.tags),
                   ),
                 ).then((value) {
                   setState(() {});
@@ -167,10 +189,10 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
                     SizedBox(
                       width: 10,
                     ),
-                    getTagsText(),
+                    widget.getTagsText(context),
                   ],
                 ),
-                tags.isEmpty
+                widget.tags.isEmpty
                     ? Container()
                     : Align(
                         alignment: Alignment.centerRight,
@@ -270,28 +292,8 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
   }
 
-  ///Returns a Text widget with static 'Tags' if [tags] list is empty.
-  /// If it is not empty, returns a String with the tags in [tags] list.
-  Widget getTagsText() {
-    if (tags.isEmpty) {
-      return Text('Tags');
-    }
-    String text = '';
-    for (var i = 0; i < tags.length; i++) {
-      text.isEmpty ? text = tags[i] : text = text + ', ' + tags[i];
-    }
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.7,
-      child: Text(
-        text,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 18,
-        ),
-      ),
-    );
-  }
+  ///Returns a Text widget with static 'Tags' if [widget.tags] list is empty.
+  /// If it is not empty, returns a String with the widget.tags in [widget.tags] list.
 
   ///On Post button press, Generate file name in the format of:
   ///

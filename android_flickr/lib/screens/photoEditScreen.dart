@@ -5,7 +5,6 @@ import 'dart:typed_data';
 //packages and Plugins
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:photo_gallery/photo_gallery.dart';
 import 'package:bitmap/bitmap.dart';
 import 'package:circle_wheel_scroll/circle_wheel_scroll_view.dart';
 
@@ -19,6 +18,34 @@ import '../Classes/switch_Case_Helper.dart';
 class PhotoEditScreen extends StatefulWidget {
   ///Path and name of the image
   final imagePath;
+
+  ///The Editing mode state variable
+  BrushMode brushMode;
+
+  ///Set the brushMode state variable depending on the Angle of rotation of the
+  ///List wheel.
+  void setBrushState(int angle) {
+    switch (angle) {
+      case 0:
+        brushMode = BrushMode.Saturation;
+        break;
+      case 1:
+        brushMode = BrushMode.Exposure;
+        break;
+      case 2:
+        brushMode = BrushMode.Contrast;
+        break;
+      case 3:
+        brushMode = BrushMode.Brightness;
+        break;
+      case 4:
+        brushMode = BrushMode.Rotate;
+        break;
+
+      default:
+        brushMode = BrushMode.Saturation;
+    }
+  }
 
   ///Constructs the photo edit screen settting the imagePath variable.
   PhotoEditScreen(this.imagePath);
@@ -40,33 +67,14 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
   ///Used to display the image on the screen after converting it from [Bitmap] to [Uint8List]
   Uint8List headedBitMap;
 
-  ///A list of Albums on the phone, used to Load the to be edited image.
-  List<Album> imageAlbums;
-
   /// is the user editing with brush or filters?
   ///if editing, what is the edit mode? -1: Brush , 0: Not Editing , 1: Filters
   int editMode = 0;
 
-  ///Drag angle of the list wheel
-  double dragAngel;
-
-  ///Slider Value of some editing modes
-  double sliderValue;
-
   List<double> sliderValueList;
-
-  ///The Editing mode state variable
-  BrushMode brushMode;
 
   ///An intiger that counts how many changes has occured due to rotating the wheel
   int brushModeChangeOnAngleUpdate;
-
-  ///A double that keeps track of how far the wheel has rotated
-  double totalAngleOfRotation;
-
-  ///A double that holds the last angle of the wheel, subtract from drag angle and get absolute
-  ///to get total angle of rotation
-  double oldAngel;
 
   bool resetAllEnabler = false;
   @override
@@ -90,19 +98,17 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    brushMode = BrushMode.Saturation;
-    totalAngleOfRotation = 0;
-    oldAngel = 0;
-    dragAngel = 0;
+    widget.brushMode = BrushMode.Saturation;
+
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
-    sliderValue = 0.5;
+
     sliderValueList = [
       0.5,
       0.5,
       0.5,
       0.5,
     ];
-    imageAlbums = [];
+
     initImage();
     setState(() {});
   }
@@ -194,7 +200,9 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                                   ? MediaQuery.of(context).size.height * 0.2
                                   : MediaQuery.of(context).size.height * 0.3,
                               onSelectedItemChanged: (value) {
-                                setBrushState(value);
+                                setState(() {
+                                  widget.setBrushState(value);
+                                });
                               },
                             ),
                           ),
@@ -231,7 +239,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                           onTap: () {
                             setState(() {
                               editMode = 0;
-                              brushMode = BrushMode.Saturation;
+                              widget.brushMode = BrushMode.Saturation;
                             });
                           },
                           child: Image.asset(
@@ -262,11 +270,11 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: SwitchCaseHelper.getIcon(
-                                  brushMode.index, false),
+                                  widget.brushMode.index, false),
                             ),
                           ),
-                          brushMode == BrushMode.Rotate
-                              ? getRotateOrCrop()
+                          widget.brushMode == BrushMode.Rotate
+                              ? getRotateWidget()
                               : SliderTheme(
                                   data: SliderThemeData(
                                     thumbShape: RoundSliderThumbShape(
@@ -293,7 +301,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                         }
                         rotationApplied = 0;
                         setState(() {
-                          applyChanges(brushMode);
+                          applyChanges(widget.brushMode);
                           resetAllEnabler = false;
                         });
                       },
@@ -317,6 +325,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
     );
   }
 
+  ///Returns Sliders according to the current edit mode, on Slider Change, Applys editing Changes.
   Widget getSlider() {
     resetAllEnabler = false;
     for (var i = 0; i < sliderValueList.length; i++) {
@@ -326,7 +335,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
         break;
       }
     }
-    switch (brushMode) {
+    switch (widget.brushMode) {
       case BrushMode.Saturation:
         return Slider(
           value: sliderValueList[0],
@@ -336,7 +345,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             });
           },
           onChangeEnd: (value) {
-            applyChanges(brushMode);
+            applyChanges(widget.brushMode);
           },
           activeColor: Colors.white,
           inactiveColor: Colors.grey,
@@ -350,7 +359,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             });
           },
           onChangeEnd: (value) {
-            applyChanges(brushMode);
+            applyChanges(widget.brushMode);
           },
           activeColor: Colors.white,
           inactiveColor: Colors.grey,
@@ -364,7 +373,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             });
           },
           onChangeEnd: (value) {
-            applyChanges(brushMode);
+            applyChanges(widget.brushMode);
           },
           activeColor: Colors.white,
           inactiveColor: Colors.grey,
@@ -378,7 +387,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             });
           },
           onChangeEnd: (value) {
-            applyChanges(brushMode);
+            applyChanges(widget.brushMode);
           },
           activeColor: Colors.white,
           inactiveColor: Colors.grey,
@@ -393,7 +402,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             });
           },
           onChangeEnd: (value) {
-            applyChanges(brushMode);
+            applyChanges(widget.brushMode);
           },
           activeColor: Colors.white,
           inactiveColor: Colors.grey,
@@ -405,7 +414,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
   ///if Rotate, return rotation arrows.
   //
   //Crop was dropped in phase 3 as a part of the dropped 50%
-  Widget getRotateOrCrop() {
+  Widget getRotateWidget() {
     Bitmap editedBitmap = imageBitMap;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -433,7 +442,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                 }
                 headedBitMap = editedBitmap.buildHeaded();
                 imageBitMap = editedBitmap;
-                applyChanges(brushMode);
+                applyChanges(widget.brushMode);
               });
             }),
         SizedBox(
@@ -461,46 +470,15 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                 }
                 headedBitMap = editedBitmap.buildHeaded();
                 imageBitMap = editedBitmap;
-                applyChanges(brushMode);
+                applyChanges(widget.brushMode);
               });
             }),
       ],
     );
   }
 
-  ///Set the brushMode state variable depending on the Angle of rotation of the
-  ///List wheel.
-  void setBrushState(int angle) {
-    if (angle == 0) {
-      setState(() {
-        brushMode = BrushMode.Saturation;
-      });
-    }
-
-    if (angle == 1) {
-      setState(() {
-        brushMode = BrushMode.Exposure;
-      });
-    }
-    if (angle == 2) {
-      setState(() {
-        brushMode = BrushMode.Contrast;
-      });
-    }
-    if (angle == 3) {
-      setState(() {
-        brushMode = BrushMode.Brightness;
-      });
-    }
-    if (angle == 4) {
-      setState(() {
-        brushMode = BrushMode.Rotate;
-      });
-    }
-  }
-
   ///Apply changes the user wants on the Bitmap and update the displayed headed bitmap accordingly.
-  ///The method Takes [brushMode] as a parameter and uses the local [sliderValue] variable
+  ///The method Takes [widget.brushMode] as a parameter and uses the local [sliderValueList] variable
   /// as enhancment factor for the image.
   void applyChanges(BrushMode burshMode) async {
     if (imageBitMap == null) {
@@ -524,6 +502,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
           imageBitMap = imageBitMap.apply(BitmapRotate.rotateClockwise());
           break;
         default:
+          break;
       }
       actualRotationApplied = 0;
     }

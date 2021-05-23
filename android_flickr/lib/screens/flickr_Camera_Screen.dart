@@ -293,15 +293,16 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
       ),
     );
 
-    //only get the first two images, not anymore are needed in this view
-    galleryList = await list[0].getAssetListRange(start: 0, end: 1);
-
-    //Set recent image to the recieved file and rebuild
-    galleryList[0].file.then((value) {
-      setState(() {
-        recentImage = value;
+    try {
+      //only get the first two images, not anymore are needed in this view
+      galleryList = await list[0].getAssetListRange(start: 0, end: 1);
+      //Set recent image to the recieved file and rebuild
+      galleryList[0].file.then((value) {
+        setState(() {
+          recentImage = value;
+        });
       });
-    });
+    } catch (e) {}
   }
 
   ///Camera Mode Button receives an image path string of the button icon
