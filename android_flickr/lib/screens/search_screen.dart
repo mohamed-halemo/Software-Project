@@ -1,3 +1,6 @@
+import 'package:android_flickr/widgets/search_groups.dart';
+import 'package:android_flickr/widgets/search_people.dart';
+import 'package:android_flickr/widgets/search_photos.dart';
 import 'package:flutter/material.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -63,9 +66,9 @@ class SearchScreen extends StatelessWidget {
           //widgets each tab will display
           children: <Widget>[
             //wrapped with refresh indicator which runs the _refreshExplore function when triggered
-            Container(),
-            Container(),
-            Container(),
+            SearchPhotos(),
+            SearchPeople(),
+            SearchGroups(),
           ],
         ),
       ),
