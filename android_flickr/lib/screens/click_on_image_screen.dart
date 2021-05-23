@@ -20,45 +20,48 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
       backgroundColor: Colors.black87,
-      body: GestureDetector(
-        onTap: () {
-          setState(
-            () {
-              isDetailsOfPostDisplayed = !isDetailsOfPostDisplayed;
-            },
-          );
-        },
-        child: Container(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-          ),
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            //fit: StackFit.expand,
-            children: [
-              if (isDetailsOfPostDisplayed)
-                //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
-                ListTile(
-                  leading: CircleAvatar(
-                    radius: MediaQuery.of(context).size.width / 20,
-                    backgroundImage: NetworkImage(postInformation.postImageUrl),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  title: Text(
-                    postInformation.picPoster.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.cancel_outlined),
+      body: Container(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top,
+        ),
+        height: MediaQuery.of(context).size.height,
+        child: Stack(
+          //fit: StackFit.expand,
+          children: [
+            if (isDetailsOfPostDisplayed)
+              //so when we tap on the screen the bottom bar and top bar navigate between disappear and appear
+              ClickOnImageDisplayPostDetails(postInformation: postInformation),
+            if (isDetailsOfPostDisplayed)
+              //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
+              ListTile(
+                leading: CircleAvatar(
+                  radius: MediaQuery.of(context).size.width / 20,
+                  backgroundImage: NetworkImage(postInformation.postImageUrl),
+                  backgroundColor: Colors.transparent,
+                ),
+                title: Text(
+                  postInformation.picPoster.name,
+                  style: TextStyle(
                     color: Colors.white,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
                   ),
                 ),
-              Center(
+                trailing: IconButton(
+                  icon: Icon(Icons.cancel_outlined),
+                  color: Colors.white,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            GestureDetector(
+              onTap: () {
+                setState(
+                  () {
+                    isDetailsOfPostDisplayed = !isDetailsOfPostDisplayed;
+                  },
+                );
+              },
+              child: Center(
                 //display image of the post
                 child: Container(
                   constraints: BoxConstraints(
@@ -74,12 +77,8 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                   ),
                 ),
               ),
-              if (isDetailsOfPostDisplayed)
-                //so when we tap on the screen the bottom bar and top bar navigate between disappear and appear
-                ClickOnImageDisplayPostDetails(
-                    postInformation: postInformation),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -18,7 +18,8 @@ class PicPosterDetails {
     this.profilePicUrl,
   );
 }
-//class FavedPostDetails this class describes the post fave details which is how many users faved the post as well as 
+
+//class FavedPostDetails this class describes the post fave details which is how many users faved the post as well as
 //one or two names (if there is anyone who faved) two display below the image. the class also tells us whether the current user
 //faved the post or no
 class FavedPostDetails {
@@ -70,6 +71,7 @@ class PostDetails with ChangeNotifier {
     notifyListeners();
     updateFavoriteStatus(favesDetails.isFaved, favesDetails.favesTotalNumber);
   }
+
   /*updateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on database */
   Future<void> updateFavoriteStatus(bool isFaved, int favesTotalNumber) async {
     final url = Uri.https(
@@ -93,6 +95,14 @@ class PostDetails with ChangeNotifier {
     notifyListeners();
     updateFollowPicPoster();
   }
+
+  void toggleFollowPicPoster() {
+    picPoster.isFollowedByUser = !picPoster.isFollowedByUser;
+    //picPoster.followedDuringRunning = true;
+    notifyListeners();
+    updateFollowPicPoster();
+  }
+
   //this function is called inside followPicPoster to reflect change on database
   Future<void> updateFollowPicPoster() async {
     final url = Uri.https(
@@ -101,7 +111,7 @@ class PostDetails with ChangeNotifier {
       url,
       body: json.encode(
         {
-          'isFollowedByUser': true,
+          'isFollowedByUser': picPoster.isFollowedByUser,
         },
       ),
     );
