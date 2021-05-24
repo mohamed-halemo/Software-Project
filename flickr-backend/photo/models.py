@@ -1,12 +1,17 @@
 from django.db import models
 from accounts.models import *
 from django_google_maps import fields as map_fields
-
+from django.utils import timezone
+import os
 
 # Can be removed until upload() is implemented
-def media_upload(instance, file_name):
-    media_name, extention = file_name.split(".")
-    return "images_and_videos/%s.%s" % (instance.media_id, extention)
+
+def upload_to(instance, filename):
+    now = timezone.now()
+    base, extension = os.path.splitext(filename.lower())
+    milliseconds = now.microsecond // 1000
+    return f"{instance.pk}/{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
+
 
 
 # Create your models here.
@@ -36,9 +41,6 @@ class Photo(models.Model):
     is_public = models.BooleanField(default=True)
     is_friend = models.BooleanField(default=False)
     is_family = models.BooleanField(default=False)
-
-    # If photo is favourited by calling user
-    is_favourite = models.BooleanField(default=False)
 
     # Permissions
     can_comment = models.PositiveSmallIntegerField(default=3)
@@ -78,7 +80,7 @@ class Photo(models.Model):
      ('Video', 'Video'),
     )
     media = models.CharField(max_length=10, choices=MEDIA_TYPE)
-    media_file = models.FileField(upload_to=media_upload)
+    media_file = models.ImageField(upload_to=upload_to)
     file_size = models.PositiveIntegerField(blank=True)
 
     # Photo Size

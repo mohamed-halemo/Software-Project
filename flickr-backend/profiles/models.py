@@ -5,6 +5,7 @@ from accounts.models import Account
 
 class Profile(models.Model):
     owner = models.OneToOneField(Account, on_delete=models.CASCADE)
+    total_media= models.IntegerField(default=0)
     fav_count = models.IntegerField(default=0)
     group_count = models.IntegerField(default=0)
     tag_count = models.IntegerField(default=0)

@@ -37,5 +37,8 @@ urlpatterns = [
 
     # add or remove a specific photo to the favourites photos API
     path('<int:id>/fav', views.fav_photo, name='fav_photo'),
+    
+    # Upload
+    path('upload', views.upload_media, name='upload_media'),
 
 ]

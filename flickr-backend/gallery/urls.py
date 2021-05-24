@@ -32,7 +32,7 @@ urlpatterns = [
     path('<int:galpk>/photos/<int:phopk>', views.gallery_photo,
          name='gallery_photo'),
     # get a list of galleries of a specific user API
-    path('<int:userpk>', views.user_galleries,
+    path('user/<int:userpk>', views.user_galleries,
          name='user_galleries'),
 
 ]

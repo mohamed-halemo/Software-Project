@@ -2,17 +2,23 @@ from .models import *
 from accounts.models import *
 from .serializers import *
 from accounts.serializers import *
+from profiles.models import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 import os
-import datetime
-
 from rest_framework.permissions import IsAuthenticated
 from project.permissions import IsOwner
 from django.contrib.auth.decorators import permission_required
-
+from exif import Image
+from datetime import *
+import datetime as d
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.conf import settings              
+import pytz
 # Create your views here.
 
 
@@ -415,3 +421,58 @@ def fav_photo(request, id):
     else:
         photo_obj.is_faved= False
 '''
+
+@api_view(['POST'])
+def upload_media(request):
+    #upload photo one at a time
+    if request.method == 'POST':
+        parser_classes = (MultiPartParser, FormParser)
+        serializer = PhotoUploadSerializer(data=request.data)
+        user = request.user
+        profile_obj = Profile.objects.get(owner=user)
+        if serializer.is_valid():
+            file_field = request.FILES['media_file']
+
+            # get the type of the file from the extension
+            content_type = file_field.content_type.split('/')[0]
+            # check if its type is image
+            if content_type in settings.IMAGE_TYPE:
+                # make limitations for the free user to have less than or equal 1000 media and 200mb as a max size of the photo
+                if user.is_pro is not True:
+                    if profile_obj.total_media >= 1000 and file_field.size > settings.MAX_IMAGE_SIZE:
+                        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+                # calculate the display pixels
+                height = request.data['photo_height']
+                width = request.data['photo_width']
+                pixels = (250*width)/height
+                image = Image(file_field)
+
+                # check if the image has exif to etxraxt the date taken from it  
+                if(image.has_exif):
+
+                    try:
+                        datetime_str = image.datetime_original
+                        # convert the string date to the needed format (UTC)
+                        naive_datetime = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
+                        local_time = pytz.timezone("America/New_York")
+                        local_datetime = local_time.localize(
+                            naive_datetime, is_dst=None)
+                        date_taken = local_datetime.astimezone(pytz.utc)
+                    # if it doesn't have the exif or date taken set it to be null    
+                    except: 
+                        date_taken = None
+    
+                else:
+                    date_taken = None
+            else:
+                raise ValidationError(_('File type is not supported'))
+
+            serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
+            # increment the count of media 
+            profile_obj.total_media += 1
+            profile_obj.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
