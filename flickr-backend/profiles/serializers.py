@@ -34,9 +34,10 @@ class FollowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contacts
         fields = ['followed']
-
+        depth= 1
 
 class FollowerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contacts
         fields = ['user']   
+        depth= 1

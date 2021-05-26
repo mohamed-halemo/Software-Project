@@ -445,7 +445,7 @@ def upload_media(request):
                 # calculate the display pixels
                 height = request.data['photo_height']
                 width = request.data['photo_width']
-                pixels = (250*width)/height
+                # pixels = (250*width)/height
                 image = Image(file_field)
 
                 # check if the image has exif to etxraxt the date taken from it  
@@ -470,8 +470,8 @@ def upload_media(request):
 
             serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
             # increment the count of media 
-            profile_obj.total_media += 1
-            profile_obj.save()
+            # profile_obj.total_media += 1
+            # profile_obj.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(

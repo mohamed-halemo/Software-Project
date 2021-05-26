@@ -23,9 +23,7 @@ class Gallery(models.Model):
     date_create = models.DateTimeField(auto_now_add=True)
     date_update = models.DateTimeField(auto_now=True)
     # no of items in the gallery
-    count_photos = models.IntegerField(default=0)
-    count_videos = models.IntegerField(default=0)
-    count_total = models.IntegerField(default=0)
+    count_media = models.IntegerField(default=0)
     count_comments = models.IntegerField(default=0)
 
     @property

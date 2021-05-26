@@ -172,7 +172,8 @@ def gallery_photos(request, galpk):
         return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
+@permission_classes((IsAuthenticated,))
 def photo_galleries(request, phopk):
     # get the list of galleries in which
     # a specific photo is added given the photo id
@@ -185,7 +186,20 @@ def photo_galleries(request, phopk):
         galleries = photo_obj.gallery_photos.all()
         serializer = GallerySerializer(galleries, many=True)
         return Response(serializer.data)
-
+    # POST    
+    # create gallery with primary photo
+    if request.method == 'POST':
+        if (photo_obj.owner != request.user):
+            gallery_obj = Gallery.objects.create(
+                title=request.data['title'],
+                description=request.data['description'],owner=request.user)
+            photo_obj.gallery_photos.add(gallery_obj)
+            gallery_obj.primary_photo_id = phopk
+            # increment the count of items in that gallery by 1
+            gallery_obj.count_media += 1
+            gallery_obj.save()
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -199,7 +213,7 @@ def gallery_photo(request, galpk, phopk):
         photo_obj = Photo.objects.get(media_id=phopk)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    photos = gallery_obj.photos.all()
+    photos = gallery_obj.photos.all() 
     # put a flag to see whether the photo is already in the gallery or not
     if photo_obj in photos:
         exist = True
@@ -213,18 +227,14 @@ def gallery_photo(request, galpk, phopk):
         #  there is limitation to 500 items in the gallery
         if ((photo_obj.owner != request.user) and
                 (photo_obj.is_public) and (not exist) and
-                ((gallery_obj.total_count) < 500)):
+                ((gallery_obj.count_media) < 500)):
             photo_obj.gallery_photos.add(gallery_obj)
-            gallery_obj.photos.add(photo_obj)
             # check if the gallery is empty then put the id
             # of the item added as a primary photo id for this gallery
-            if gallery_obj.count_total == 0:
+            if gallery_obj.count_media == 0:
                 gallery_obj.primary_photo_id = phopk
             # increment the count of items in that gallery by 1
-            if photo_obj.media == 'photo':
-                gallery_obj.count_photos += 1
-            else:
-                gallery_obj.count_videos += 1
+            gallery_obj.count_media += 1
             gallery_obj.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -234,15 +244,12 @@ def gallery_photo(request, galpk, phopk):
             return Response(status=status.HTTP_403_FORBIDDEN)
         if exist:
             photo_obj.gallery_photos.remove(gallery_obj)
-            gallery_obj.photos.remove(photo_obj)
             # decrement the count of items in that gallery by 1
-            if photo_obj.media == 'photo':
-                gallery_obj.count_photos -= 1
-            else:
-                gallery_obj.count_videos -= 1
+            gallery_obj.count_media -= 1
+
             # check if the gallery turned to be empty therefore
             #  set the primary photo id with null
-            if gallery_obj.count_total == 0:
+            if gallery_obj.count_media == 0:
                 gallery_obj.primary_photo_id = None
             gallery_obj.save()
             return Response(status=status.HTTP_204_NO_CONTENT)

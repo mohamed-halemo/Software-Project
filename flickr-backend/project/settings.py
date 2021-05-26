@@ -27,7 +27,7 @@ SECRET_KEY = '(3r1br6f-viu4n-32s1+audnd)2q0+pj@hxo5lf$4evu78zae2'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    fotone.me
+    'fotone.me',
 ]
 AUTH_USER_MODEL = 'accounts.Account'
 

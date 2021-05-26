@@ -10,11 +10,10 @@ class GallerySerializer(serializers.ModelSerializer):
         # total info for a gallery
         fields = [
             'id', 'title', 'description', 'date_create', 'date_update',
-            'count_photos', 'count_videos', 'count_total',
-            'count_comments', 'comments',
+            'count_media','count_comments', 'comments',
             'owner', 'photos', 'primary_photo_id']
         extra_kwargs = {'owner': {'read_only': True}}
-
+        depth=1
 
 class CreateGallerySerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +23,7 @@ class CreateGallerySerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'owner',
             'photos', 'primary_photo_id']
         extra_kwargs = {'owner': {'read_only': True}}
-
+        depth =1
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +32,4 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'gallery': {'read_only': True}, 'owner': {'read_only': True}}
+        depth = 1
