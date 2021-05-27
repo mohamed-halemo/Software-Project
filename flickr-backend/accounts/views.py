@@ -145,6 +145,8 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
 
 
 class PasswordTokenCheck(generics.GenericAPIView):
+    serializer_class = PasswordTokenCheckSerializer
+
     def get(self, request, uidb64, token):
         try:
             #decoding token            

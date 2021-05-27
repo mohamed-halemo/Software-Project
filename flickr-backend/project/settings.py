@@ -124,9 +124,9 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': 'flickr_database',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:1234567890@cluster0.khmwk.mongodb.net/flickr_databse?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_databse?retryWrites=true&w=majority",
                     'username': 'Fotone',
-                    'password': '1234567890',
+                    'password': config('DATABASE_PASSWORD')
                     },
     }
 }
@@ -190,15 +190,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-GOOGLE_MAPS_API_KEY = 'AIzaSyA3cBIV6ygzdx68f1N3ZjeznbbdA6Tr7ao'
+GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY')
 # print(os.environ)
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER=config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
-# SECRET_KEY='111111111'
 IMAGE_TYPE = ['image']
 MAX_IMAGE_SIZE = 209715200

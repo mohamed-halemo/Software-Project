@@ -45,6 +45,11 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
         fields = ['token']
 
 
+class PasswordTokenCheckSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields='__all__'
+
 class LogInSerializer(serializers.ModelSerializer):
     '''Serializer for Log in'''
     
