@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 from pathlib import Path
 import datetime,os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,15 +27,11 @@ SECRET_KEY = '(3r1br6f-viu4n-32s1+audnd)2q0+pj@hxo5lf$4evu78zae2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'fotone.me',
-]
+# ALLOWED_HOSTS = [
+    # 'fotone.me',
+# ]
 AUTH_USER_MODEL = 'accounts.Account'
-
 REST_FRAMEWORK = {
-    # 'DEFAULT_PAGINATION_CLASS':
-    #     'rest_framework.pagination.PageNumberPagination',
-    # 'PAGE_SIZE': 20,
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -50,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_simplejwt.token_blacklist',
 
     # my apps
     'corsheaders',
@@ -201,8 +197,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 # EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_USER='mohammed99kamel@gmail.com'
-EMAIL_HOST_PASSWORD='qflxdbmyyzuzmiql'
-SECRET_KEY='111111111'
+EMAIL_HOST_USER=config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
+# SECRET_KEY='111111111'
 IMAGE_TYPE = ['image']
 MAX_IMAGE_SIZE = 209715200

@@ -50,7 +50,7 @@ def upload_profile(request):
     if request.method == 'PUT':
         parser_classes = (MultiPartParser, FormParser)
         serializer = PhotoUserSerializer(profile_obj, data=request.data)
-        print(serializer)
+        # print(serializer)
         if serializer.is_valid():
             serializer.save(owner=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -95,7 +95,7 @@ def follow_unfollow(request, userpk):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         Contacts.objects.create(user=request.user, followed=followed_user_obj)
         user_profile = Profile.objects.get(owner=request.user)
-        print(user_profile)
+        # print(user_profile)
         followed_user_profile = Profile.objects.get(owner=followed_user_obj)
         # increment the count of following for the calling user
         # and the count of followers for the given user by 1

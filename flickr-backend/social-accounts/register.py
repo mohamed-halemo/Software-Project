@@ -1,24 +1,16 @@
 from django.contrib.auth import authenticate
-from accounts.models import Account
-import os
-import random
+from accounts.models import *
 from rest_framework.exceptions import AuthenticationFailed
 
 
-def generate_username(name):
 
-    username = "".join(name.split(' ')).lower()
-    if not Account.objects.filter(username=username).exists():
-        return username
-    else:
-        random_username = username + str(random.randint(0, 1000))
-        return generate_username(random_username)
-
-
-def register_social_user(provider, user_id, email, name):
+def login_social_user(email):
     filtered_user_by_email = Account.objects.filter(email=email)
     if filtered_user_by_email.exists():
-        user = Account.objects.get(email=email)      
+        
+        user = Account.objects.get(email=email)         
+        user.login_from='facebook'
+        user.save()
         return {
             'username': user.username,
             'email': user.email,
@@ -29,19 +21,4 @@ def register_social_user(provider, user_id, email, name):
         raise AuthenticationFailed(
             detail= ' You dont have account on Fotone !')
 
-    # else:
-    #     user = {
-    #         'username': generate_username(name), 'email': email,
-    #         'password': os.environ.get('SOCIAL_SECRET')}
-    #     user = Account.objects.create_user(**user)
-    #     user.is_verified = True
-    #     user.auth_provider = provider
-    #     user.save()
-    #     # print("3333333333333333333333333333333333333")
-    #     new_user = authenticate(
-    #         email=email, password=os.environ.get('SOCIAL_SECRET'))
-    #     return {
-    #         'email': new_user.email,
-    #         'username': new_user.username,
-    #         'tokens': new_user.tokens()
-    #     }
+

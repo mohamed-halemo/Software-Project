@@ -10,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from project.utils import *
 class SignUpSerializer(serializers.ModelSerializer):
     '''Serializer for Signing up'''
-    password = serializers.CharField(max_length=16, min_length=8,
+    password = serializers.CharField(max_length=16, min_length=12,
                                      write_only=True)
 
     class Meta:
@@ -20,6 +20,10 @@ class SignUpSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         password = attrs.get('password', '')
         username = attrs.get('username', '')
+        age= attrs.get('age', '')
+        if age == 0:
+            raise serializers.ValidationError("Enter valid age")
+            
         username,error1=validate_username(username)
         password,error2=validate_password(password,username)
         if len(username)==0:
@@ -28,7 +32,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(error2)
         return attrs
 
-    def create(self, validated_data):
+    def create(self, validated_data):        
         return Account.objects.create_user(**validated_data)
 
 
@@ -45,11 +49,11 @@ class LogInSerializer(serializers.ModelSerializer):
     '''Serializer for Log in'''
     
     email = serializers.EmailField(max_length=255, min_length=6)
-    password = serializers.CharField(max_length=16, min_length=8,
+    password = serializers.CharField(max_length=16, min_length=12,
                                      write_only=True)
     username = serializers.CharField(max_length=255, min_length=6,
                                      read_only=True)
-    tokens = serializers.CharField(max_length=68, min_length=8,
+    tokens = serializers.CharField(max_length=68, min_length=12,
                                    read_only=True)
 
     class Meta:
@@ -68,6 +72,8 @@ class LogInSerializer(serializers.ModelSerializer):
             raise AuthenticationFailed('Account disabled, contact admin')
         if not user.is_verified:
             raise AuthenticationFailed('Email is not verified')
+        user.login_from = "email"
+        user.save()
         return {
             'email': user.email,
             'username': user.username,
@@ -75,23 +81,23 @@ class LogInSerializer(serializers.ModelSerializer):
         }
         
 
-class LogoutSerializer(serializers.Serializer):
-    '''Serializer for Log out'''
+# class LogoutSerializer(serializers.Serializer):
+#     '''Serializer for Log out'''
     
-    refresh = serializers.CharField()
+#     refresh = serializers.CharField()
     
-    default_error_messages = {
-        'bad_token': ('Token is expired or invalid')
-    }
-    def validate(self, attrs):
-        self.token = attrs['refresh']
-        return attrs
+#     default_error_messages = {
+#         'bad_token': ('Token is expired or invalid')
+#     }
+#     def validate(self, attrs):
+#         self.token = attrs['refresh']
+#         return attrs
     
-    def save(self, **kwargs):
-        try:
-            RefreshToken(self.token).blacklist()
-        except TokenError:
-            self.fail('bad_token')
+#     def save(self, **kwargs):
+#         try:
+#             RefreshToken(self.token).blacklist()
+#         except TokenError:
+#             self.fail('bad_token')
             
 
 class RequestPasswordResetEmailSerializer(serializers.Serializer):
@@ -106,7 +112,7 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
 class SetNewPasswordSerializer(serializers.Serializer):
     '''Serializer for setting new password after password reset'''
     
-    password = serializers.CharField(min_length=8, write_only=True)
+    password = serializers.CharField(min_length=12, write_only=True)
     token = serializers.CharField(min_length=1, write_only=True)
     uidb64 = serializers.CharField(min_length=1, write_only=True)
 
@@ -134,20 +140,26 @@ class SetNewPasswordSerializer(serializers.Serializer):
 class ChangePasswordSerializer(serializers.Serializer):
     '''Serializer for changing Password'''
     
-    old_password = serializers.CharField(max_length=16, min_length=8,required=True)
-    new_password = serializers.CharField(max_length=16, min_length=8,required=True)
+    old_password = serializers.CharField(max_length=16, min_length=12,required=True)
+    new_password = serializers.CharField(max_length=16, min_length=12,required=True)
     
 class ChangeToPro(serializers.Serializer):
     '''Serializer for changing Account type'''
     is_pro = serializers.BooleanField(default=False)
     
+    # class Meta:
+    #     fields = ['is_pro']
     
+    
+    # def validate(self, attrs):
+    #     is_pro = attrs.get('is_pro')
+    #     print(is_pro)
 class OwnerSerializer(serializers.ModelSerializer):
     '''Serializer to get Account info '''
     class Meta:
         model = Account
         exclude=("password","date_joined", "updated_at",
-        "last_login", "auth_provider", "groups","user_permissions")
+        "last_login", "login_from", "groups","user_permissions")
 
 
 

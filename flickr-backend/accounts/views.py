@@ -38,7 +38,6 @@ class SignUpView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
-        print(user_data)
         #Setting email message
         user = Account.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
@@ -100,16 +99,16 @@ class LoginView(generics.GenericAPIView):
 
 
 
-class LogoutView(generics.GenericAPIView):
-    serializer_class = LogoutSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+# class LogoutView(generics.GenericAPIView):
+#     serializer_class = LogoutSerializer
+#     permission_classes = (permissions.IsAuthenticated,)
     
-    #POST
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     #POST
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = RequestPasswordResetEmailSerializer
@@ -209,16 +208,16 @@ class ChangeToPro(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     #PUT
-    def put(self, request, *args, **kwargs):
+    def put(self, request):
         user = self.request.user
         serializer = self.serializer_class(data=request.data)
-        
+    
         if serializer.is_valid(raise_exception=True):
             
             #Validate user input
             if user.is_pro and serializer.data['is_pro'] == True:
                 return Response({'status': 'failed',
-                                 'message': 'User already a pro!'}, status = status.HTTP_400_BAD_REQUEST)    
+                                'message': 'User already a pro!'}, status = status.HTTP_400_BAD_REQUEST)    
             elif user.is_pro and serializer.data['is_pro'] == False:
                 user.is_pro =False
                 user.save()
@@ -261,7 +260,11 @@ class UserInfo(generics.RetrieveAPIView):
 @permission_classes((IsAuthenticated,))
 def DeleteAccount(request):
     user = request.user
-    user=auth.authenticate(email=user.email, password=request.data['password'])
+    try:
+        userpassword=request.data['password']
+    except:
+        return Response({'stat': 'Failed', "message":'Please enter your password'}, status=status.HTTP_200_OK)
+    user=auth.authenticate(email=user.email, password=userpassword)
     if not user:
         return Response(
             {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)

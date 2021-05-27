@@ -22,8 +22,8 @@ urlpatterns = [
     #log user in
     path('login/', LoginView.as_view(), name="login"),
     
-    #log user out
-    path('logout/', LogoutView.as_view(), name="logout"),
+#     #log user out
+#     path('logout/', LogoutView.as_view(), name="logout"),
     
     #reset user's password
     path('password-reset/<uidb64>/<token>/', PasswordTokenCheck.as_view(),

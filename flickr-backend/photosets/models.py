@@ -5,10 +5,10 @@ from accounts.models import Account
 
 class sets(models.Model):
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='user_photoset')
-    primary = models.PositiveIntegerField(max_length=30, blank=True)
-    secret = models.PositiveIntegerField(max_length=15, blank=True)
-    server = models.PositiveIntegerField(max_length=15, blank=True)
-    farm = models.PositiveIntegerField(max_length=15, blank=True)
+    primary = models.PositiveIntegerField( blank=True)
+    secret = models.PositiveIntegerField( blank=True)
+    server = models.PositiveIntegerField( blank=True)
+    farm = models.PositiveIntegerField( blank=True)
     photos = models.PositiveIntegerField(default=1)
     count_views = models.PositiveIntegerField(default=0)
     count_comments = models.PositiveIntegerField(default=0)

@@ -59,8 +59,8 @@ def validate_password(password,username=''):
         pwreason=('password must contain at least one lowercase character')
         return '', pwreason
 
-    if len(password)<8:
-        pwreason = ('password must be greater than or equal to 8 characters')
+    if len(password)<12:
+        pwreason = ('password must be greater than or equal to 12 characters')
         return '',pwreason
     
     if len(password)>16:
@@ -75,8 +75,8 @@ def validate_password(password,username=''):
     if numdigit <= 0:
         pwreason= ('password must contain at least one number')
         return '',pwreason
-    print(username)
-    print(password)
+    # print(username)
+    # print(password)
     
     if username in password:
         pwreason=('username cannot be used as part of your password')
