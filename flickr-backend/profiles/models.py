@@ -15,6 +15,7 @@ class Profile(models.Model):
     cover_photo= models.ImageField(upload_to="images/",null=True , blank=True)
     followers_count = models.IntegerField(default=0, null=True)
     following_count = models.IntegerField(default=0, null=True)
+    
     def __str__(self):
         return self.owner.email
 

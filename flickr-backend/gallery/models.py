@@ -26,10 +26,6 @@ class Gallery(models.Model):
     count_media = models.IntegerField(default=0)
     count_comments = models.IntegerField(default=0)
 
-    @property
-    def count_total(self):
-        return self.count_photos + self.count_videos
-
     def __str__(self):
         return self.title
 
