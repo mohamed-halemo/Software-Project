@@ -8,6 +8,8 @@ from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from project.utils import *
+
+#Sign up serializer
 class SignUpSerializer(serializers.ModelSerializer):
     '''Serializer for Signing up'''
     password = serializers.CharField(max_length=16, min_length=12,
@@ -21,6 +23,13 @@ class SignUpSerializer(serializers.ModelSerializer):
         password = attrs.get('password', '')
         username = attrs.get('username', '')
         age= attrs.get('age', '')
+        email= attrs.get('email','').lower()
+        user = Account.objects.filter(email=email)
+        #Checking if user is already registered
+        if user:
+            raise serializers.ValidationError({'error': 'already have an acount!!'})
+        
+        #Checking if user entered valid age
         if age == 0:
             raise serializers.ValidationError("Enter valid age")
             
@@ -30,12 +39,13 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(error1)
         if len(password)==0:
             raise serializers.ValidationError(error2)
+            
         return attrs
 
-    def create(self, validated_data):        
+    def create(self, validated_data): 
         return Account.objects.create_user(**validated_data)
 
-
+#Email verify serializer
 class EmailVerificationSerializer(serializers.ModelSerializer):
     '''Serializer for Email Verification'''
     token = serializers.CharField(max_length=555)
@@ -44,12 +54,13 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
         model = Account
         fields = ['token']
 
-
+#Reset password token check
 class PasswordTokenCheckSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields='__all__'
 
+#Log in serializer
 class LogInSerializer(serializers.ModelSerializer):
     '''Serializer for Log in'''
     
@@ -84,27 +95,9 @@ class LogInSerializer(serializers.ModelSerializer):
             'username': user.username,
             'tokens': user.tokens
         }
-        
 
-# class LogoutSerializer(serializers.Serializer):
-#     '''Serializer for Log out'''
-    
-#     refresh = serializers.CharField()
-    
-#     default_error_messages = {
-#         'bad_token': ('Token is expired or invalid')
-#     }
-#     def validate(self, attrs):
-#         self.token = attrs['refresh']
-#         return attrs
-    
-#     def save(self, **kwargs):
-#         try:
-#             RefreshToken(self.token).blacklist()
-#         except TokenError:
-#             self.fail('bad_token')
             
-
+#Reset password mail serializer
 class RequestPasswordResetEmailSerializer(serializers.Serializer):
     '''Serializer for Reset Password'''
     
@@ -113,7 +106,7 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
     class Meta:
         fields = ['email']
 
-
+#Change account password from mail serializer
 class SetNewPasswordSerializer(serializers.Serializer):
     '''Serializer for setting new password after password reset'''
     
@@ -129,8 +122,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
         token = attrs.get('token')
         uidb64 = attrs.get('uidb64')
 
-        id = force_str(urlsafe_base64_decode(uidb64))
 
+        id = force_str(urlsafe_base64_decode(uidb64))
         user = Account.objects.get(id=id)
         if not PasswordResetTokenGenerator().check_token(user, token):
             raise AuthenticationFailed('The reset link is invalid.', 401)
@@ -142,31 +135,24 @@ class SetNewPasswordSerializer(serializers.Serializer):
         user.save()
         return (user)
 
+#Change account password serializer
 class ChangePasswordSerializer(serializers.Serializer):
     '''Serializer for changing Password'''
     
     old_password = serializers.CharField(max_length=16, min_length=12,required=True)
     new_password = serializers.CharField(max_length=16, min_length=12,required=True)
-    
+
+#change to pro serializer
 class ChangeToPro(serializers.Serializer):
     '''Serializer for changing Account type'''
     is_pro = serializers.BooleanField(default=False)
-    
-    # class Meta:
-    #     fields = ['is_pro']
-    
-    
-    # def validate(self, attrs):
-    #     is_pro = attrs.get('is_pro')
-    #     print(is_pro)
+
+#Account info serializer
 class OwnerSerializer(serializers.ModelSerializer):
     '''Serializer to get Account info '''
     class Meta:
         model = Account
         exclude=("password","date_joined", "updated_at",
         "last_login", "login_from", "groups","user_permissions")
-
-
-
-
-
+        
+        

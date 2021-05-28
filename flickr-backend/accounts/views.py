@@ -25,9 +25,49 @@ from project.permissions import IsOwner
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 
+#Functionality
+def verifying_user(user):
+    if not user.is_verified:
+        # Creating user profile
+        Profile.objects.create(owner=user)
+        user.is_verified = True
+        user.save()
+        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+    
+def prepare_verify_email(request,user,token):
+    current_site = get_current_site(request).domain
+    relative_link = reverse('accounts:email-verify')
+    absurl = 'http://'+current_site+relative_link+"?token="+str(token)
+    email_body = 'Hi ' + user.username + ' Use link to verify \n' + absurl
+    data = {'email_body': email_body,
+            'to_email': user.email,
+            'email_subject': 'Verify Your Email'}
+    return data
+
+def prepare_reset_password_email(request,user,token,uidb64):
+    current_site = get_current_site(request=request).domain
+    relative_link = reverse('accounts:password-reset-confirm',
+                            kwargs={'uidb64': uidb64, 'token': token})
+    absurl = 'http://'+current_site+relative_link
+    email_body = 'Hello,\n Use link below to reset your password  \n' + absurl
+    data = {'email_body': email_body, 'to_email': user.email,
+            'email_subject': 'Reset you password'}
+    print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+    return data
+
+def change_to_pro(user):
+    user.is_pro =True
+    user.save()
+
+def change_to_normal(user):
+    user.is_pro =False
+    user.save()
+    
+def check_pro(user):
+    return user.is_pro
 
 
-
+#sign up user
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
     
@@ -38,24 +78,22 @@ class SignUpView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
+        
         #Setting email message
         user = Account.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
-        current_site = get_current_site(request).domain
-        relative_link = reverse('accounts:email-verify')
-        absurl = 'http://'+current_site+relative_link+"?token="+str(token)
-        email_body = 'Hi' + user.username + ' Use link to verify \n' + absurl
-        data = {'email_body': email_body,
-                'to_email': user.email,
-                'email_subject': 'Verify Your Email'}
-        Util.send_email(data)
         
-        # Creating user profile
-        Profile.objects.create(owner=user)
+        email = prepare_verify_email(request,user,token)
+        
+        #sending mail
+        Util.send_email(email)
+        
+        
 
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 
+#Verify email
 class VerifyEmail(views.APIView):
     serializer_class = EmailVerificationSerializer
     token_param_config = openapi.Parameter(
@@ -74,12 +112,11 @@ class VerifyEmail(views.APIView):
             
             #extracting user id from token
             user = Account.objects.get(id=payload['user_id'])
-            if not user.is_verified:
-                user.is_verified = True
-                user.save()
+            
+            verifying_user(user)
+            
             return Response({'email': 'Succesfully activated'},
-                            status=status.HTTP_200_OK)
-
+                    status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
             return Response({'error': 'Activation Expired'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -88,6 +125,7 @@ class VerifyEmail(views.APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+#User login
 class LoginView(generics.GenericAPIView):
     serializer_class = LogInSerializer
 
@@ -98,18 +136,7 @@ class LoginView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-# class LogoutView(generics.GenericAPIView):
-#     serializer_class = LogoutSerializer
-#     permission_classes = (permissions.IsAuthenticated,)
-    
-#     #POST
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
+#Reset password mail
 class RequestPasswordResetEmail(generics.GenericAPIView):
     serializer_class = RequestPasswordResetEmailSerializer
     
@@ -127,16 +154,11 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             
             #preparing mail
-            current_site = get_current_site(request=request).domain
-            relative_link = reverse('accounts:password-reset-confirm',
-                                    kwargs={'uidb64': uidb64, 'token': token})
-            absurl = 'http://'+current_site+relative_link
-            email_body = 'Hello,\n Use link below to reset your password  \n' + absurl
-            data = {'email_body': email_body, 'to_email': user.email,
-                    'email_subject': 'Reset you password'}
+            email = prepare_reset_password_email(request,user,token,uidb64)
             
             #sending mail
-            Util.send_email(data)
+            Util.send_email(email)
+            
             return Response({'Success':
                             'We have sent you a link to reset password'},
                             status=status.HTTP_200_OK)
@@ -144,6 +166,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             return Response({'error': 'Email doesnt exist. Kindly recheck entered email'}, status=status.HTTP_404_NOT_FOUND)
 
 
+#Reset password mail
 class PasswordTokenCheck(generics.GenericAPIView):
     serializer_class = PasswordTokenCheckSerializer
 
@@ -152,7 +175,7 @@ class PasswordTokenCheck(generics.GenericAPIView):
             #decoding token            
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = Account.objects.get(id=id)
-            
+            print("IIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
             #validate token
             if not PasswordResetTokenGenerator().check_token(user, token):
                 return Response({'error': 'Invalid Token, Request a new one'},
@@ -166,6 +189,7 @@ class PasswordTokenCheck(generics.GenericAPIView):
             return Response({'error': 'Invalid Token, Request a new one'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
+#Setting password (from reset mail)
 class SetNewPassword(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
     #PUT
@@ -175,6 +199,7 @@ class SetNewPassword(generics.GenericAPIView):
         return Response({'Success': True, 'message': 'Password Reset Success'},
                         status=status.HTTP_200_OK)
 
+#change account password
 class ChangePassword(generics.GenericAPIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwner,)
@@ -205,6 +230,8 @@ class ChangePassword(generics.GenericAPIView):
                 'message': 'Password updated successfully',
             }
             return Response(response, status = status.HTTP_200_OK)
+
+#change user type
 class ChangeToPro(generics.GenericAPIView):
     serializer_class = ChangeToPro
     permission_classes = (permissions.IsAuthenticated,)
@@ -217,33 +244,31 @@ class ChangeToPro(generics.GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             
             #Validate user input
-            if user.is_pro and serializer.data['is_pro'] == True:
+            if check_pro(user) and serializer.data['is_pro'] == True:
                 return Response({'status': 'failed',
                                 'message': 'User already a pro!'}, status = status.HTTP_400_BAD_REQUEST)    
-            elif user.is_pro and serializer.data['is_pro'] == False:
-                user.is_pro =False
-                user.save()
+            elif check_pro(user) and serializer.data['is_pro'] == False:
+                change_to_normal(user)
                 response = {
                     'status': 'success',
                     'message': 'Returned back to normal!',
                 }
                 return Response(response, status = status.HTTP_200_OK)
-            elif not user.is_pro and serializer.data['is_pro'] == True:
-                user.is_pro =True
-                user.save()
+            elif not check_pro(user) and serializer.data['is_pro'] == True:
+                change_to_pro(user)
                 response = {
                     'status': 'success',
                     'message': 'Changed to Pro!',
                 }
                 return Response(response, status = status.HTTP_200_OK)
-            elif not user.is_pro and serializer.data['is_pro'] == False:
+            elif not check_pro(user) and serializer.data['is_pro'] == False:
                 response = {
                     'status': 'failed',
                     'message': 'User already normal!',
                 }
                 return Response(response, status = status.HTTP_200_OK)
-            
-                
+
+#get user info
 class UserInfo(generics.RetrieveAPIView):
     
     serializer_class = OwnerSerializer       
@@ -255,9 +280,8 @@ class UserInfo(generics.RetrieveAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         obj = queryset.get(id=self.request.user.id)
         return obj
-    
 
-
+#Delete users account
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
 def DeleteAccount(request):

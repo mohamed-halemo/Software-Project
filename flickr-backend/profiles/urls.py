@@ -4,8 +4,13 @@ from . import views
 
 app_name = 'profiles'
 urlpatterns = [
+    
+    #get,put user's profile details
     path('', views.ProfileList.as_view(), name='profilelist'),
+    
+    #get,put profile details of a specific user 
     path('<int:id>', views.ProfileDetailList.as_view(), name='profiledetail'),
+    
     path('profile-pic', views.upload_profile, name='upload_profile'),
     path('cover-photo', views.upload_cover, name='upload_cover'),
     

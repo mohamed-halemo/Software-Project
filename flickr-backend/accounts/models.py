@@ -18,9 +18,9 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have a last name')
         if not age:
             raise ValueError('Users must have an age')
-
         user = self.model(
-            email=self.normalize_email(email),
+            
+            email=email.lower(),
             username=username,
             first_name=first_name,
             last_name=last_name,
@@ -33,7 +33,7 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, username, password, first_name='admin' ,last_name='admin',age='0'):
         user = self.create_user(
-            email=self.normalize_email(email),
+            email=email.lower(),
             password=password,
             username=username,
             first_name=first_name,
