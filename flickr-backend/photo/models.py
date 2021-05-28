@@ -1,6 +1,5 @@
 from django.db import models
 from accounts.models import *
-from django_google_maps import fields as map_fields
 from django.utils import timezone
 import os
 
@@ -17,21 +16,9 @@ def upload_to(instance, filename):
 # Create your models here.
 class Photo(models.Model):
 
-    # Unique Identifier
-    media_id = models.BigAutoField(primary_key=True)
-
     # Owner (relation)
     owner = models.ForeignKey(Account, on_delete=models.CASCADE,
                               related_name='user_photos')
-
-    # Static URL Components
-    secret = models.CharField(max_length=100, blank=True)
-    original_secret = models.CharField(max_length=100, blank=True)
-    server = models.PositiveSmallIntegerField(blank=True)
-    farm = models.PositiveSmallIntegerField(blank=True)
-
-    # Extention
-    original_format = models.CharField(max_length=5, blank=True)
 
     # Meta Data
     title = models.CharField(max_length=300, blank=True)
@@ -39,81 +26,61 @@ class Photo(models.Model):
 
     # Visibility & Privacy
     is_public = models.BooleanField(default=True)
-    is_friend = models.BooleanField(default=False)
-    is_family = models.BooleanField(default=False)
 
     # Permissions
-    can_comment = models.PositiveSmallIntegerField(default=3)
-    can_addmeta = models.PositiveSmallIntegerField(default=3)
+    PERMISSIONS = (
+     ('Only The Owner', 'Only The Owner'),
+     ('People You Follow', 'People You Follow'),
+     ('Any Flickr Member', 'Any Flickr Member'),
+    )
+    can_comment = models.CharField(max_length=25, choices=PERMISSIONS, default='Any Flickr Member')
+    can_addmeta = models.CharField(max_length=25, choices=PERMISSIONS, default='Any Flickr Member')
 
-    # Location
-    #   address = map_fields.AddressField(max_length=200, blank=True)
-    #   geolocation = map_fields.GeoLocationField(max_length=100, blank=True)
+    # Comments & Notes
+    count_comments = models.PositiveIntegerField(default=0)
+    count_notes = models.PositiveIntegerField(default=0)
+
+    # Tags & People Tagged Info
+    count_tags = models.PositiveIntegerField(default=0)
+    count_people_tagged = models.PositiveIntegerField(default=0)
+
+    # Faves Fields
+    count_favourites = models.PositiveIntegerField(default=0)
+    is_faved = models.BooleanField(default=False)
+    favourites = models.ManyToManyField(
+        Account, related_name='post_favourite', blank=True)
 
     # Dates
     date_posted = models.DateTimeField(blank=True)
     date_taken = models.DateTimeField(blank=True)
     last_update = models.DateTimeField(auto_now=True)
 
-    # Stats
-    views = models.PositiveIntegerField(default=0) #big
-    comments = models.PositiveIntegerField(default=0) #big 
-
-    # Tags & People Tagged Info
-    count_tags = models.PositiveIntegerField(default=0)
-    has_people = models.BooleanField(default=False)
-    count_people_tagged = models.PositiveIntegerField(default=0)
-
-    # People Tagged (relation)
-    people_tagged = models.ManyToManyField(Account, through='Tagging',
-                                           through_fields=('photo',
-                                                           'person_tagged'),
-                                           related_name="photos_tagged_in")
-
     # URLS
-    #   photo_url = models.URLField(blank = True)
-    #   thumb = models.URLField(blank = True)
+    photo_url = models.URLField(blank = True)
 
     # Media
-    MEDIA_TYPE = (
-     ('Photo', 'Photo'),
-     ('Video', 'Video'),
-    )
-    media = models.CharField(max_length=10, choices=MEDIA_TYPE)
-    media_file = models.ImageField(upload_to=upload_to)
-    file_size = models.PositiveIntegerField(blank=True)
+    media_file = models.FileField(upload_to=upload_to)
 
     # Photo Size
     photo_height = models.PositiveSmallIntegerField(blank=True)
     photo_width = models.PositiveSmallIntegerField(blank=True)
     photo_displaypx = models.PositiveSmallIntegerField()
 
-    # Video Duration
-    video_duration = models.PositiveSmallIntegerField()
-    #   Faves fields
-    # users who faved this photo, many users can favourite one photo and
-    # one user can favourite many photos
-    favourites = models.ManyToManyField(
-        Account, related_name='post_favourite', blank=True)
-    # check if it is faved or not by the calling user to cusomize the button
-    is_faved = models.BooleanField(default=False)
-    # count of how many times this photo is faved (no of users)
-    count_favourites = models.IntegerField(default=0)
+    # Orientation
+    rotated_by = models.PositiveSmallIntegerField(default=0)
 
-class Tagging(models.Model):
+
+
+class PeopleTagging(models.Model):
 
     # Foreign Keys
-    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE, related_name='people_tagged')
     person_tagged = models.ForeignKey(Account, on_delete=models.CASCADE)
 
     # Added By
     added_by = models.ForeignKey(Account, on_delete=models.CASCADE,
                                  related_name="tagging_people_actions")
 
-    # Tagged Person Relationship
-    is_contact = models.BooleanField(default=False)
-    is_friend = models.BooleanField(default=False)
-    is_family = models.BooleanField(default=False)
 
 
 class Comment(models.Model):
@@ -130,9 +97,6 @@ class Comment(models.Model):
 
     # Body: required
     comment_text = models.TextField(max_length=1000)
-
-    # URL
-    #   link = models.URLField(blank=True)
 
     # Photo Data (relation)
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE,
@@ -162,18 +126,18 @@ class Note(models.Model):
                               related_name='photo_notes')
 
 
-class View(models.Model):
+class Tag(models.Model):
 
     # Unique Identifier
-    view_id = models.BigAutoField(primary_key=True)
+    tag_id = models.BigAutoField(primary_key=True)
+
+    # User (relation)
+    author = models.ForeignKey(Account, on_delete=models.CASCADE,
+                             related_name='user_tags')
 
     # Photo Data (relation)
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE,
-                              related_name='photo_views')
+                              related_name='photo_tags')
 
-    # User (relation)
-    user = models.ForeignKey(Account, on_delete=models.CASCADE,
-                             related_name='user_views')
-
-    # Date
-    view_date = models.DateTimeField(auto_now_add=True)
+    # Body: required
+    tag_text = models.CharField(max_length=200)

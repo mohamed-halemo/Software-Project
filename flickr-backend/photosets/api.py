@@ -74,7 +74,7 @@ def get_information(request, id):
 #adding a photoset by a user and setting its primary photo
 def create_set(request, photo_id):
     try:
-        get_photo = Photo.objects.get(media_id=photo_id)       
+        get_photo = Photo.objects.get(id=photo_id)       
     except :
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
@@ -264,7 +264,7 @@ def photo(request, set_id, photo_id):
         
 
     try:
-        get_photo = Photo.objects.get(media_id=photo_id)
+        get_photo = Photo.objects.get(id=photo_id)
         
 
     except :
@@ -293,7 +293,7 @@ def photo(request, set_id, photo_id):
 
     if request.method == 'DELETE':
         try:
-            deleted_photo=get_list.photos.get(media_id=photo_id)
+            deleted_photo=get_list.photos.get(id=photo_id)
         except ObjectDoesNotExist:
             return Response(
                     {'stat': 'fail',
@@ -330,7 +330,7 @@ def get_photos(request, set_id):
 def photo_sets(request, photo_id):
     #     get the photosets that a given photo belongs to
     try:
-        photo_obj = Photo.objects.get(media_id=photo_id)
+        photo_obj = Photo.objects.get(id=photo_id)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     # GET

@@ -223,7 +223,7 @@ def photo_galleries(request, phopk):
     # get the list of galleries in which
     # a specific photo is added given the photo id
     try:
-        photo_obj = Photo.objects.get(media_id=phopk)
+        photo_obj = Photo.objects.get(id=phopk)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     # GET
@@ -262,7 +262,7 @@ def gallery_photo(request, galpk, phopk):
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     try:
-        photo_obj = Photo.objects.get(media_id=phopk)
+        photo_obj = Photo.objects.get(id=phopk)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     photos = gallery_obj.photos.all() 
