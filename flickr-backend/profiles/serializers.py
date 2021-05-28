@@ -9,6 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         exclude=("password","date_joined", "updated_at",
     "last_login", "is_verified", "is_admin", "is_active", "is_staff",
     "is_superuser", "login_from", "groups","user_permissions")
+        #extra_kwargs = {'owner': {'read_only': True}}
 
 class ProfileSerializer(serializers.ModelSerializer):
     owner= UserSerializer()

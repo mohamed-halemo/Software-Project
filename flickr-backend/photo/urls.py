@@ -41,4 +41,14 @@ urlpatterns = [
     # Upload
     path('upload', views.upload_media, name='upload_media'),
 
+     # Get public photos of a given user:
+    path('<int:id>/public', views.get_public, name='get_public'),
+
+     #  Get public photos of loggedin user:
+     path('publiclogged', views.get_public_logged, name='get_publiclogged'),
+
+     #  Get all photos of loggedin user:
+     path('photoslogged', views.get_photos_logged, name='get_photoslogged'),
 ]
+
+

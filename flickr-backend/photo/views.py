@@ -19,7 +19,13 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.conf import settings              
 import pytz
+from rest_framework.pagination import PageNumberPagination
+
 # Create your views here.
+class RespondPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = 'page_size'
+    max_page_size = 1
 
 
 @api_view(['GET'])
@@ -476,3 +482,60 @@ def upload_media(request):
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+# Get public photos of a given user
+def get_public(request, id):
+    try:
+        user=Account.objects.get(id=id)
+        get_list = Photo.objects.filter(owner=user,is_public=True).order_by('-date_posted')
+        
+    except ObjectDoesNotExist:
+        
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    #  for pagination
+    Paginator = RespondPagination()
+    results = Paginator.paginate_queryset(get_list, request)
+    photos = PhotoPermSerializer(results, many=True).data
+    return Paginator.get_paginated_response({'photos': photos})
+
+
+@api_view(['GET'])
+#  Get public photos of loggedin user
+@permission_classes((IsAuthenticated,))
+def get_public_logged(request):
+    try:
+
+        get_list = Photo.objects.filter(owner=request.user,is_public=True).order_by('-date_posted')
+        
+        
+    except ObjectDoesNotExist:
+        
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    #  for pagination
+    Paginator = RespondPagination()
+    results = Paginator.paginate_queryset(get_list, request)
+    photos = PhotoPermSerializer(results, many=True).data
+    return Paginator.get_paginated_response({'photos': photos})
+
+@api_view(['GET'])
+ #  Get all photos of loggedin user
+@permission_classes((IsAuthenticated,))
+def get_photos_logged(request):
+    try:
+
+        get_list = Photo.objects.filter(owner=request.user).order_by('-date_posted')
+        
+        
+    except ObjectDoesNotExist:
+        
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    #  for pagination
+    Paginator = RespondPagination()
+    results = Paginator.paginate_queryset(get_list, request)
+    photos = PhotoPermSerializer(results, many=True).data
+    return Paginator.get_paginated_response({'photos': photos})

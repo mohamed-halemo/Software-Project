@@ -1,15 +1,18 @@
 from django.db import models
 from django.utils import timezone
-from accounts.models import Account
+from accounts.models import *
+from photo.models import *
 
 
 class sets(models.Model):
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='user_photoset')
+    photos = models.ManyToManyField(
+        Photo, related_name='sets_photos', blank=True)
     primary = models.PositiveIntegerField( blank=True)
     secret = models.PositiveIntegerField( blank=True)
     server = models.PositiveIntegerField( blank=True)
     farm = models.PositiveIntegerField( blank=True)
-    photos = models.PositiveIntegerField(default=1)
+    count_photos = models.PositiveIntegerField(default=1)
     count_views = models.PositiveIntegerField(default=0)
     count_comments = models.PositiveIntegerField(default=0)
     count_videos = models.PositiveIntegerField(default=0)
@@ -25,7 +28,8 @@ class sets(models.Model):
 
 
 class commentss(models.Model):
-    owner = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='user_photoset_comments')
+    owner = models.ForeignKey(Account, on_delete=models.CASCADE, 
+    related_name='user_photoset_comments')
     contents = models.CharField(max_length=15)
     date_create = models. DateTimeField(default=timezone.now)
     sets = models.ForeignKey(sets, related_name='comment', 
