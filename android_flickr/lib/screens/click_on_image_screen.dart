@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 //import 'package:provider/provider.dart';
 import '../widgets/click_on_image_post_details.dart';
+import '../screens/non_profile_screen.dart';
 
 //this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
 class ClickOnImageScreen extends StatefulWidget {
@@ -12,6 +13,13 @@ class ClickOnImageScreen extends StatefulWidget {
 
 class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
   bool isDetailsOfPostDisplayed = true;
+
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
+    Navigator.of(ctx).pushNamed(
+      NonProfileScreen.routeName,
+      arguments: postInformation,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +42,17 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
             if (isDetailsOfPostDisplayed)
               //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
               ListTile(
-                leading: CircleAvatar(
-                  radius: MediaQuery.of(context).size.width / 20,
-                  backgroundImage: NetworkImage(postInformation.postImageUrl),
-                  backgroundColor: Colors.transparent,
+                leading: GestureDetector(
+                  onTap: () {
+                    _goToNonprofile(context, postInformation);
+                  },
+                  child: CircleAvatar(
+                    radius: MediaQuery.of(context).size.width / 20,
+                    backgroundImage: NetworkImage(
+                      postInformation.picPoster.profilePicUrl,
+                    ),
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
                 title: Text(
                   postInformation.picPoster.name,

@@ -1,9 +1,13 @@
 import 'package:android_flickr/widgets/tabbar_in_non_profile.dart';
 import 'package:flutter/material.dart';
+import '../providers/flickr_post.dart';
 
 class NonProfileScreen extends StatelessWidget {
+  static const routeName = '/non-profile-screen';
   @override
   Widget build(BuildContext context) {
+    final postInformation = ModalRoute.of(context).settings.arguments
+        as PostDetails; // instance of Post details that contains info about the post we are currently displaying
     return Scaffold(
       body: DefaultTabController(
         length: 4,
@@ -19,8 +23,8 @@ class NonProfileScreen extends StatelessWidget {
                   flexibleSpace: Stack(
                     children: [
                       FlexibleSpaceBar(
-                        background: Image.asset(
-                          'assets/images/Logo.png',
+                        background: Image.network(
+                          postInformation.postImageUrl,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -28,8 +32,8 @@ class NonProfileScreen extends StatelessWidget {
                         top: MediaQuery.of(context).size.height * 0.2,
                         left: MediaQuery.of(context).size.width * 0.4,
                         child: CircleAvatar(
-                          backgroundImage: AssetImage(
-                            'assets/images/Logo.png',
+                          backgroundImage: NetworkImage(
+                            postInformation.picPoster.profilePicUrl,
                           ),
                         ),
                       ),

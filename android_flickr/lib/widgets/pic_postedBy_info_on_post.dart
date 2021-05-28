@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 import './pop_menu_button_of_post.dart';
+import '../screens/non_profile_screen.dart';
 
 class PicPostedByInfoOnPost extends StatelessWidget {
   final PostDetails
@@ -8,8 +9,14 @@ class PicPostedByInfoOnPost extends StatelessWidget {
 
   bool isFollowedBeforeRunning =
       true; // helps me to display diffrentiate between the users that I am following before running
-  //and who I followed during running so I can display the subtitle widget accordingly since if the user follow during running from the
-  //popupmenu item then I should display (followed recomended)text as subtitle
+  //and who I followed during running
+
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
+    Navigator.of(ctx).pushNamed(
+      NonProfileScreen.routeName,
+      arguments: postInformation,
+    );
+  }
 
   // returns the widget that will be displayed as subtitle in the listtile below if it will be caption or Following recomended or recomended
   Widget _widgetToBeDisplayedAsSubtitle() {
@@ -58,19 +65,24 @@ class PicPostedByInfoOnPost extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          leading: CircleAvatar(
-            radius: MediaQuery.of(context).size.width / 20,
-            backgroundImage: NetworkImage(
-              postInformation.picPoster.profilePicUrl,
-            ),
-            backgroundColor: Colors.transparent,
-            /* child: Image.asset(
-                postInformation.url,
-                alignment: Alignment.center,
-                fit: BoxFit.fill,
+          leading: GestureDetector(
+            onTap: () {
+              _goToNonprofile(context, postInformation);
+            },
+            child: CircleAvatar(
+              radius: MediaQuery.of(context).size.width / 20,
+              backgroundImage: NetworkImage(
+                postInformation.picPoster.profilePicUrl,
+              ),
+              backgroundColor: Colors.transparent,
+              /* child: Image.asset(
+                  postInformation.url,
+                  alignment: Alignment.center,
+                  fit: BoxFit.fill,
 
-                //height: double.infinity,
-              ), */
+                  //height: double.infinity,
+                ), */
+            ),
           ),
           title: Text(
             postInformation.picPoster.name,

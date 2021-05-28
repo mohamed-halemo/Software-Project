@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
+import '../providers/flickr_post.dart';
+import '../screens/non_profile_screen.dart';
 
 class SearchPeople extends StatefulWidget {
   @override
@@ -8,26 +10,38 @@ class SearchPeople extends StatefulWidget {
 }
 
 class _SearchPeopleState extends State<SearchPeople> {
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
+    Navigator.of(ctx).pushNamed(
+      NonProfileScreen.routeName,
+      arguments: postInformation,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final peopleSearchDetails = Provider.of<Posts>(context).posts;
     return ListView.builder(
       itemCount: peopleSearchDetails.length,
-      itemBuilder: (ctx, index) { 
+      itemBuilder: (ctx, index) {
         return ListTile(
-            leading: CircleAvatar(
-              radius: MediaQuery.of(context).size.width / 20,
-              backgroundImage: NetworkImage(
-                peopleSearchDetails[index].picPoster.profilePicUrl,
-              ),
-              backgroundColor: Colors.transparent,
-              /* child: Image.asset(
-                postInformation.url,
-                alignment: Alignment.center,
-                fit: BoxFit.fill,
+            leading: GestureDetector(
+              onTap: () {
+                _goToNonprofile(context, peopleSearchDetails[index]);
+              },
+              child: CircleAvatar(
+                radius: MediaQuery.of(context).size.width / 20,
+                backgroundImage: NetworkImage(
+                  peopleSearchDetails[index].picPoster.profilePicUrl,
+                ),
+                backgroundColor: Colors.transparent,
+                /* child: Image.asset(
+                  postInformation.url,
+                  alignment: Alignment.center,
+                  fit: BoxFit.fill,
 
-                //height: double.infinity,
-              ), */
+                  //height: double.infinity,
+                ), */
+              ),
             ),
             title: Text(
               peopleSearchDetails[index].picPoster.name,
