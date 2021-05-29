@@ -5,33 +5,34 @@ import 'package:provider/provider.dart';
 import 'pic_postedBy_info_on_post.dart';
 import '../screens/click_on_image_screen.dart';
 
-//explore post describes how the post will be displayed and the widgets it will use
+/// Explore post describes how each post will be displayed and the widgets it will use.
 class ExplorePost extends StatelessWidget {
-  //navigator is used here to navigate to the click_on_image_screen widget when we click on the image
+  final inPublicMode;
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
+    /// Navigator is used here when we click on the image.
+
+    /// postInformation is passed as an argument so ClickOnImageScreen can know which details it will display.
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: postInformation,
     );
   }
 
-  // we set up a listener here to class Posts using provider.of<PostDetails>(context)
-
+  ExplorePost(this.inPublicMode);
   @override
   Widget build(BuildContext context) {
+    /// We set up a listener here to class Posts to listen any change to the post.
     final postInformation = Provider.of<PostDetails>(context);
     return ChangeNotifierProvider(
+      /// A container that click on image screen will listen to so it is notified with any change in post details like fave.
       create: (context) => postInformation,
       child: Container(
-        //we return container that includes details of widgets inside the container and their configurations
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(color: Colors.white),
         padding: EdgeInsets.all(5),
         margin: EdgeInsets.all(8),
         child: Column(
           children: <Widget>[
-            /* we wrap the container that contains the posted image usinG with gesture detector so when the user presses on the image,
-              we go to ClickOnImagesscreen widget*/
             GestureDetector(
               onTap: () {
                 clickOnImageScreen(context, postInformation);
@@ -43,28 +44,22 @@ class ExplorePost extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   child: FadeInImage(
+                    /// Takes the place ot the post image until the post image loads.
                     placeholder: AssetImage("assets/images/placeholder.png"),
                     image: NetworkImage(
                       postInformation.postImageUrl,
                     ),
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    /* child: Image.network(
-                      postInformation.postImageUrl,
-                      //height: 250,
-
-                      /* height: MediaQuery.of(context).size.height -
-                            MediaQuery.of(context).size.height / 4, */
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ), */
                   ),
                 ),
               ),
             ),
-            //we provied it with the instaince of PostDetails class that is postImformation so it can display the widgets below post Image
-            PicPostedByInfoOnPost(postInformation),
-            //configurations and widgets choosen for the three buttons, fave , comments and share
+
+            /// Widget that displays picPoster avatar, name, caption and since when was this post posted.
+            PicPostedByInfoOnPost(postInformation,inPublicMode),
+
+            /// Configurations and widgets choosen for the three buttons, fave , comments and share.
             Container(
               width: MediaQuery.of(context).size.width / 1.1,
               child: Divider(
@@ -130,7 +125,8 @@ class ExplorePost extends StatelessWidget {
                 ],
               ),
             ),
-            //few details displayed about the comment(last comment) and one or two names if availabe of the users who faved the post
+
+            /// Few details displayed about the comment(last comment) and one or two names if availabe of the users who faved the post.
             FewDetailsOfFavesComments(postInformation),
           ],
         ),

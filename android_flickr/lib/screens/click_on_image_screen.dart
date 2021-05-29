@@ -4,7 +4,7 @@ import '../providers/flickr_post.dart';
 import '../widgets/click_on_image_post_details.dart';
 import '../screens/non_profile_screen.dart';
 
-//this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
+/// This class is responsible for all the features and widgets that will be displayed when we click on the post image.
 class ClickOnImageScreen extends StatefulWidget {
   static const routeName = '/click-on-image-screen';
   @override
@@ -23,8 +23,10 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final postInformation = ModalRoute.of(context).settings.arguments
-        as PostDetails; // instance of Post details that contains info about the post we are currently displaying
+    /// Instance of Post details that contains info about the post we are currently displaying.
+    final postInformation =
+        ModalRoute.of(context).settings.arguments as PostDetails;
+
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
       backgroundColor: Colors.black87,
@@ -36,11 +38,13 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
         child: Stack(
           //fit: StackFit.expand,
           children: [
+            /// So when we tap on the screen the bottom bar and top bar navigate between disappear and appear.
             if (isDetailsOfPostDisplayed)
-              //so when we tap on the screen the bottom bar and top bar navigate between disappear and appear
               ClickOnImageDisplayPostDetails(postInformation: postInformation),
             if (isDetailsOfPostDisplayed)
-              //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
+
+              /// Display listtile which includes profile pic as leading and name of the pic owner as title
+              /// and cancel button to return to previous screen.
               ListTile(
                 leading: GestureDetector(
                   onTap: () {
@@ -82,7 +86,7 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                 );
               },
               child: Center(
-                //display image of the post
+                /// Display image of the post.
                 child: Container(
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.of(context).size.height -

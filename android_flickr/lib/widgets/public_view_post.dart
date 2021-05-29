@@ -18,7 +18,7 @@ class PublicViewPost extends StatelessWidget {
       itemBuilder: (context, index) {
         return ChangeNotifierProvider.value(
           value: postsToDisplay[index],
-          child: ExplorePost(),
+          child: ExplorePost(true),
         );
       },
     );

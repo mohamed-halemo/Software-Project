@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 
+/// Gridview that displays the only images of the posts in grid mode.
 class PublicViewGrid extends StatelessWidget {
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
     Navigator.of(ctx).pushNamed(

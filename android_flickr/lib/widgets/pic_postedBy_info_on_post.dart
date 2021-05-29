@@ -3,13 +3,16 @@ import '../providers/flickr_post.dart';
 import './pop_menu_button_of_post.dart';
 import '../screens/non_profile_screen.dart';
 
+/// A Widget that displays picPoster avatar, name, caption and since when was this post posted.
 class PicPostedByInfoOnPost extends StatelessWidget {
-  final PostDetails
-      postInformation; //instance of post details that contains info about the post to set the info about faves and comments
+  final inPublicMode;
 
-  bool isFollowedBeforeRunning =
-      true; // helps me to display diffrentiate between the users that I am following before running
-  //and who I followed during running
+  ///
+  /// Instance of post details that contains info about the post to set the info about faves and comments.
+  final PostDetails postInformation;
+
+  /// Helps me to diffrentiate whether I followed the user before/after running the app to select the widgets to display.
+  bool isFollowedBeforeRunning = true;
 
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
     Navigator.of(ctx).pushNamed(
@@ -18,14 +21,16 @@ class PicPostedByInfoOnPost extends StatelessWidget {
     );
   }
 
-  // returns the widget that will be displayed as subtitle in the listtile below if it will be caption or Following recomended or recomended
+  /// Returns the widget that will be displayed as subtitle in the listtile if it will be caption or Following recomended or recomended.
   Widget _widgetToBeDisplayedAsSubtitle() {
-    if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning &&
+    if (((postInformation.picPoster.isFollowedByUser &&
+                !postInformation.picPoster.followedDuringRunning) ||
+            inPublicMode) &&
         postInformation.caption != null) {
       return Text(postInformation.caption);
-    } else if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning &&
+    } else if (((postInformation.picPoster.isFollowedByUser &&
+                !postInformation.picPoster.followedDuringRunning) ||
+            inPublicMode) &&
         postInformation.caption == null) {
       return Text("");
     } else if (postInformation.picPoster.followedDuringRunning) {
@@ -37,10 +42,11 @@ class PicPostedByInfoOnPost extends StatelessWidget {
     }
   }
 
-  // returns the widget that will be displayed as trailing in the listtile below whether it will be
+  /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
   Widget _widgetToBeDisplayedAsTrailing(BuildContext context) {
-    if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning) {
+    if ((postInformation.picPoster.isFollowedByUser &&
+            !postInformation.picPoster.followedDuringRunning) ||
+        inPublicMode) {
       return SizedBox(
         width: MediaQuery.of(context).size.width / 10,
         child: Text(postInformation.postedSince),
@@ -48,18 +54,13 @@ class PicPostedByInfoOnPost extends StatelessWidget {
     } else if (postInformation.picPoster.followedDuringRunning) {
       return Text("");
     } else {
-      //returns the popupmenubutton to display as trailing in listtile if needed
+      /// Returns the popupmenubutton to display as trailing in listtile if needed.
       return PopupMenuButtonOfPost(postInformation);
     }
   }
 
-  PicPostedByInfoOnPost(this.postInformation);
+  PicPostedByInfoOnPost(this.postInformation, this.inPublicMode);
   @override
-  //the widget returns a container where we have a listtile in it which has the profile picture as leading in circular avatar
-  /*the title in the listtile is the name and the subtitle in the listtile is the caption (if available) in case 
-  isFollowedByUser = true (which means the current user is following the user who posted the picture) but if isFollowedByUser = false
-  then we display as subtitle the word(recomended) and if the user decides to follow the post owner by clicking the follow option
-  in the pop menu button then the word (recomended) is replaced with (followed recomended) and the pop menu buttonin the trailing position disappears*/
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,13 +76,6 @@ class PicPostedByInfoOnPost extends StatelessWidget {
                 postInformation.picPoster.profilePicUrl,
               ),
               backgroundColor: Colors.transparent,
-              /* child: Image.asset(
-                  postInformation.url,
-                  alignment: Alignment.center,
-                  fit: BoxFit.fill,
-
-                  //height: double.infinity,
-                ), */
             ),
           ),
           title: Text(
@@ -90,7 +84,9 @@ class PicPostedByInfoOnPost extends StatelessWidget {
           subtitle: _widgetToBeDisplayedAsSubtitle(),
           trailing: _widgetToBeDisplayedAsTrailing(context),
         ),
-        if (!isFollowedBeforeRunning && postInformation.caption != null)
+        if (!isFollowedBeforeRunning &&
+            postInformation.caption != null &&
+            !inPublicMode)
           Row(
             children: [
               SizedBox(width: MediaQuery.of(context).size.width / 17),

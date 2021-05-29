@@ -16,7 +16,7 @@ class ClickOnImageDisplayPostDetails extends StatefulWidget {
 
 class _ClickOnImageDisplayPostDetailsState
     extends State<ClickOnImageDisplayPostDetails> {
-  //returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
+  /// Returns a widget which tells me the string in Text widget that will be displayed based on the favesTotalNumber.
   Widget favesText(PostDetails postInformation) {
     if ((postInformation.favesDetails.favesTotalNumber > 1 ||
             postInformation.commentsTotalNumber != 0) &&
@@ -43,7 +43,7 @@ class _ClickOnImageDisplayPostDetailsState
     }
   }
 
-  //returns a widget which tells me the which string in Text widget that will be displayed based on the commentsTotalNumber
+  /// Returns a widget which tells me the string in Text widget that will be displayed based on the commentsTotalNumber.
   Widget commentsText(PostDetails postInformation) {
     if ((postInformation.commentsTotalNumber > 1 ||
             postInformation.favesDetails.favesTotalNumber != 0) &&
@@ -108,7 +108,7 @@ class _ClickOnImageDisplayPostDetailsState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            //displays bottom bar which includes fave 0, comment button, share button, info button and faves and comments total number
+            /// Displays bottom bar which includes fave button, comment button, share button, info button and faves and comments total number
             IconButton(
               icon: widget.postInformation.favesDetails.isFaved
                   ? Icon(

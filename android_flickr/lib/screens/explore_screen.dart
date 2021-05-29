@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 import 'package:swipedetector/swipedetector.dart';
 
+/// This is the Main screen where we have diffrent tabs(explore, search,personal profile, notifications, camera).
 class ExploreScreen extends StatefulWidget {
   static const routeName = '/explore-screen';
 
@@ -19,8 +20,14 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
+
+  /// The index of the selected tab which is used to navigate from the notification view to the profile view.
+  ///
+  /// This is because the notification is wrapped in a swipedetector which overrides the swipe functionality of the TABBAR.
   var currentIndex = 0;
+
   Future<void> _refreshExplore(BuildContext context) async {
+    /// Uses the function fetchAndSetExplorePosts to reload the latest posts from the mock service.
     await Provider.of<Posts>(context, listen: false).fetchAndSetExplorePosts();
   }
 
@@ -44,7 +51,6 @@ class _ExploreScreenState extends State<ExploreScreen>
 
   @override
   Widget build(BuildContext context) {
-    //this is the Main screen where we have diffrent tabs one of them is only configured which is the explore display
     return /* DefaultTabController(
       initialIndex: currentIndex,
       length: 5,
@@ -52,7 +58,6 @@ class _ExploreScreenState extends State<ExploreScreen>
         Scaffold(
       backgroundColor: Colors.black.withOpacity(0.5),
       body: NestedScrollView(
-        //to scroll through posts and also scroll the tab bar
         headerSliverBuilder: (context, index) {
           return [
             SliverAppBar(
@@ -96,6 +101,7 @@ class _ExploreScreenState extends State<ExploreScreen>
                     //text: 'Favorites',
                   ),
                   GestureDetector(
+                    /// To navigate to the flickr camera screen and not the tabbar view
                     onTap: () {
                       _goToFlickrCamera(context);
                     },
@@ -114,18 +120,19 @@ class _ExploreScreenState extends State<ExploreScreen>
         dragStartBehavior: DragStartBehavior.start,
         body: TabBarView(
           controller: _tabController,
-          //widgets each tab will display
           children: <Widget>[
-            //wrapped with refresh indicator which runs the _refreshExplore function when triggered
+            /// List of the widgets to navigate among.
+
             RefreshIndicator(
               onRefresh: () {
                 return _refreshExplore(context);
               },
-              child: Explore(), //display the explore posts
+              child: Explore(),
             ),
-
             SearchDisplay(),
             ProfileDisplay(),
+
+            /// Helps to go to the camera screen instead of the tabbar view.
             SwipeDetector(
               onSwipeLeft: () {
                 setState(() {
@@ -136,7 +143,6 @@ class _ExploreScreenState extends State<ExploreScreen>
                 setState(
                   () {
                     currentIndex = 0;
-                    //DefaultTabController.of(context).index = 2;
                     _tabController.index = 2;
                   },
                 );
@@ -150,7 +156,6 @@ class _ExploreScreenState extends State<ExploreScreen>
                 ),
               ),
             ),
-
             Center(
               child: Text("no camera"),
             ),
