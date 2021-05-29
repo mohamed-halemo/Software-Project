@@ -7,17 +7,18 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username,first_name ,last_name , age, password=None):
+    def create_user(self, email,first_name ,last_name , age, password=None):
         if not email:
             raise ValueError('Users must have an email address')
-        if not username:
-            raise ValueError('Users must have a username')
         if not first_name:
             raise ValueError('Users must have a first name')
         if not last_name:
             raise ValueError('Users must have a last name')
         if not age:
             raise ValueError('Users must have an age')
+        
+        username=email.split('@')[0].lower()
+        print(username)
         user = self.model(
             
             email=email.lower(),
@@ -31,7 +32,8 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password, first_name='admin' ,last_name='admin',age='0'):
+    def create_superuser(self, email, password, first_name='admin' ,last_name='admin',age='0'):
+        username=email.split('@')[0].lower()
         user = self.create_user(
             email=email.lower(),
             password=password,

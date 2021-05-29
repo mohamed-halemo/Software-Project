@@ -12,6 +12,9 @@ path('sign-up/', SignUpView.as_view(), name="signup"),
 #change user's password
 path('change-password/', ChangePassword.as_view(), name='change-password'),
 
+#change user's username
+path('change-username/', ChangeUsername.as_view(), name='change-username'),
+
 #verify user's mail
 path('email-verify/', VerifyEmail.as_view(), name="email-verify"),
 

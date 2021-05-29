@@ -32,7 +32,6 @@ def verifying_user(user):
         Profile.objects.create(owner=user)
         user.is_verified = True
         user.save()
-        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
     
 def prepare_verify_email(request,user,token):
     current_site = get_current_site(request).domain
@@ -143,7 +142,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     #POST
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        email = request.data.get('email', '')
+        email = request.data.get('email', '')        
         if Account.objects.filter(email=email).exists():
             user = Account.objects.get(email=email)
             
@@ -267,6 +266,29 @@ class ChangeToPro(generics.GenericAPIView):
                     'message': 'User already normal!',
                 }
                 return Response(response, status = status.HTTP_200_OK)
+
+#change user username
+class ChangeUsername(generics.GenericAPIView):
+    serializer_class = ChangeUsernameSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    #PUT
+    def put(self, request):
+        user = self.request.user
+        serializer = self.serializer_class(data=request.data)
+    
+        if serializer.is_valid(raise_exception=True):
+            username,error = validate_username(serializer.data['username'])
+            if len(username)==0:
+                raise serializers.ValidationError(error)
+            user.username = username
+            try:
+                user.save()
+            except:
+                return Response({'Error': 'Username taken'})
+                
+            
+        return Response({'Success': 'Username changed'})
 
 #get user info
 class UserInfo(generics.RetrieveAPIView):

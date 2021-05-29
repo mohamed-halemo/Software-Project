@@ -8,6 +8,8 @@ from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from project.utils import *
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 #Sign up serializer
 class SignUpSerializer(serializers.ModelSerializer):
@@ -17,26 +19,23 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ['email', 'username', 'password','first_name','last_name','age']
+        fields = ['email', 'password','first_name','last_name','age']
 
     def validate(self, attrs):
         password = attrs.get('password', '')
-        username = attrs.get('username', '')
         age= attrs.get('age', '')
         email= attrs.get('email','').lower()
         user = Account.objects.filter(email=email)
         #Checking if user is already registered
         if user:
-            raise serializers.ValidationError({'error': 'already have an acount!!'})
+            raise serializers.ValidationError({'error': 'Email already registered!!'})
         
         #Checking if user entered valid age
         if age == 0:
             raise serializers.ValidationError("Enter valid age")
             
-        username,error1=validate_username(username)
-        password,error2=validate_password(password,username)
-        if len(username)==0:
-            raise serializers.ValidationError(error1)
+        password,error2=validate_password(password)
+
         if len(password)==0:
             raise serializers.ValidationError(error2)
             
@@ -67,14 +66,11 @@ class LogInSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=6)
     password = serializers.CharField(max_length=16, min_length=12,
                                      write_only=True)
-    username = serializers.CharField(max_length=255, min_length=6,
-                                     read_only=True)
-    tokens = serializers.CharField(max_length=68, min_length=12,
-                                   read_only=True)
+    
 
     class Meta:
         model = Account
-        fields = ['email', 'password', 'username', 'tokens']
+        fields = ['email', 'password', 'tokens']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
@@ -146,6 +142,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 class ChangeToPro(serializers.Serializer):
     '''Serializer for changing Account type'''
     is_pro = serializers.BooleanField(default=False)
+
+#change user info serializer
+class ChangeUsernameSerializer(serializers.Serializer):
+    '''Serializer for changing Account username'''
+    username = serializers.CharField(max_length=60)
 
 #Account info serializer
 class OwnerSerializer(serializers.ModelSerializer):

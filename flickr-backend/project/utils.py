@@ -40,7 +40,7 @@ def validate_username(username):
     else:
         return username, ''
 
-def validate_password(password,username=''):
+def validate_password(password,username='-'):
     numupper =0
     for c in password:
         if c.isupper():
