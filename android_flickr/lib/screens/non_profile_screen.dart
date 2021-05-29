@@ -13,7 +13,7 @@ class NonProfileScreen extends StatelessWidget {
         length: 4,
         child: Padding(
           padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height * 0.033,
+            top: MediaQuery.of(context).size.height * 0,
           ),
           child: NestedScrollView(
             headerSliverBuilder: (context, index) {

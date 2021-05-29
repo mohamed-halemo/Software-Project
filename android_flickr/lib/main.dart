@@ -67,6 +67,7 @@ class MyApp extends StatelessWidget {
           //FlickrSplashScreen.routeName: (ctx) => FlickrSplashScreen(),
           SearchScreen.routeName: (ctx) => SearchScreen(),
           NonProfileScreen.routeName: (ctx) => NonProfileScreen(),
+          FlickrCameraScreen.routeName: (ctx) => FlickrCameraScreen(),
         },
       ),
     );

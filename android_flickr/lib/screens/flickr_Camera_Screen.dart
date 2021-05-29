@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+// import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager/photo_manager.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -23,6 +24,7 @@ enum UserFlashMode {
 ///Main Camera View where users take images or videos,
 ///Its a widget that occupies the full screen.
 class FlickrCameraScreen extends StatefulWidget {
+  static const routeName = '/flickr-camera-screen';
   @override
   _FlickrCameraScreen createState() => _FlickrCameraScreen();
 }

@@ -54,10 +54,15 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                     backgroundColor: Colors.transparent,
                   ),
                 ),
-                title: Text(
-                  postInformation.picPoster.name,
-                  style: TextStyle(
-                    color: Colors.white,
+                title: GestureDetector(
+                  onTap: () {
+                    _goToNonprofile(context, postInformation);
+                  },
+                  child: Text(
+                    postInformation.picPoster.name,
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 trailing: IconButton(
