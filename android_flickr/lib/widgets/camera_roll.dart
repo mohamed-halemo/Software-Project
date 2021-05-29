@@ -10,6 +10,7 @@ import '../providers/flickr_posts.dart';
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/screens/PhotoGalleryScreen.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
+import '../Classes/globals.dart' as globals;
 
 ///Camera Roll page where the user can view his images, open and edit them,
 ///set privacy and delete.
@@ -26,6 +27,17 @@ class CameraRollState extends State<CameraRoll> {
 
   ///List of all user Posts.
   List<PostDetails> postsToDisplay;
+
+  ///fetch user images at initState
+  @override
+  void initState() {
+    super.initState();
+
+    var mockUrl =
+        // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
+        Uri.http(globals.HttpSingleton().getBaseUrl(),
+            globals.isMockService ? '/Photo' : '/api/Photo');
+  }
 
   ///Main widget tree, rebuilds with every state update.
   @override

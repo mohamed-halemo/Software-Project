@@ -1,6 +1,7 @@
 // Out of the box imports
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 //packages and Plugins
 import 'package:camerawesome/models/orientations.dart';
@@ -8,9 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:photo_manager/photo_manager.dart';
 import './PhotoGalleryScreen.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import 'package:photo_gallery/photo_gallery.dart';
 
 //Personal Imports
 import 'package:android_flickr/screens/photoEditScreen.dart';
@@ -48,13 +49,12 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
   ///Picture Controller which is called to take pictures.
   PictureController _pictureController = new PictureController();
 
-  //TODO Replace With better Plugin used in loading library.
+  //TODO PErmission Handler.
   // List of images on the device (customized to only load the first 2 images,
   /// we get the recent image from this list.
-  List<AssetEntity> galleryList;
 
   /// the last image stored on the device.
-  File recentImage;
+  List<int> recentImage;
 
   /// bool that reflects the user choice of either photo or video,a State variable.
   bool isVideoMode = false;
@@ -256,8 +256,8 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
                               ? Container(
                                   color: Colors.grey,
                                 )
-                              : Image.file(
-                                  recentImage,
+                              : Image.memory(
+                                  Uint8List.fromList(recentImage),
                                   fit: BoxFit.cover,
                                 ),
                         ),
@@ -277,32 +277,19 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
   ///Initialize Camera and Gallery, retreive gallery list
   //initialization method, No unit Test.
   Future initGallary() async {
-    await PhotoManager.requestPermission();
-    await Permission.storage.request();
-    PhotoManager.clearFileCache();
-
-    //get a list of all assets and order them by date of creation to get most recent
-    List<AssetPathEntity> list = await PhotoManager.getAssetPathList(
-      onlyAll: true,
-      filterOption: FilterOptionGroup(
-        orders: [
-          OrderOption(
-            type: OrderOptionType.createDate,
-          )
-        ],
-      ),
-    );
-
-    try {
-      //only get the first two images, not anymore are needed in this view
-      galleryList = await list[0].getAssetListRange(start: 0, end: 1);
-      //Set recent image to the recieved file and rebuild
-      galleryList[0].file.then((value) {
-        setState(() {
-          recentImage = value;
+    await PhotoGallery.cleanCache();
+    await PhotoGallery.listAlbums(
+      hideIfEmpty: true,
+      mediumType: MediumType.image,
+    ).then((value) {
+      try {
+        value[0].getThumbnail().then((value2) {
+          setState(() {
+            recentImage = value2;
+          });
         });
-      });
-    } catch (e) {}
+      } catch (e) {}
+    });
   }
 
   ///Camera Mode Button receives an image path string of the button icon

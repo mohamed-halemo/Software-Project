@@ -325,7 +325,8 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
     var mockUrl =
         // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
-        Uri.http(globals.HttpSingleton().getBaseUrl(), 'Photo');
+        Uri.http(globals.HttpSingleton().getBaseUrl(),
+            globals.isMockService ? '/Photo' : '/api/photos/upload');
 
     var toBeEncodedMap = {
       'title': titleController.text,
@@ -338,6 +339,6 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
       mockUrl,
       body: jsonBody,
       headers: {"Content-Type": "application/json"},
-    );
+    ).then((value) => print(value.statusCode));
   }
 }
