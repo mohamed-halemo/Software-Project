@@ -165,7 +165,8 @@ class CameraRollState extends State<CameraRoll> {
                           Navigator.of(context).pushNamed(
                             ClickOnImageScreen.routeName,
                             arguments: {
-                              'postDetails': postsToDisplay[gridindex],
+                              'postDetails': postsToDisplay,
+                              'postIndex': gridindex,
                               'isFromPersonalProfile': true
                             },
                           );

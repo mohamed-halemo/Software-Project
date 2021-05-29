@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' show get;
 import 'package:photo_view/photo_view.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 //Personal imports
 import '../providers/flickr_post.dart';
@@ -31,6 +32,10 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
   ///Scale of the Zoom of the photo.
   var photoscale = 1.0;
+
+  bool isFirstLoad = true;
+
+  SwiperController mySwipeController = new SwiperController();
 
   ///returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
   Widget favesText(PostDetails postInformation) {
@@ -86,6 +91,27 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     }
   }
 
+  bool isFromPersonalProfile;
+  var postInformation;
+  var allPosts;
+  var postIndex;
+
+  void firstLoad(Map settingsMap) {
+    isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
+    allPosts = settingsMap['postDetails'];
+    postIndex = settingsMap['postIndex'];
+    if (settingsMap['isFromPersonalProfile']) {
+      postInformation = allPosts[postIndex];
+    } else {
+      postInformation = allPosts;
+    }
+    isFirstLoad = false;
+  }
+
+  void reload() {
+    postInformation = allPosts[postIndex];
+  }
+
   ///Main Build method. Rebuilds with state update.
   @override
   Widget build(BuildContext context) {
@@ -93,10 +119,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
 
     /// instance of Post details that contains info about the post we are currently displaying
-    final postInformation = settingsMap['postDetails'];
 
-    bool isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
-
+    isFirstLoad ? firstLoad(settingsMap) : reload();
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
       backgroundColor: Colors.black87,
@@ -141,19 +165,45 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                 ),
               Center(
                 //display image of the post
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).size.height / 4,
-                  ),
-                  child: ClipRRect(
-                    child: PhotoView(
-                      minScale: PhotoViewComputedScale.contained,
-                      maxScale: 8.0,
-                      controller: photoViewController,
-                      initialScale: photoscale,
-                      imageProvider: NetworkImage(
-                        postInformation.postImageUrl,
+                child: Swiper(
+                  itemCount: settingsMap['isFromPersonalProfile']
+                      ? allPosts.length
+                      : 1,
+                  index: postIndex,
+                  controller: mySwipeController,
+                  onIndexChanged: (value) async {
+                    // setState(() {
+                    //   if (settingsMap['isFromPersonalProfile'])
+                    //     postInformation = allPosts[value];
+                    // });
+                    // mySwipeController.next();
+
+                    print(value);
+                    // await mySwipeController.move(value + 1, animation: true);
+
+                    if (settingsMap['isFromPersonalProfile']) {
+                      if (allPosts.length > value) {
+                        postIndex = value;
+                        setState(() {});
+                      }
+                    }
+                  },
+                  itemBuilder: (BuildContext context, int index) => Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).size.height / 4,
+                    ),
+                    child: ClipRRect(
+                      child: PhotoView(
+                        minScale: PhotoViewComputedScale.contained,
+                        maxScale: 8.0,
+                        controller: photoViewController,
+                        initialScale: photoscale,
+                        imageProvider: NetworkImage(
+                          settingsMap['isFromPersonalProfile']
+                              ? allPosts[index].postImageUrl
+                              : postInformation.postImageUrl,
+                        ),
                       ),
                     ),
                   ),

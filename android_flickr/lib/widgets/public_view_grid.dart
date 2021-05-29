@@ -7,26 +7,31 @@ import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 
 class PublicViewGrid extends StatelessWidget {
-  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
+  var postsToDisplay;
+
+  void clickOnImageScreen(
+      BuildContext ctx, PostDetails postInformation, int gridindex) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': postInformation,
-        'isFromPersonalProfile': true
+        'postDetails': postsToDisplay,
+        'postIndex': gridindex,
+        'isFromPersonalProfile': true,
+        'isFromPublic': true
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final postsToDisplay = Provider.of<Posts>(context).posts;
+    postsToDisplay = Provider.of<Posts>(context).posts;
     return GridView.builder(
       padding: EdgeInsets.all(7),
       itemCount: postsToDisplay.length,
       itemBuilder: (context, index) {
         return InkWell(
           onTap: () {
-            clickOnImageScreen(context, postsToDisplay[index]);
+            clickOnImageScreen(context, postsToDisplay[index], index);
           },
           child: Image.network(
             postsToDisplay[index].postImageUrl,
