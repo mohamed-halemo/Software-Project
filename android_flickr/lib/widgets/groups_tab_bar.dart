@@ -1,3 +1,4 @@
+import 'package:android_flickr/screens/new_discussion.dart';
 import 'package:flutter/material.dart';
 import 'package:android_flickr/widgets/public_view_grid.dart';
 
@@ -35,7 +36,12 @@ class GroupsTabBar extends StatelessWidget {
                 Padding(padding: EdgeInsets.all(10)),
                 Center(
                   child: OutlineButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NewDiscussion()));
+                    },
                     child: Text(
                       'New Discussion',
                       style: TextStyle(
