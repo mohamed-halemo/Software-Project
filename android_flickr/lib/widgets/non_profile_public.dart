@@ -38,7 +38,9 @@ class _NonProfilePublicState extends State<NonProfilePublic> {
   Widget build(BuildContext context) {
     //final postsToDisplay = Provider.of<Posts>(context).posts;
     return Container(
-      decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+      decoration: BoxDecoration(
+        color: postView ? Colors.black.withOpacity(0.9) : Colors.white,
+      ),
       child: Column(
         children: [
           AnimatedContainer(

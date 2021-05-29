@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// Gridview that displays the only images of the posts in grid mode.
 class PublicViewGrid extends StatelessWidget {
@@ -18,7 +19,8 @@ class PublicViewGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final postsToDisplay = Provider.of<Posts>(context).posts;
-    return GridView.builder(
+    return StaggeredGridView.countBuilder(
+      crossAxisCount: 4,
       padding: EdgeInsets.all(7),
       itemCount: postsToDisplay.length,
       itemBuilder: (context, index) {
@@ -32,12 +34,16 @@ class PublicViewGrid extends StatelessWidget {
           ),
         );
       },
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+      staggeredTileBuilder: (int index) =>
+          new StaggeredTile.count(2, index.isEven ? 2 : 1),
+      mainAxisSpacing: 4.0,
+      crossAxisSpacing: 4.0,
+      /* gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 350,
         childAspectRatio: 3 / 2,
         crossAxisSpacing: 5,
         mainAxisSpacing: 5,
-      ),
+      ), */
     );
   }
 }

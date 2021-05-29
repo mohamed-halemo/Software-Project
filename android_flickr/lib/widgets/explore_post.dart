@@ -24,6 +24,7 @@ class ExplorePost extends StatelessWidget {
     /// We set up a listener here to class Posts to listen any change to the post.
     final postInformation = Provider.of<PostDetails>(context);
     return ChangeNotifierProvider(
+      
       /// A container that click on image screen will listen to so it is notified with any change in post details like fave.
       create: (context) => postInformation,
       child: Container(
