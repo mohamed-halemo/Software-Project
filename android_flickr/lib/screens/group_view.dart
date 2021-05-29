@@ -1,5 +1,5 @@
-import 'package:android_flickr/widgets/public_view_grid.dart';
 import 'package:flutter/material.dart';
+import '../widgets/groups_tab_bar.dart';
 
 class GroupView extends StatefulWidget {
   @override
@@ -9,36 +9,46 @@ class GroupView extends StatefulWidget {
 class _GroupViewState extends State<GroupView> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          toolbarHeight: MediaQuery.of(context).size.height / 14.2,
-          automaticallyImplyLeading: false,
-          bottom: TabBar(
-            isScrollable: false,
-            indicatorColor: Colors.black,
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.grey,
-            tabs: [
-              Tab(
-                text: "Photos",
-              ),
-              Tab(
-                text: "Discussions",
+    return NestedScrollView(
+      headerSliverBuilder: (context, index) {
+        return [
+          SliverAppBar(
+            floating: false,
+            automaticallyImplyLeading: false,
+            actions: [
+              PopupMenuButton(
+                itemBuilder: (contex) {
+                  return [
+                    PopupMenuItem(
+                      child: Text('WHAT UP'),
+                    ),
+                  ];
+                },
+                icon: Icon(Icons.more_vert),
               ),
             ],
+            flexibleSpace: Stack(
+              children: [
+                FlexibleSpaceBar(
+                  background: Image.asset(
+                    'assets/images/Logo.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.1,
+                  left: MediaQuery.of(context).size.width * 0.43,
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/Logo.png'),
+                  ),
+                )
+              ],
+            ),
+            expandedHeight: 200,
           ),
-        ),
-        body: TabBarView(
-          children: [
-            PublicViewGrid(),
-            Center(),
-          ],
-        ),
-      ),
+        ];
+      },
+      body: GroupsTabBar(),
     );
   }
 }
