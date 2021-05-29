@@ -1,17 +1,25 @@
 //out of the box imports
+import 'package:android_flickr/screens/edit_description_screen.dart';
 import 'package:flutter/material.dart';
 //packages and plugins
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:intl/intl.dart';
+
+//personal imports
+import 'edit_title_screen.dart';
 
 ///A page that displays info of the Current Image
 //ignore: must_be_immutable
 class ImageInfoScreen extends StatefulWidget {
   ///Post Details , holds information about the image such as title, description, tags and so on.
   PostDetails postDetails;
+  bool isFromPersonalProfile;
 
   ///Constructor, takes PostDetails
-  ImageInfoScreen(this.postDetails);
+  ImageInfoScreen(
+    this.postDetails,
+    this.isFromPersonalProfile,
+  );
   @override
   ImageInfoScreenState createState() => ImageInfoScreenState();
 }
@@ -31,15 +39,40 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               SizedBox(
                 height: 20,
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'TITLE',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                  ),
+              GestureDetector(
+                onTap: () {
+                  if (widget.isFromPersonalProfile)
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => EditTitleScreen(),
+                      ),
+                    );
+                },
+                child: Row(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'TITLE',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    widget.isFromPersonalProfile
+                        ? Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 8,
+                          )
+                        : Container(),
+                  ],
                 ),
               ),
               SizedBox(
@@ -48,10 +81,14 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  widget.postDetails.caption,
+                  widget.postDetails.caption == ''
+                      ? 'Add title'
+                      : widget.postDetails.caption,
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: widget.postDetails.caption == ''
+                        ? Colors.grey.shade500
+                        : Colors.white,
                     fontSize: 16,
                   ),
                 ),
@@ -59,15 +96,41 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               SizedBox(
                 height: 20,
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'DESCRIPTION',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                  ),
+              GestureDetector(
+                onTap: () {
+                  if (widget.isFromPersonalProfile)
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            EditDescriptionScreen(),
+                      ),
+                    );
+                },
+                child: Row(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'DESCRIPTION',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    widget.isFromPersonalProfile
+                        ? Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 8,
+                          )
+                        : Container(),
+                  ],
                 ),
               ),
               SizedBox(
@@ -76,10 +139,14 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  widget.postDetails.description,
+                  widget.postDetails.description == ''
+                      ? 'Add description'
+                      : widget.postDetails.description,
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: widget.postDetails.description == ''
+                        ? Colors.grey.shade500
+                        : Colors.white,
                     fontSize: 16,
                   ),
                 ),

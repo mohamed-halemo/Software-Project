@@ -301,7 +301,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    ImageInfoScreen(postInformation),
+                                    ImageInfoScreen(
+                                        postInformation, isFromPersonalProfile),
                               ),
                             );
                           },

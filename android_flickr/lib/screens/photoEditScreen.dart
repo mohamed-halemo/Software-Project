@@ -15,6 +15,7 @@ import '../Classes/switch_Case_Helper.dart';
 
 ///Photo Editing Screen, Can be Opened after taking a picture using the Camera Screen
 ///or can be opened from the Photo Screen using the Edit photo button.
+// ignore: must_be_immutable
 class PhotoEditScreen extends StatefulWidget {
   ///Path and name of the image
   final imagePath;
