@@ -86,18 +86,6 @@ class _NonProfilePublicState extends State<NonProfilePublic> {
 
           /// Display the gridview which displays only the images of the post close to each other.
           if (gridView) Expanded(child: PublicViewGrid()),
-          /*  Expanded(
-            child: ListView.builder(
-              //controller: _controller,
-              itemCount: postsToDisplay.length,
-              itemBuilder: (context, index) {
-                return ChangeNotifierProvider.value(
-                  value: postsToDisplay[index],
-                  child: ExplorePost(),
-                );
-              },
-            ),
-          ), */
         ],
       ),
     );

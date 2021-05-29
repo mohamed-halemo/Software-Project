@@ -1,6 +1,7 @@
 import 'package:android_flickr/widgets/profile_public.dart';
 import 'package:flutter/material.dart';
 
+/// Tabbar that is nested in user profiles screen(public,album,groups...) to implement the nested tabbars.
 class TabbarInProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -10,11 +11,7 @@ class TabbarInProfile extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          //titleSpacing: 50,
-          /* title: Text(
-            "moaz",
-            style: TextStyle(color: Colors.black),
-          ), */
+
           toolbarHeight: MediaQuery.of(context).size.height / 14.2,
           //bottomOpacity: ,
           automaticallyImplyLeading: false,

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 
+/// Contains list of the groups that came from the search result.
 class SearchGroups extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    /// Contains the list of the groups that came from the search result if any.
     final groupsSearchDetails = Provider.of<Posts>(context).posts;
     return ListView.builder(
       itemCount: groupsSearchDetails.length,

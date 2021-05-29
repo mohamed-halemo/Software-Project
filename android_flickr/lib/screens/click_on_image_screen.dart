@@ -4,7 +4,7 @@ import '../providers/flickr_post.dart';
 import '../widgets/click_on_image_post_details.dart';
 import '../screens/non_profile_screen.dart';
 
-/// This class is responsible for all the features and widgets that will be displayed when we click on the post image.
+/// Whenever any post image is clicked, the app navigates to this screen in order to display the image and few other details.
 class ClickOnImageScreen extends StatefulWidget {
   static const routeName = '/click-on-image-screen';
   @override

@@ -16,7 +16,7 @@ class ProfilePublic extends StatefulWidget {
 class _ProfilePublicState extends State<ProfilePublic> {
   ScrollController _controller = ScrollController();
 
-  /// To know whether to hide the grid/list view options or know based on user scrolling.
+  
   bool closeTopContainer = false;
   bool postView = false;
   bool gridView = true;
@@ -25,7 +25,7 @@ class _ProfilePublicState extends State<ProfilePublic> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      /// If user swiped up for certain amount the container of the grid/list view options is hidden.
+      
       setState(() {
         closeTopContainer = _controller.offset > 50;
       });

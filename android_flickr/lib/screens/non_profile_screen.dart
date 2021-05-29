@@ -2,12 +2,14 @@ import 'package:android_flickr/widgets/tabbar_in_non_profile.dart';
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 
+/// Screen that displays the other users profile with tabbar to navigate between diffrent details in this profile.
 class NonProfileScreen extends StatelessWidget {
   static const routeName = '/non-profile-screen';
   @override
   Widget build(BuildContext context) {
-    final postInformation = ModalRoute.of(context).settings.arguments
-        as PostDetails; // instance of Post details that contains info about the post we are currently displaying
+    /// instance of Post details that contains info about the profile that we are viewing.
+    final postInformation =
+        ModalRoute.of(context).settings.arguments as PostDetails;
     return Scaffold(
       body: DefaultTabController(
         length: 4,
@@ -43,6 +45,8 @@ class NonProfileScreen extends StatelessWidget {
                 ),
               ];
             },
+
+            /// Allows the user to view public,... about the currently viewed profile.
             body: TabbarInNonProfile(),
           ),
         ),

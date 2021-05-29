@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 
+/// SearchDisplay is displayed when the search tab is pressed and it shows random photos and search textfield which when pressed navigates to search screen.
 class SearchDisplay extends StatefulWidget {
   @override
   _SearchDisplayState createState() => _SearchDisplayState();
@@ -12,6 +13,8 @@ class SearchDisplay extends StatefulWidget {
 
 class _SearchDisplayState extends State<SearchDisplay> {
   ScrollController _controller = ScrollController();
+
+  /// To know whether to hide the grid/list view options or know based on user scrolling.
   bool closeTopContainer = false;
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
     Navigator.of(ctx).pushNamed(
@@ -25,6 +28,7 @@ class _SearchDisplayState extends State<SearchDisplay> {
     super.initState();
     _controller.addListener(() {
       setState(() {
+        /// If user swiped up for certain amount the container of the grid/list view options is hidden.
         closeTopContainer = _controller.offset > 100;
       });
     });
@@ -35,6 +39,7 @@ class _SearchDisplayState extends State<SearchDisplay> {
     final postsToDisplay = Provider.of<Posts>(context).posts;
     return Column(
       children: [
+        /// Navigates to the search screen when pressed.
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushNamed(SearchScreen.routeName);
@@ -67,6 +72,7 @@ class _SearchDisplayState extends State<SearchDisplay> {
           ),
         ),
         Expanded(
+          /// Displays the random images.
           child: ListView.builder(
             controller: _controller,
             itemBuilder: (ctx, index) {

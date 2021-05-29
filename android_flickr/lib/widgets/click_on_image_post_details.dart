@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 
+/// This class is responsible for all the features and widgets that will be displayed when we click on the post image.
 class ClickOnImageDisplayPostDetails extends StatefulWidget {
   const ClickOnImageDisplayPostDetails({
     Key key,

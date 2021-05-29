@@ -1,6 +1,7 @@
 import 'package:android_flickr/widgets/non_profile_public.dart';
 import 'package:flutter/material.dart';
 
+/// Tabbar that is nested in the other profiles screen(public,album,groups...).
 class TabbarInNonProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,7 @@ class TabbarInNonProfile extends StatelessWidget {
               child: Text("no notifications"),
             ),
             Center(
-              child: Text("no camera"),
+              child: Text("no about"),
             ),
           ],
         ),

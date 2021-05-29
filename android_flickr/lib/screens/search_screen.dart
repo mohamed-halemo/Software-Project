@@ -3,6 +3,7 @@ import 'package:android_flickr/widgets/search_people.dart';
 import 'package:android_flickr/widgets/search_photos.dart';
 import 'package:flutter/material.dart';
 
+/// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
 class SearchScreen extends StatelessWidget {
   static const routeName = '/search-screen';
   @override
@@ -63,9 +64,8 @@ class SearchScreen extends StatelessWidget {
           ),
         ),
         body: TabBarView(
-          //widgets each tab will display
+          /// User can navigate between these tabs to see the result of his/her search.
           children: <Widget>[
-            //wrapped with refresh indicator which runs the _refreshExplore function when triggered
             SearchPhotos(),
             SearchPeople(),
             SearchGroups(),

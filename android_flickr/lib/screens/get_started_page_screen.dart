@@ -13,6 +13,7 @@ enum SlideNumber {
   slide4,
 }
 
+///The first screen that appears when the user is not logged in.
 class GetStartedScreen extends StatefulWidget {
   static const routeName = '/get-started-screen';
   @override
@@ -20,11 +21,19 @@ class GetStartedScreen extends StatefulWidget {
 }
 
 class _GetStartedScreenState extends State<GetStartedScreen> {
+  ///The images are preloaded from the assests in this map and so they are ready to be displayed .
   Map<String, Image> swipeImageMap;
-  Image moaz;
+
+  ///contains first swipe image.
   Image swipeImage1;
+
+  ///contains second swipe image.
   Image swipeImage2;
+
+  ///contains third swipe image.
   Image swipeImage3;
+
+  ///contains forth swipe image.
   Image swipeImage4;
 
   String _setStartedScreenTitle(int index) {
@@ -152,11 +161,6 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 itemCount: 4,
                 loop: false,
                 controller: SwiperController(),
-                onTap: (index) {
-                  if (index < 3) {
-                    moaz = swipeImageMap['swipeImage' + '${index + 2}'];
-                  }
-                },
                 itemBuilder: (ctx, index) {
                   return Stack(
                     children: [
