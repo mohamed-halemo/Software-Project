@@ -87,7 +87,9 @@ class _FlickrCameraScreen extends State<FlickrCameraScreen>
   }
 
   Future<bool> _onWillPop() async {
-    return await Navigator.of(context).pushNamed(ExploreScreen.routeName).then((value) => true);
+    return await Navigator.of(context)
+        .pushNamed(ExploreScreen.routeName)
+        .then((value) => true);
   }
 
   @override

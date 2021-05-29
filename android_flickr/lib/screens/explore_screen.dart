@@ -170,10 +170,8 @@ class _ExploreScreenState extends State<ExploreScreen>
               navigateAfterSeconds: FlickrCameraScreen(),
               backgroundColor: Colors.grey.withOpacity(0.1),
               loaderColor: Colors.transparent,
-              image: Image.asset(
-                'assets/images/flickr_loading_screen.gif',
-              ),
-              photoSize: 75,
+              
+
               //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
             ),
             /* Center(
