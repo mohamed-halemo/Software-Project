@@ -8,6 +8,7 @@ import '../widgets/explore_display.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 import 'package:swipedetector/swipedetector.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 /// This is the Main screen where we have diffrent tabs(explore, search,personal profile, notifications, camera).
 class ExploreScreen extends StatefulWidget {
@@ -133,7 +134,15 @@ class _ExploreScreenState extends State<ExploreScreen>
             ProfileDisplay(),
 
             /// Helps to go to the camera screen instead of the tabbar view.
-            SwipeDetector(
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: Text(
+                "no notifications",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+/*             SwipeDetector(
               onSwipeLeft: () {
                 setState(() {
                   _goToFlickrCamera(context);
@@ -155,10 +164,21 @@ class _ExploreScreenState extends State<ExploreScreen>
                   style: TextStyle(color: Colors.white),
                 ),
               ),
+            ), */
+            SplashScreen(
+              seconds: 0,
+              navigateAfterSeconds: FlickrCameraScreen(),
+              backgroundColor: Colors.grey.withOpacity(0.1),
+              loaderColor: Colors.transparent,
+              image: Image.asset(
+                'assets/images/flickr_loading_screen.gif',
+              ),
+              photoSize: 75,
+              //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
             ),
-            Center(
+            /* Center(
               child: Text("no camera"),
-            ),
+            ), */
           ],
         ),
       ),
