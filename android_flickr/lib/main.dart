@@ -1,3 +1,4 @@
+import 'package:android_flickr/providers/auth.dart';
 import 'package:android_flickr/providers/flickr_posts.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
 import 'package:android_flickr/screens/explore_screen.dart';
@@ -12,6 +13,7 @@ import 'package:android_flickr/widgets/Explore_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:provider/provider.dart';
+import './providers/auth.dart';
 import './colors/blackSwatch.dart' as primBlack;
 import './screens/login_screen.dart';
 import './screens/photoEditScreen.dart';
@@ -54,6 +56,9 @@ class MyApp extends StatelessWidget {
     });
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(
+          value: Auth(),
+        ),
         ChangeNotifierProvider(
           create: (ctx) => Posts(),
         )
@@ -67,7 +72,7 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: FlickrSplashScreen(
-          ExploreScreen(),
+          LogIn(),
         ),
         //NonProfileScreen()
         /*  FlickrSplashScreen(

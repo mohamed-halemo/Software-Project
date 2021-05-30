@@ -4,6 +4,8 @@ library my_prj.globals;
 
 ///If true, mockService Url is used, if false, Real Server is used
 bool isMockService = false;
+String accessToken = '';
+String refreshToken = '';
 
 ///http handler for the project. It is a singleton.
 class HttpSingleton {
@@ -17,6 +19,6 @@ class HttpSingleton {
 
   ///Returns the base url of the server APIs, returns mock url if isMockService is true.
   String getBaseUrl() {
-    return isMockService == true ? '10.0.2.2:3000' : 'https://fotone.me/api';
+    return isMockService == true ? '10.0.2.2:3000' : 'fotone.me';
   }
 }

@@ -1,5 +1,8 @@
+import 'package:android_flickr/providers/auth.dart';
 import 'package:android_flickr/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -11,6 +14,13 @@ bool _secureText = true;
 // The text written on the button in login screen
 String _buttonText = 'Sign up';
 final _formKey = GlobalKey<FormState>();
+Map<String, String> _authData = {
+  'email': '',
+  'password': '',
+  'firstname': '',
+  'lastname': '',
+  'age': '',
+};
 
 class _SignUpState extends State<SignUp> {
   @override
@@ -76,22 +86,27 @@ class _SignUpState extends State<SignUp> {
                       _textInput(
                           hint: 'First name',
                           label: 'First name',
+                          userInfo: 'firstname',
                           keyboardType: TextInputType.name),
                       _textInput(
                           hint: 'Last name',
                           label: 'Last name',
+                          userInfo: 'lastname',
                           keyboardType: TextInputType.name),
                       _textInput(
                           hint: 'Your age',
                           label: 'Your age',
+                          userInfo: 'age',
                           keyboardType: TextInputType.number),
                       _textInput(
                           hint: 'Email address',
                           label: 'Email address',
+                          userInfo: 'email',
                           keyboardType: TextInputType.emailAddress),
                       _textInput(
                           hint: 'Password',
                           label: 'Password',
+                          userInfo: 'password',
                           keyboardType: TextInputType.visiblePassword,
                           obscure: _secureText,
                           suffixIcon: _secureText
@@ -106,13 +121,24 @@ class _SignUpState extends State<SignUp> {
                       Container(
                         child: RaisedButton(
                           onPressed: () {
-                            _formKey.currentState.validate()
+                            if (_formKey.currentState.validate()) {
+                              if (_formKey.currentState.validate()) {
+                                print(_authData);
+                                Provider.of<Auth>(context, listen: false)
+                                    .signup(
+                                  _authData['email'],
+                                  _authData['password'],
+                                  _authData['firstname'],
+                                  _authData['lastname'],
+                                  _authData['age'],
+                                );
                                 // Moving to the log in page
-                                ? Navigator.push(
+                                /*    Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => LogIn()))
-                                : null;
+                                        builder: (context) => LogIn())); */
+                              }
+                            }
                           },
                           child: Container(
                             child: Text(
@@ -171,6 +197,7 @@ Widget _textInput({
   obscure = false,
   suffixIcon,
   suffixIconPressed,
+  String userInfo,
 }) {
   return Container(
     margin: EdgeInsets.only(top: 10),
@@ -178,7 +205,7 @@ Widget _textInput({
       color: Colors.white,
     ),
     child: TextFormField(
-      validator: (String value) {
+      validator: (value) {
         // Checks if the text field is empty or not
         if (value.isEmpty) {
           return 'Required';
@@ -204,6 +231,9 @@ Widget _textInput({
       ),
       keyboardType: keyboardType,
       obscureText: obscure,
+      onChanged: (value) {
+        _authData[userInfo] = value;
+      },
     ),
   );
 }
