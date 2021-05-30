@@ -3,12 +3,18 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data' as typedData;
 import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
+import 'package:path_provider/path_provider.dart';
 import 'package:save_in_gallery/save_in_gallery.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'dart:ui' as ui;
+import 'package:http_parser/http_parser.dart';
 
 //personal imports
 import '../Classes/globals.dart' as globals;
@@ -303,6 +309,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
   /// After Saving to device, the image is uploaded to the server along with any
   /// available image info.
   void postAndSaveImage() async {
+    var imageBytes = widget.editedBitmap.buildHeaded();
     String imageName = DateTime.now().year.toString() +
         '-' +
         DateTime.now().month.toString() +
@@ -316,29 +323,77 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         DateTime.now().second.toString();
     final _imageSaver = ImageSaver();
     final res = await _imageSaver.saveImage(
-      imageBytes: widget.editedBitmap.buildHeaded(),
+      imageBytes: imageBytes,
       directoryName: "Flickr",
       imageName: imageName + '.jpg',
     );
     print(res);
     print(imageName);
 
-    var mockUrl =
-        // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
-        Uri.http(globals.HttpSingleton().getBaseUrl(),
-            globals.isMockService ? '/Photo' : '/api/photos/upload');
+    final directory = await getApplicationDocumentsDirectory();
+    File image = await File('${directory.path}/image.jpg').create();
+    await image.writeAsBytes(widget.editedBitmap.buildHeaded());
+    var decodedImage = await decodeImageFromList(imageBytes);
+    print(decodedImage.width);
+    print(decodedImage.height);
 
-    var toBeEncodedMap = {
-      'title': titleController.text,
-      'description': descriptionController.text,
-      'is_public': privacy == 'Public' ? true : false,
+    // var mockUrl =
+    //     // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
+    //     Uri.http(globals.HttpSingleton().getBaseUrl(),
+    //         globals.isMockService ? '/Photo' : '/api/photos/upload');
+    FormData formData = new FormData.fromMap(
+      {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        'is_public': privacy == 'Public' ? true : false,
+        'photo_width': decodedImage.width,
+        'photo_height': decodedImage.height,
+        'media_file': await MultipartFile.fromFile(
+          image.path,
+          // contentType: new MediaType("image", "jpeg"),
+        ),
+      },
+    );
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: globals.HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+      HttpHeaders.contentTypeHeader: 'multipart/form-data'
     };
-    var jsonBody = json.encode(toBeEncodedMap);
-    print('Post Request: ' + jsonBody);
-    await http.post(
-      mockUrl,
-      body: jsonBody,
-      headers: {"Content-Type": "application/json"},
-    ).then((value) => print(value.statusCode));
+
+    print(formData.fields.toString());
+    Response response;
+    try {
+      response = await dio.post(
+        globals.isMockService ? '/photos' : '/photos/upload',
+        data: formData,
+        onSendProgress: (int sent, int total) {
+          print('$sent $total');
+        },
+      ).then((value) {
+        print(value);
+        return value;
+      });
+    } on DioError catch (e) {
+      print(e.response.data);
+      print(e.response.statusCode);
+    }
+
+    // var toBeEncodedMap = {
+    //   'title': titleController.text,
+    //   'description': descriptionController.text,
+    //   'is_public': privacy == 'Public' ? true : false,
+    //   'photo_width': 1,
+    //   'photo_height': 1
+    // };
+    // var jsonBody = json.encode(toBeEncodedMap);
+    // print('Post Request: ' + jsonBody);
+    // await http.post(mockUrl, body: jsonBody, headers: {
+    //   "Content-Type": "multipart/form-data",
+    //   "Authorization": 'Bearer ' + globals.accessToken
+    // }).then((value) => print(value.statusCode));
   }
 }

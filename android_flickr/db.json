@@ -1,46 +1,30 @@
 {
-  "Photo": [
+  "photos": [
     {
       "id": 0,
-      "title": "ti",
-      "description": "typicode",
-      "is_public": "Public",
-      "media_file": ""
-    },
-    {
-      "title": "Title",
-      "description": "Description sdsd sfsdgs",
-      "is_public": true,
-      "id": 1
-    },
-    {
-      "title": "Title",
-      "description": "Description sdsd sfsdgs",
-      "is_public": true,
-      "id": 2
-    },
-    {
-      "title": "Title",
-      "description": "Description sdsd sfsdgs",
-      "is_public": true,
-      "id": 3
-    }
-  ],
-  "test": [
-    {
-      "id": 0
-    },
-    {
-      "title": "Test Title",
-      "description": "Descriptions",
+      "photo_height": 232,
+      "photo_width": 123,
       "is_public": false,
+      "title": "",
+      "description": ""
+    },
+    {
       "id": 1
     },
     {
-      "title": "Title",
-      "description": "Description sdsd sfsdgs",
-      "is_public": true,
       "id": 2
+    },
+    {
+      "id": 3
+    },
+    {
+      "id": 4
+    },
+    {
+      "id": 5
+    },
+    {
+      "id": 6
     }
   ]
 }

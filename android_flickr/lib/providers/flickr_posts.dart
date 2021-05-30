@@ -150,6 +150,7 @@ class Posts with ChangeNotifier {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      print(extractedData);
       final List<PostDetails> loadedPosts = [];
       extractedData.forEach(
         (postDetailsId, postDetails) {
