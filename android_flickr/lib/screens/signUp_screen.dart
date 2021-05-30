@@ -133,10 +133,10 @@ class _SignUpState extends State<SignUp> {
                                   _authData['age'],
                                 );
                                 // Moving to the log in page
-                                /*    Navigator.push(
+                                Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => LogIn())); */
+                                        builder: (context) => LogIn()));
                               }
                             }
                           },

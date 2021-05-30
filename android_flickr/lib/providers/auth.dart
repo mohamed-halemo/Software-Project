@@ -28,4 +28,19 @@ class Auth with ChangeNotifier {
     print(json.decode(response.body));
     //print(response.statusCode);
   }
+
+  Future<void> login(String email, String password) async {
+    var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
+        globals.isMockService ? '/login/' : 'api/accounts/login/');
+    final response = await http.post(url,
+        body: json.encode(
+          {
+            'email': email,
+            'password': password,
+          },
+        ),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    print(json.decode(response.body));
+    //print(response.statusCode);
+  }
 }
