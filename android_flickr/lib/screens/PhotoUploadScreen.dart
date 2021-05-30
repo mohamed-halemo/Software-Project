@@ -356,7 +356,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
     Dio dio = new Dio(
       BaseOptions(
-        baseUrl: globals.HttpSingleton().getBaseUrl(),
+        baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
       ),
     );
     dio.options.headers = {
@@ -368,7 +368,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     Response response;
     try {
       response = await dio.post(
-        globals.isMockService ? '/photos' : '/photos/upload',
+        globals.isMockService ? '/photos' : '/api/photos/upload',
         data: formData,
         onSendProgress: (int sent, int total) {
           print('$sent $total');
