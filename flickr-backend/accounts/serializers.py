@@ -104,6 +104,15 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
     class Meta:
         fields = ['email']
 
+#Resend verify mail serializer
+class ResendMailSerializer(serializers.Serializer):
+    '''Serializer for resending verify mail'''
+    
+    email = serializers.EmailField(min_length=2)
+
+    class Meta:
+        fields = ['email']
+
 #Change account password from mail serializer
 class SetNewPasswordSerializer(serializers.Serializer):
     '''Serializer for setting new password after password reset'''

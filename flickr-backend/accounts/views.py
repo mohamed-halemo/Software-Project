@@ -1,3 +1,4 @@
+from django.http.response import Http404
 from profiles.models import *
 from django.http import request
 from rest_framework import generics, status, views
@@ -110,6 +111,7 @@ def change_user_name(serializer,user):
         
     response = {'Success': 'Username changed'}
     return response
+
 #sign up user
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
@@ -133,9 +135,39 @@ class SignUpView(generics.GenericAPIView):
         #sending mail
         Util.send_email(email)
         
-        
-
         return Response(user_data, status=status.HTTP_201_CREATED)
+
+#Resend mail
+class ResendMailView(generics.GenericAPIView):
+    serializer_class = ResendMailSerializer
+
+    #POST for user signing up
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.save()
+        except Exception as e:
+            print(e)
+        user_data = serializer.data
+        
+        #Setting email message
+        try:
+            user = Account.objects.get(email=user_data['email'])
+        except:
+            raise Http404
+        token = RefreshToken.for_user(user).access_token
+        current_site = get_current_site(request).domain
+
+        email = prepare_verify_email(current_site,user,token)
+        
+        #sending mail
+        Util.send_email(email)
+        
+        return Response({'Success' : 'Email resend !'}, status=status.HTTP_201_CREATED)
+
+
 
 
 #Verify email
@@ -196,15 +228,15 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             
             #create token
             token = PasswordResetTokenGenerator().make_token(user)
-            
+
             #preparing mail
             current_site = get_current_site(request=request).domain
 
             email = prepare_reset_password_email(current_site,user,token,uidb64)
-            
+
             #sending mail
             Util.send_email(email)
-            
+
             return Response({'Success':
                             'We have sent you a link to reset password'},
                             status=status.HTTP_200_OK)
