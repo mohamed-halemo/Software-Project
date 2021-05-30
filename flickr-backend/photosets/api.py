@@ -28,7 +28,7 @@ class RespondPagination(PageNumberPagination):
 def set_lists(request):
     try:
    
-        all_sets = sets.objects.all().get()
+        all_sets = sets.objects.all()
     except ObjectDoesNotExist:
         
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -74,16 +74,14 @@ def get_information(request, id):
 #adding a photoset by a user and setting its primary photo
 def create_set(request, photo_id):
     try:
-        get_photo = Photo.objects.get(id=photo_id)       
+        get_photo = Photo.objects.get(id=photo_id)
     except :
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
         try:
             sets_obj=sets.objects.create(title=request.data['title'],
                                             description=request.data['description'],
-                                            owner=request.user
-                                    )
-            
+                                            owner=request.user)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         serializer = sets_serializer_post(sets_obj, data=request.data)
@@ -300,9 +298,8 @@ def photo(request, set_id, photo_id):
                     'message': 'photo does not exist'},
                     status=status.HTTP_403_FORBIDDEN)
         
-        get_photo.sets_photos.remove(get_list)
+        get_list.photos.remove(deleted_photo)
         
-       
         get_list.count_photos -= 1
         
         get_list.save()
@@ -343,8 +340,11 @@ def photo_sets(request, photo_id):
 @api_view(['GET'])
 def search(request):
     # search for a set by its title ordered from the oldest
-    value = request.query_params.get("title")
-    Sets = sets.objects.filter(title__icontains=value)\
-        .order_by('-date_create')
+    try:
+        value = request.query_params.get("title")
+        Sets = sets.objects.filter(title__icontains=value)\
+            .order_by('-date_create')
+    except:
+        Response(status=status.HTTP_400_BAD_REQUEST)
     serializer = sets_serializer(Sets, many=True)
     return Response(serializer.data)

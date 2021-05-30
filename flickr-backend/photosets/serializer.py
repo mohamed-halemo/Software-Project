@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
-from profiles.serializers import UserSerializer
-
+from profiles.serializers import *
+from photo.serializers import *
 
 
 class setss_serializer(serializers.ModelSerializer):
@@ -28,16 +28,13 @@ class comments_serializer_post(serializers.ModelSerializer):
 
 
 class sets_serializer(serializers.ModelSerializer):
-    # owner=UserSerializer()
-    # comment=comments_serializer()
+    owner=UserSerializer(read_only=True)
+    comment= comments_serializer_post(read_only=True, many=True)
+    photos = PhotoSerializer(read_only=True, many=True)
     class Meta:
         model = sets
         fields = ['id', 'title', 'description', 'date_create', 'date_update',
-                  'count_videos',  'count_views', 'count_comments', 
-                  'can_comment',
-                  'visibility_can_see_set', 'owner', 'primary', 'secret',
-                  'server',
-                  'farm', 'photos', 'comment']
+                   'count_comments', 'can_comment', 'owner', 'primary','photos', 'comment']
         #depth = 1
         extra_kwargs = {'owner': {'read_only': True}}
         #   extra_kwargs = {'comment': {'read_only': True}}
