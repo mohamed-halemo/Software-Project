@@ -74,7 +74,7 @@ class PhotoSerializer(serializers.ModelSerializer):
     favourites = UserSerializer(read_only=True, many=True)
     class Meta:
         model = Photo
-        fields = ['id', 'owner', 'title', 'description',
+        fields = ['id','media_file', 'owner', 'title', 'description',
                   'is_public', 'can_comment', 'can_addmeta',
                   'count_comments', 'photo_comments',
                   'count_notes', 'photo_notes',
