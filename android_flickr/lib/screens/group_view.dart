@@ -20,7 +20,7 @@ class _GroupViewState extends State<GroupView> {
                 itemBuilder: (contex) {
                   return [
                     PopupMenuItem(
-                      child: Text('WHAT UP'),
+                      child: Text('Leave group'),
                     ),
                   ];
                 },
