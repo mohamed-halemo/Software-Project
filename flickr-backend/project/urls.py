@@ -44,15 +44,15 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
          name='schema-redoc'),
     path('api-auth/', include('rest_framework.urls')),
-    path('social-accounts/', include('social-accounts.urls',
+    path('api/social-accounts/', include('social-accounts.urls',
                                         namespace="social_accounts")),
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('profiles/', include('profiles.urls', namespace='profiles')),
-    path('gallery/', include('gallery.urls', namespace='gallery')),
-    path('photos/', include('photo.urls', namespace='photos')),
-    path('photosets/', include('photosets.urls', namespace='photosets')),
-    path('group/', include('group.urls', namespace='group')),
+    path('api/accounts/', include('accounts.urls', namespace='accounts')),
+    path('api/profiles/', include('profiles.urls', namespace='profiles')),
+    path('api/gallery/', include('gallery.urls', namespace='gallery')),
+    path('api/photos/', include('photo.urls', namespace='photos')),
+    path('api/photosets/', include('photosets.urls', namespace='photosets')),
+    path('api/group/', include('group.urls', namespace='group')),
     
 ]
 

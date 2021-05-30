@@ -20,8 +20,10 @@ class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['email', 'password','first_name','last_name','age']
+        
 
     def validate(self, attrs):
+        
         password = attrs.get('password', '')
         age= attrs.get('age', '')
         email= attrs.get('email','').lower()

@@ -27,9 +27,10 @@ SECRET_KEY = '(3r1br6f-viu4n-32s1+audnd)2q0+pj@hxo5lf$4evu78zae2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = [
-    # 'fotone.me',
-# ]
+ALLOWED_HOSTS = [
+    'fotone.me',
+    '127.0.0.1',
+]
 AUTH_USER_MODEL = 'accounts.Account'
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
@@ -116,7 +117,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'djongo',
-#         'NAME': 'db',
+#         'NAME': 'demo',
 #     }
 # }
 DATABASES = {

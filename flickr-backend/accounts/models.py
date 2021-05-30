@@ -18,7 +18,6 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an age')
         
         username=email.split('@')[0].lower()
-        print(username)
         user = self.model(
             
             email=email.lower(),
