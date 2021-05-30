@@ -33,8 +33,7 @@ def verifying_user(user):
         user.is_verified = True
         user.save()
     
-def prepare_verify_email(request,user,token):
-    current_site = get_current_site(request).domain
+def prepare_verify_email(current_site,user,token):
     relative_link = reverse('accounts:email-verify')
     absurl = 'http://'+current_site+relative_link+"?token="+str(token)
     email_body = 'Hi ' + user.username + ' Use link to verify \n' + absurl
@@ -43,16 +42,22 @@ def prepare_verify_email(request,user,token):
             'email_subject': 'Verify Your Email'}
     return data
 
-def prepare_reset_password_email(request,user,token,uidb64):
-    current_site = get_current_site(request=request).domain
+def prepare_reset_password_email(current_site,user,token,uidb64):
     relative_link = reverse('accounts:password-reset-confirm',
                             kwargs={'uidb64': uidb64, 'token': token})
     absurl = 'http://'+current_site+relative_link
     email_body = 'Hello,\n Use link below to reset your password  \n' + absurl
     data = {'email_body': email_body, 'to_email': user.email,
             'email_subject': 'Reset you password'}
-    print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
     return data
+
+def check_account_exist_email(email):
+    bool = Account.objects.filter(email=email).exists()
+    if bool:
+        error=''
+    else:
+        error= 'Email doesnt exist. Kindly recheck entered email'
+    return bool,error
 
 def change_to_pro(user):
     user.is_pro =True
@@ -65,7 +70,46 @@ def change_to_normal(user):
 def check_pro(user):
     return user.is_pro
 
+def delete_user(user):
+    user.delete()
 
+def change_user_password(serializer,user):
+    # Check the old password
+        if not user.check_password(serializer.data.get('old_password')):
+            response = {"old_password": ["Wrong password."]}
+            statuss = status.HTTP_400_BAD_REQUEST
+            return response, statuss
+        
+        # Change to the new password
+        if serializer.data.get('old_password') == serializer.data.get('new_password'):
+            raise serializers.ValidationError('New password cannot be same as old one!')
+        
+        #validate new password
+        password,error=validate_password(serializer.data.get('new_password'),user.username)
+        if len(password)==0:
+            raise serializers.ValidationError(error)
+        user.set_password(serializer.data.get('new_password'))
+        user.save()
+        response = {
+            'status': 'success',
+            'message': 'Password updated successfully',
+        }
+        statuss = status.HTTP_200_OK
+        return response,statuss
+
+def change_user_name(serializer,user):
+    username,error = validate_username(serializer.data['username'])
+    if len(username)==0:
+        raise serializers.ValidationError(error)
+    user.username = username
+    try:
+        user.save()
+    except:
+        response = {'Success': 'Username taken!'}
+        return response
+        
+    response = {'Success': 'Username changed'}
+    return response
 #sign up user
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer
@@ -81,8 +125,10 @@ class SignUpView(generics.GenericAPIView):
         #Setting email message
         user = Account.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
-        
-        email = prepare_verify_email(request,user,token)
+        print(request.data)
+        current_site = get_current_site(request).domain
+
+        email = prepare_verify_email(current_site,user,token)
         
         #sending mail
         Util.send_email(email)
@@ -111,9 +157,7 @@ class VerifyEmail(views.APIView):
             
             #extracting user id from token
             user = Account.objects.get(id=payload['user_id'])
-            
             verifying_user(user)
-            
             return Response({'email': 'Succesfully activated'},
                     status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as identifier:
@@ -142,8 +186,9 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     #POST
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        email = request.data.get('email', '')        
-        if Account.objects.filter(email=email).exists():
+        email = request.data.get('email', '')
+        bool,error = check_account_exist_email(email)        
+        if bool:
             user = Account.objects.get(email=email)
             
             #encode user id
@@ -153,7 +198,9 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
             token = PasswordResetTokenGenerator().make_token(user)
             
             #preparing mail
-            email = prepare_reset_password_email(request,user,token,uidb64)
+            current_site = get_current_site(request=request).domain
+
+            email = prepare_reset_password_email(current_site,user,token,uidb64)
             
             #sending mail
             Util.send_email(email)
@@ -162,7 +209,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
                             'We have sent you a link to reset password'},
                             status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Email doesnt exist. Kindly recheck entered email'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
 
 
 #Reset password mail
@@ -174,7 +221,7 @@ class PasswordTokenCheck(generics.GenericAPIView):
             #decoding token            
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = Account.objects.get(id=id)
-            print("IIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+
             #validate token
             if not PasswordResetTokenGenerator().check_token(user, token):
                 return Response({'error': 'Invalid Token, Request a new one'},
@@ -209,26 +256,10 @@ class ChangePassword(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         
         if serializer.is_valid(raise_exception=True):
+            response,statuss = change_user_password(serializer,user)
+            return Response(response, status=statuss)
             
-            # Check the old password
-            if not user.check_password(serializer.data.get('old_password')):
-                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
             
-            # Change to the new password
-            if serializer.data.get('old_password') == serializer.data.get('new_password'):
-                raise serializers.ValidationError('New password cannot be same as old one!')
-            
-            #validate new password
-            password,error=validate_password(serializer.data.get('new_password'),user.username)
-            if len(password)==0:
-                raise serializers.ValidationError(error)
-            user.set_password(serializer.data.get('new_password'))
-            user.save()
-            response = {
-                'status': 'success',
-                'message': 'Password updated successfully',
-            }
-            return Response(response, status = status.HTTP_200_OK)
 
 #change user type
 class ChangeToPro(generics.GenericAPIView):
@@ -278,18 +309,8 @@ class ChangeUsername(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
     
         if serializer.is_valid(raise_exception=True):
-            username,error = validate_username(serializer.data['username'])
-            if len(username)==0:
-                raise serializers.ValidationError(error)
-            user.username = username
-            try:
-                user.save()
-            except:
-                return Response({'Error': 'Username taken'})
-                
-            
-        return Response({'Success': 'Username changed'})
-
+            response = change_user_name(serializer,user)
+            return Response(response)
 #get user info
 class UserInfo(generics.RetrieveAPIView):
     
