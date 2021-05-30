@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
-//class Posts is used to obtain lists of class post in order to display these posts on our explore screen
+///Class Posts is used to obtain lists of class post in order to display these posts on our explore screen.
 class Posts with ChangeNotifier {
   List<PostDetails> _posts = [
     /*  PostDetails(
@@ -142,7 +142,7 @@ class Posts with ChangeNotifier {
       ),
     );
   } */
-  //used to fetch data from the firebase database and set them in the List of posts
+  ///Used to fetch data from the firebase database and set them in the List of posts.
   Future<void> fetchAndSetExplorePosts() async {
     final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json');
@@ -198,7 +198,7 @@ class Posts with ChangeNotifier {
     }
   }
 
-  //returns copy of the List of posts
+  ///Returns copy of the List of posts.
   List<PostDetails> get posts {
     return [..._posts];
   }

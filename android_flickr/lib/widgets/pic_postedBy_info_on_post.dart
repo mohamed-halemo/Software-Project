@@ -5,7 +5,7 @@ import '../screens/non_profile_screen.dart';
 
 /// A Widget that displays picPoster avatar, name, caption and since when was this post posted.
 class PicPostedByInfoOnPost extends StatelessWidget {
-  final inPublicMode;
+  bool inPublicMode;
 
   ///
   /// Instance of post details that contains info about the post to set the info about faves and comments.
@@ -22,7 +22,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   }
 
   /// Returns the widget that will be displayed as subtitle in the listtile if it will be caption or Following recomended or recomended.
-  Widget _widgetToBeDisplayedAsSubtitle() {
+  Widget widgetToBeDisplayedAsSubtitle() {
     if (((postInformation.picPoster.isFollowedByUser &&
                 !postInformation.picPoster.followedDuringRunning) ||
             inPublicMode) &&
@@ -43,12 +43,12 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   }
 
   /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
-  Widget _widgetToBeDisplayedAsTrailing(BuildContext context) {
+  Widget widgetToBeDisplayedAsTrailing(double widthsize) {
     if ((postInformation.picPoster.isFollowedByUser &&
             !postInformation.picPoster.followedDuringRunning) ||
         inPublicMode) {
       return SizedBox(
-        width: MediaQuery.of(context).size.width / 10,
+        width: widthsize,
         child: Text(postInformation.postedSince),
       );
     } else if (postInformation.picPoster.followedDuringRunning) {
@@ -81,8 +81,9 @@ class PicPostedByInfoOnPost extends StatelessWidget {
           title: Text(
             postInformation.picPoster.name,
           ),
-          subtitle: _widgetToBeDisplayedAsSubtitle(),
-          trailing: _widgetToBeDisplayedAsTrailing(context),
+          subtitle: widgetToBeDisplayedAsSubtitle(),
+          trailing: widgetToBeDisplayedAsTrailing(
+              MediaQuery.of(context).size.width / 10),
         ),
         if (!isFollowedBeforeRunning &&
             postInformation.caption != null &&

@@ -28,6 +28,9 @@ class _ExploreState extends State<Explore> {
         /// We provide it with ChangeNotifierProvider so it creates a seperate provider for each Post.
         return ChangeNotifierProvider.value(
           value: postsToDisplay[index],
+
+          /// False in explore post is to indicate that posts are displayed in explore mode
+          /// not public mode to display the popupmenu button accordingly.
           child: ExplorePost(false),
         );
       },

@@ -27,8 +27,8 @@ class _ExploreScreenState extends State<ExploreScreen>
   /// This is because the notification is wrapped in a swipedetector which overrides the swipe functionality of the TABBAR.
   var currentIndex = 0;
 
+  /// Uses the function fetchAndSetExplorePosts to reload the latest posts from the mock service.
   Future<void> _refreshExplore(BuildContext context) async {
-    /// Uses the function fetchAndSetExplorePosts to reload the latest posts from the mock service.
     await Provider.of<Posts>(context, listen: false).fetchAndSetExplorePosts();
   }
 
@@ -122,8 +122,6 @@ class _ExploreScreenState extends State<ExploreScreen>
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            /// List of the widgets to navigate among.
-
             RefreshIndicator(
               onRefresh: () {
                 return _refreshExplore(context);
@@ -133,7 +131,6 @@ class _ExploreScreenState extends State<ExploreScreen>
             SearchDisplay(),
             ProfileDisplay(),
 
-            /// Helps to go to the camera screen instead of the tabbar view.
             Container(
               height: double.infinity,
               width: double.infinity,
@@ -165,22 +162,18 @@ class _ExploreScreenState extends State<ExploreScreen>
                 ),
               ),
             ), */
+            ///Go to the camera screen immediately when this tab is selected.
             SplashScreen(
               seconds: 0,
               navigateAfterSeconds: FlickrCameraScreen(),
               backgroundColor: Colors.grey.withOpacity(0.1),
               loaderColor: Colors.transparent,
-              
 
               //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
             ),
-            /* Center(
-              child: Text("no camera"),
-            ), */
           ],
         ),
       ),
-      //),
     );
   }
 }

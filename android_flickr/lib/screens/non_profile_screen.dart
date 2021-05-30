@@ -46,7 +46,7 @@ class NonProfileScreen extends StatelessWidget {
               ];
             },
 
-            /// Allows the user to view public,... about the currently viewed profile.
+            /// Allows the user to view public, groups,... about the currently viewed profile.
             body: TabbarInNonProfile(),
           ),
         ),

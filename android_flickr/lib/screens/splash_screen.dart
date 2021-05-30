@@ -40,6 +40,7 @@ class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
   } */
 
   @override
+  
   Widget build(BuildContext context) {
     return SplashScreen(
       //seconds: 3,
@@ -53,6 +54,7 @@ class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
       image: Image.asset(
         'assets/images/flickr_loading_screen.gif',
       ),
+
       photoSize: 75,
       //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
     );

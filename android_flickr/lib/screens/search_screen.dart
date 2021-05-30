@@ -5,7 +5,13 @@ import 'package:flutter/material.dart';
 
 /// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
 class SearchScreen extends StatelessWidget {
+  final searchTextController = TextEditingController();
   static const routeName = '/search-screen';
+
+  void submitData() {
+    print("nice");
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -17,6 +23,8 @@ class SearchScreen extends StatelessWidget {
           leading: Icon(Icons.search),
           automaticallyImplyLeading: false,
           title: TextField(
+            controller: searchTextController,
+            onSubmitted: (_) => submitData(),
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: "Search Flickr",

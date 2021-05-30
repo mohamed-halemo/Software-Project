@@ -3,7 +3,7 @@
 library my_prj.globals;
 
 ///If true, mockService Url is used, if false, Real Server is used
-bool isMockService = false;
+bool isMockService = true;
 
 ///http handler for the project. It is a singleton.
 class HttpSingleton {
