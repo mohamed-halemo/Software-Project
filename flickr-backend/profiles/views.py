@@ -75,19 +75,18 @@ def upload_cover(request):
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def follow_unfollow(request, userpk):
 
     try:
         followed_user_obj = Account.objects.get(id=userpk)
+        contact = Contacts.objects.filter(
+            user=request.user, followed=followed_user_obj)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     # POST
     if request.method == 'POST':
-        contact = Contacts.objects.filter(
-            user=request.user, followed=followed_user_obj)
         if contact or followed_user_obj == request.user:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         Contacts.objects.create(user=request.user, followed=followed_user_obj)
@@ -103,8 +102,6 @@ def follow_unfollow(request, userpk):
         return Response(status=status.HTTP_200_OK)
     # DELETE
     if request.method == 'DELETE':
-        contact = Contacts.objects.filter(
-            user=request.user, followed=followed_user_obj)
         if not contact:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         user_profile = Profile.objects.get(owner=request.user)
@@ -122,19 +119,25 @@ def follow_unfollow(request, userpk):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def followers_list(request):
-    user = request.user
-    followers_list = user.follow_followed.all().order_by('-date_create')
+    try:
+        user = request.user
+        followers_list = user.follow_followed.all().order_by('-date_create')
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
     serializer = FollowerSerializer(
         followers_list, many=True)
+        
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def following_list(request):
-    user = request.user
-    following_list = user.follow_follower.all().order_by('-date_create')
-
+    try:
+        user = request.user
+        following_list = user.follow_follower.all().order_by('-date_create')
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
     serializer = FollowingSerializer(
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -145,10 +148,10 @@ def following_list(request):
 def user_following(request, userpk):
     try:
         user = Account.objects.get(id=userpk)
+        following_list = user.follow_follower.all().order_by('-date_create')
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    following_list = user.follow_follower.all().order_by('-date_create')
 
     serializer = FollowingSerializer(
         following_list, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)                
+    return Response(serializer.data, status=status.HTTP_200_OK)               

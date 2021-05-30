@@ -130,10 +130,15 @@ def gallery_list(request):
 def find_gallery(request):
     # search for a gallery by its title ordered from the oldest
     value = request.query_params.get("title")
-    galleries = Gallery.objects.filter(title__icontains=value)\
+    try: 
+        galleries = Gallery.objects.filter(title__icontains=value)\
         .order_by('-date_create')
+    except:
+       return Response(status=status.HTTP_404_NOT_FOUND)
+            
     serializer = GallerySerializer(galleries, many=True)
     return Response(serializer.data)
+
 
 
 @api_view(['GET', 'POST'])
