@@ -10,7 +10,7 @@ docker-compose push
 python3 git-restore-mtime
 
 #Remove dockerfiles
-rm flickr-backend/Dockerfile* flickr-frontend/Dockerfile*
+rm flickr-backend/Dockerfile*
 
 #Sending of project files to be used as volumes,
 #allowing static files to be changed without reloading containers
