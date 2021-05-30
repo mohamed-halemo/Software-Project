@@ -82,8 +82,7 @@ class PhotoSerializer(serializers.ModelSerializer):
                   'count_people_tagged', 'people_tagged',
                   'count_favourites', 'favourites','is_faved',
                   'date_posted', 'date_taken', 'last_update',
-                  'photo_height', 'photo_width', 'photo_displaypx',
-                  'photo_url']
+                  'photo_height', 'photo_width', 'photo_displaypx',]
 
 
 class PhotoRotationSerializer(serializers.ModelSerializer):

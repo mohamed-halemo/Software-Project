@@ -1030,7 +1030,7 @@ def faves_list(request):
     # GET
     user = request.user
     faves_list = user.post_favourite.all()
-    serializer = PhotoMetaSerializer(
+    serializer = PhotoSerializer(
         faves_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1149,7 +1149,7 @@ def get_public(request, id):
     #  for pagination
     Paginator = RespondPagination()
     results = Paginator.paginate_queryset(get_list, request)
-    photos = PhotoPermSerializer(results, many=True).data
+    photos = PhotoSerializer(results, many=True).data
     return Paginator.get_paginated_response({'photos': photos})
 
 
@@ -1169,7 +1169,7 @@ def get_public_logged(request):
     #  for pagination
     Paginator = RespondPagination()
     results = Paginator.paginate_queryset(get_list, request)
-    photos = PhotoPermSerializer(results, many=True).data
+    photos = PhotoSerializer(results, many=True).data
     return Paginator.get_paginated_response({'photos': photos})
 
 @api_view(['GET'])
@@ -1188,5 +1188,41 @@ def get_photos_logged(request):
     #  for pagination
     Paginator = RespondPagination()
     results = Paginator.paginate_queryset(get_list, request)
-    photos = PhotoPermSerializer(results, many=True).data
+    photos = PhotoSerializer(results, many=True).data
     return Paginator.get_paginated_response({'photos': photos})
+
+@api_view(['GET'])
+ #  Get all photos of loggedin user
+def Home(request):
+    if request.user.is_anonymous:
+        following_photos=[]
+        Paginator = RespondPagination()
+        results = Paginator.paginate_queryset(following_photos, request)
+        following_photos = PhotoSerializer(results, many=True).data
+        public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+        results2 = Paginator.paginate_queryset(public_photos, request)
+        public_photos = PhotoSerializer(results2, many=True).data
+        public_photos= limit_photos_number(public_photos,300)
+    else:
+            
+        user=request.user
+        following_list_ids = []
+        following_list = user.follow_follower.all()
+        for following in following_list:
+            following_list_ids.append(following.id)
+        following_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids).order_by('-date_posted')
+        following_photos= limit_photos_number(following_photos,150)
+        Paginator = RespondPagination()
+        results = Paginator.paginate_queryset(following_photos, request)
+        following_photos = PhotoSerializer(results, many=True).data
+        following_list_ids.append(user.id)
+        ids_list = following_list_ids
+        public_photos = Photo.objects.filter(is_public=True).exclude(owner_id__in=ids_list).order_by('-date_posted')
+        public_photos= limit_photos_number(public_photos,150)
+        results2 = Paginator.paginate_queryset(public_photos, request)
+        public_photos = PhotoSerializer(results2, many=True).data
+    return Paginator.get_paginated_response({'following photos': following_photos,'public photos': public_photos})
+
+
+
+        

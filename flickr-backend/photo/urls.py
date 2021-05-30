@@ -74,6 +74,10 @@ urlpatterns = [
 
      #  Get all photos of loggedin user:
      path('photoslogged', views.get_photos_logged, name='get_photoslogged'),
+     
+     #Home API
+     path('home', views.Home, name='Home'),
+
 ]
 
 
