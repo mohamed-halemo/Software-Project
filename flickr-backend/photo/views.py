@@ -1080,6 +1080,7 @@ def fav_photo(request, id):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def upload_media(request):
     #upload photo one at a time
     if request.method == 'POST':
@@ -1102,7 +1103,7 @@ def upload_media(request):
                 # calculate the display pixels
                 height = request.data['photo_height']
                 width = request.data['photo_width']
-                # pixels = (250*width)/height
+                pixels = (250*int(width))/int(height)
                 image = Image(file_field)
 
                 # check if the image has exif to etxraxt the date taken from it  
@@ -1124,11 +1125,10 @@ def upload_media(request):
                     date_taken = None
             else:
                 raise ValidationError(_('File type is not supported'))
-
-            serializer.save(photo_displaypx=0, date_taken=date_taken, owner=request.user)
+            profile_obj.total_media += 1
+            profile_obj.save()
+            serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
             # increment the count of media 
-            # profile_obj.total_media += 1
-            # profile_obj.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(

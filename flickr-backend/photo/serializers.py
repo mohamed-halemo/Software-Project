@@ -92,12 +92,14 @@ class PhotoRotationSerializer(serializers.ModelSerializer):
         fields = ['id', 'rotated_by']
 
    
+   
 class PhotoUploadSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
     class Meta:
         model = Photo
         fields = [
-            'media_file', 'photo_displaypx', 'photo_height', 'photo_width',
-            'is_public', 'date_taken', 'title', 'description']
+            'id', 'media_file', 'photo_displaypx', 'photo_height', 'photo_width',
+            'is_public', 'date_taken', 'title', 'description','date_posted','owner']
         #   add tags
         extra_kwargs = {
             'photo_displaypx': {'read_only': True},

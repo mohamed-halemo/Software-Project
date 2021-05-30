@@ -15,7 +15,7 @@ def upload_to(instance, filename):
 
 # Create your models here.
 class Photo(models.Model):
-
+    
     # Owner (relation)
     owner = models.ForeignKey(Account, on_delete=models.CASCADE,
                               related_name='user_photos')
@@ -51,15 +51,12 @@ class Photo(models.Model):
         Account, related_name='post_favourite', blank=True)
 
     # Dates
-    date_posted = models.DateTimeField(blank=True)
+    date_posted = models.DateTimeField(auto_now_add=True)
     date_taken = models.DateTimeField(blank=True)
     last_update = models.DateTimeField(auto_now=True)
 
-    # URLS
-    photo_url = models.URLField(blank = True)
-
     # Media
-    media_file = models.FileField(upload_to=upload_to)
+    media_file = models.ImageField(upload_to=upload_to)
 
     # Photo Size
     photo_height = models.PositiveSmallIntegerField(blank=True)
