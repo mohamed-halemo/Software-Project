@@ -9,19 +9,13 @@ class sets(models.Model):
     photos = models.ManyToManyField(
         Photo, related_name='sets_photos', blank=True)
     primary = models.PositiveIntegerField( blank=True)
-    secret = models.PositiveIntegerField( blank=True)
-    server = models.PositiveIntegerField( blank=True)
-    farm = models.PositiveIntegerField( blank=True)
-    count_photos = models.PositiveIntegerField(default=1)
-    count_views = models.PositiveIntegerField(default=0)
+    count_photos = models.PositiveIntegerField(default=1) 
     count_comments = models.PositiveIntegerField(default=0)
-    count_videos = models.PositiveIntegerField(default=0)
     can_comment = models. BooleanField(default=True)
-    date_create = models. DateTimeField(default=timezone.now)
-    date_update = models. DateTimeField(default=timezone.now)
-    visibility_can_see_set = models.PositiveIntegerField(default=1)
-    title = models.CharField(max_length=15, unique=True)
-    description = models. TextField(max_length=1000)
+    date_create = models.DateTimeField(auto_now_add=True)
+    date_update = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=100)
+    description = models. TextField(max_length=1000, blank=True)
     
     def __str__(self):
         return self.title
@@ -30,8 +24,9 @@ class sets(models.Model):
 class commentss(models.Model):
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, 
     related_name='user_photoset_comments')
-    contents = models.CharField(max_length=15)
-    date_create = models. DateTimeField(default=timezone.now)
+    contents = models.CharField(max_length=1000)
+    date_create = models.DateTimeField(auto_now_add=True)
+    date_update = models.DateTimeField(auto_now=True)
     sets = models.ForeignKey(sets, related_name='comment', 
                              on_delete=models.CASCADE)
     
