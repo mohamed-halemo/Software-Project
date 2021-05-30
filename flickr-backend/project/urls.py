@@ -37,16 +37,16 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('', schema_view.with_ui('swagger', cache_timeout=0),
+    path('api/', schema_view.with_ui('swagger', cache_timeout=0),
          name='schema-swagger-ui'),
-    path('apis/postman', schema_view.without_ui(cache_timeout=0),
+    path('api/apis/postman', schema_view.without_ui(cache_timeout=0),
          name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0),
          name='schema-redoc'),
-    path('api-auth/', include('rest_framework.urls')),
+    path('api/api-auth/', include('rest_framework.urls')),
     path('api/social-accounts/', include('social-accounts.urls',
                                         namespace="social_accounts")),
-    path('admin/', admin.site.urls),
+    path('api/admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls', namespace='accounts')),
     path('api/profiles/', include('profiles.urls', namespace='profiles')),
     path('api/gallery/', include('gallery.urls', namespace='gallery')),
