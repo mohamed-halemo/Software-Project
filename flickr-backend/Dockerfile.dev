@@ -10,7 +10,7 @@ RUN pip install -r requirements.txt
 
 #Copies project files - unnecessary due to volume
 #but kept for easy migration to different deployment
-COPY ./ ./
+#COPY ./ ./
 
 #Set debug to true somehow?
 #Could differ from prod if migration in Dockerfile?

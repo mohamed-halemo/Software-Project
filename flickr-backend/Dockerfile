@@ -11,4 +11,4 @@ RUN pip install -r requirements.txt
 
 #Copies project files - unnecessary due to volume
 #but kept for easy migration to different deployment
-COPY ./ ./
+#COPY ./ ./
