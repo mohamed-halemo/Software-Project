@@ -66,7 +66,7 @@ class Photo(models.Model):
     rotated_by = models.PositiveSmallIntegerField(default=0)
 
     # groups
-    group_count = models.IntegerField(default=0, blank=True)
+    group_count = models.PositiveIntegerField(default=0, blank=True)
 
 
 

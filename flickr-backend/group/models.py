@@ -33,17 +33,17 @@ class group (models.Model):
 
     members = models.ManyToManyField(Account, related_name='group_member',
                                      through='Members')
-    member_count = models.IntegerField(default=1)
+    member_count = models.PositiveIntegerField(default=1)
 
     pending_members = models.ManyToManyField(
         Account, related_name='group_pending_member', through='PendingMembers',
         blank=True)
     pending_members_count = models.IntegerField(default=0)
 
-    pool_count = models.IntegerField(default=0)
-    topic_count = models.IntegerField(default=0)
+    pool_count = models.PositiveIntegerField(default=0)
+    topic_count = models.PositiveIntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)
-    privacy = models.IntegerField(choices=PRIVACY_GROUP_CHOICES)
+    privacy = models.PositiveIntegerField(choices=PRIVACY_GROUP_CHOICES)
     eighteenplus = models.BooleanField(default=False)
     invitation_only = models.BooleanField(default=False)
 
@@ -62,10 +62,10 @@ class Members (models.Model):
                               on_delete=models.CASCADE)
     member = models.ForeignKey(Account, on_delete=models.CASCADE,
                                related_name='member_join')
-    member_type = models.IntegerField(choices=GROUP_MEMBERS_TYPES_CHOICES)
+    member_type = models.PositiveIntegerField(choices=GROUP_MEMBERS_TYPES_CHOICES)
     date_joined = models.DateTimeField(auto_now_add=True)
-    photos_count = models.IntegerField(default=0)
-    topic_count = models.IntegerField(default=0)
+    photos_count = models.PositiveIntegerField(default=0)
+    topic_count = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = [['group', 'member']]
@@ -90,7 +90,7 @@ class topic(models.Model):
     message = models.TextField()
     owner = models.ForeignKey(Account, on_delete=models.CASCADE,
                               related_name='topic_owner')
-    count_replies = models.IntegerField(default=0)
+    count_replies = models.PositiveIntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)
     last_reply = models.OneToOneField(Account, on_delete=models.CASCADE,
                                       related_name='last_replier')

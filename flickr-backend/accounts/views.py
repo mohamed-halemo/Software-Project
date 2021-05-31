@@ -28,7 +28,8 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.pagination import PageNumberPagination
-
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 # push notifications
 import requests
 import json
@@ -442,9 +443,17 @@ def upload_profile(request):
         parser_classes = (MultiPartParser, FormParser)
         serializer = PhotoUserSerializer(user, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+            file_field = request.FILES['media_file']
+
+            # get the type of the file from the extension
+            content_type = file_field.content_type.split('/')[0]
+            # check if its type is image
+            if content_type in settings.IMAGE_TYPE:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                raise ValidationError(_('File type is not supported'))
+
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -460,13 +469,21 @@ def upload_cover(request):
         parser_classes = (MultiPartParser, FormParser)
         serializer = CoverUserSerializer(user, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+            file_field = request.FILES['media_file']
+
+            # get the type of the file from the extension
+            content_type = file_field.content_type.split('/')[0]
+            # check if its type is image
+            if content_type in settings.IMAGE_TYPE:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                raise ValidationError(_('File type is not supported'))
+
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+                
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def follow_unfollow(request, userpk):

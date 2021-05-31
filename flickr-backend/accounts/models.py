@@ -54,7 +54,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     username = models.CharField( max_length=16,unique=True, db_index=True)
     first_name = models.CharField(verbose_name='first-name', max_length=60)
     last_name = models.CharField(verbose_name='last-name', max_length=60)
-    age = models.IntegerField( validators=[
+    age = models.PositiveIntegerField( validators=[
             MaxValueValidator(110),
             MinValueValidator(0)
         ],default=0)
@@ -68,16 +68,16 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_pro = models.BooleanField(default=False)
-    total_media= models.IntegerField(default=0)
-    fav_count = models.IntegerField(default=0)
-    count_groups = models.IntegerField(default=0)
-    tag_count = models.IntegerField(default=0)
-    galleries_count = models.IntegerField(default=0)
-    photosets_count = models.IntegerField(default=0)
+    total_media= models.PositiveIntegerField(default=0)
+    fav_count = models.PositiveIntegerField(default=0)
+    count_groups = models.PositiveIntegerField(default=0)
+    tag_count = models.PositiveIntegerField(default=0)
+    galleries_count = models.PositiveIntegerField(default=0)
+    photosets_count = models.PositiveIntegerField(default=0)
     profile_pic = models.ImageField(upload_to="images/",null=True , blank=True)
     cover_photo= models.ImageField(upload_to="images/",null=True , blank=True)
-    followers_count = models.IntegerField(default=0, null=True)
-    following_count = models.IntegerField(default=0, null=True)
+    followers_count = models.PositiveIntegerField(default=0, null=True)
+    following_count = models.PositiveIntegerField(default=0, null=True)
     login_from = models.CharField(
         max_length=255, blank=False,
         null=False, default="email")
