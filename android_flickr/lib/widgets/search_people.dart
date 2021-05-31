@@ -7,6 +7,8 @@ import '../providers/flickr_profiles.dart';
 
 /// Contains list of the people profiles that came from the search result.
 class SearchPeople extends StatefulWidget {
+  final peopleSearchResult;
+  SearchPeople(this.peopleSearchResult);
   @override
   _SearchPeopleState createState() => _SearchPeopleState();
 }
@@ -28,7 +30,7 @@ class _SearchPeopleState extends State<SearchPeople> {
   @override
   Widget build(BuildContext context) {
     /// Contains the list of the photos that came from the search result if any.
-    final peopleSearchDetails = Provider.of<Posts>(context).posts;
+    final peopleSearchDetails = widget.peopleSearchResult;
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     final currentPosts = Provider.of<Posts>(context).posts;
     return ListView.builder(

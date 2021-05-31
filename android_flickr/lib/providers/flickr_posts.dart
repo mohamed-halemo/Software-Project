@@ -176,38 +176,47 @@ class Posts with ChangeNotifier {
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
               '${postDetails['id'] + 5}'; */
           //print(postDetailsId);
-          loadedPosts.add(PostDetails(
-            id: postDetails['id'].toString(),
-            commentsTotalNumber: postDetails['commentsTotalNumber'],
-            favesDetails: FavedPostDetails(
-              favedUsersNames: postDetails['isFaved']
-                  ? [
-                      'You',
-                      postDetails['favedUsersNames1'],
-                      postDetails['favedUsersNames2'],
-                    ]
-                  : [
-                      postDetails['favedUsersNames1'],
-                      postDetails['favedUsersNames2'],
-                    ],
-              isFaved: postDetails['isFaved'],
-              favesTotalNumber: postDetails['favesTotalNumber'],
+          loadedPosts.add(
+            PostDetails(
+
+              id: postDetails['id'].toString(),
+              commentsTotalNumber: postDetails['commentsTotalNumber'],
+              favesDetails: FavedPostDetails(
+                favedUsersNames: postDetails['isFaved']
+                    ? [
+                        'You',
+                        postDetails['favedUsersNames1'],
+                        postDetails['favedUsersNames2'],
+                      ]
+                    : [
+                        postDetails['favedUsersNames1'],
+                        postDetails['favedUsersNames2'],
+                      ],
+                isFaved: postDetails['isFaved'],
+                favesTotalNumber: postDetails['favesTotalNumber'],
+              ),
+              picPoster: PicPosterDetails(
+                postDetails['ProfileId'].toString(),
+                postDetails['PicPosterDetailsname'],
+                postDetails['isPro'],
+                postDetails['isFollowedByUser'],
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['ProfileId']}',
+              ),
+              postImageUrl:
+                  'https://picsum.photos/200/200?random=' + '$postUrl',
+              postedSince: postDetails['postedSince'],
+              caption: postDetails['caption'],
+              lastComment: {
+                postDetails['lastCommentUser']: postDetails['lastCommentText'],
+              },
+              tags: postDetails['tags'],
+              //dateTaken: postDetails['date_taken'],
+              description: postDetails['description'],
+              privacy: postDetails['privacy'],
+
             ),
-            picPoster: PicPosterDetails(
-              postDetails['ProfileId'].toString(),
-              postDetails['PicPosterDetailsname'],
-              postDetails['isPro'],
-              postDetails['isFollowedByUser'],
-              'https://picsum.photos/200/200?random=' +
-                  '${postDetails['ProfileId']}',
-            ),
-            postImageUrl: 'https://picsum.photos/200/200?random=' + '$postUrl',
-            postedSince: postDetails['postedSince'],
-            caption: postDetails['caption'],
-            lastComment: {
-              postDetails['lastCommentUser']: postDetails['lastCommentText'],
-            },
-          ));
+          );
         },
       );
       //print(loadedProfilesId.length);

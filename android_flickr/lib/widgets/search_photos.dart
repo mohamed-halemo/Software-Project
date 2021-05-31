@@ -7,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 /// Displays list of the photos that the user search for.
 class SearchPhotos extends StatelessWidget {
+  final photosSearchResult;
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
@@ -14,10 +15,12 @@ class SearchPhotos extends StatelessWidget {
     );
   }
 
+  SearchPhotos(this.photosSearchResult);
   @override
   Widget build(BuildContext context) {
     /// Contains the list of the photos that came from the search result if any.
-    final postsToDisplay = Provider.of<Posts>(context).posts;
+    //final postsToDisplay = Provider.of<Posts>(context).posts;
+    final postsToDisplay = photosSearchResult;
     return StaggeredGridView.countBuilder(
       crossAxisCount: 4,
       padding: EdgeInsets.all(7),
