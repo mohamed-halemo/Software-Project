@@ -1,5 +1,7 @@
 //import 'package:android_flickr/providers/flickr_profiles.dart';
 
+import 'package:intl/intl.dart';
+
 import './flickr_post.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -178,7 +180,6 @@ class Posts with ChangeNotifier {
           //print(postDetailsId);
           loadedPosts.add(
             PostDetails(
-
               id: postDetails['id'].toString(),
               commentsTotalNumber: postDetails['commentsTotalNumber'],
               favesDetails: FavedPostDetails(
@@ -214,7 +215,8 @@ class Posts with ChangeNotifier {
               //dateTaken: postDetails['date_taken'],
               description: postDetails['description'],
               privacy: postDetails['privacy'],
-
+              dateTaken:
+                  DateFormat('dd-MMM-yyyy').parse(postDetails['date_taken']),
             ),
           );
         },

@@ -52,14 +52,13 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
       NonProfileScreen.routeName,
       arguments: [postInformation, flickrProfileDetails],
     );
-      }
+  }
 
   bool isFromPersonalProfile;
   var postInformation;
-  var allPosts;
+  List<PostDetails> allPosts;
   var postIndex;
   void firstLoad(Map settingsMap) {
-
     isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
     allPosts = settingsMap['postDetails'];
     postIndex = settingsMap['postIndex'];
@@ -72,7 +71,11 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   }
 
   void reload() {
-    postInformation = allPosts[postIndex];
+    if (isFromPersonalProfile) {
+      postInformation = allPosts[postIndex];
+    } else {
+      postInformation = allPosts;
+    }
   }
 
   ///Main Build method. Rebuilds with state update.
@@ -103,76 +106,33 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
             top: MediaQuery.of(context).padding.top,
           ),
           height: MediaQuery.of(context).size.height,
-          child: Stack(
-            //fit: StackFit.expand,
-            children: [
-            /// So when we tap on the screen the bottom bar and top bar navigate between disappear and appear.
-            if (isDetailsOfPostDisplayed)
-              ClickOnImageDisplayPostDetails(postInformation: postInformation),
-              if (isDetailsOfPostDisplayed)
-                //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
-                ListTile(
-                leading: GestureDetector(
-                  onTap: () {
-                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
-                  },
-                  child: CircleAvatar(
-                    radius: MediaQuery.of(context).size.width / 20,
-                    backgroundImage: NetworkImage(
-                      postInformation.picPoster.profilePicUrl,
-                    ),
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-                title: GestureDetector(
-                  onTap: () {
-                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
-                  },
-                  child: Text(
-                    postInformation.picPoster.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.cancel_outlined),
-                  color: Colors.white,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
+          child: Swiper(
+            itemCount:
+                settingsMap['isFromPersonalProfile'] ? allPosts.length : 1,
+            index: postIndex,
+            controller: mySwipeController,
+            // onTap: (_) {
+            //   // isDetailsOfPostDisplayed = false;
+            // },
+            onIndexChanged: (value) async {
+              print(value);
+              if (settingsMap['isFromPersonalProfile']) {
+                if (allPosts.length > value) {
+                  postIndex = value;
+                  setState(() {});
+                }
+              }
+            },
+            itemBuilder: (BuildContext context, int index) => Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).size.height / 4,
               ),
-              Center(
-                //display image of the post
-                child: Swiper(
-                  itemCount: settingsMap['isFromPersonalProfile']
-                      ? allPosts.length
-                      : 1,
-                  index: postIndex,
-                  controller: mySwipeController,
-                  onIndexChanged: (value) async {
-                    // setState(() {
-                    //   if (settingsMap['isFromPersonalProfile'])
-                    //     postInformation = allPosts[value];
-                    // });
-                    // mySwipeController.next();
-
-                    print(value);
-                    // await mySwipeController.move(value + 1, animation: true);
-
-                    if (settingsMap['isFromPersonalProfile']) {
-                      if (allPosts.length > value) {
-                        postIndex = value;
-                        setState(() {});
-                      }
-                    }
-                  },
-                  itemBuilder: (BuildContext context, int index) => Container(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height -
-                          MediaQuery.of(context).size.height / 4,
-                    ),
+              child: Stack(
+                //fit: StackFit.expand,
+                children: [
+                  Center(
+                    //display image of the post
                     child: ClipRRect(
                       child: PhotoView(
                         minScale: PhotoViewComputedScale.contained,
@@ -187,10 +147,67 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                       ),
                     ),
                   ),
-                ),
+
+                  /// So when we tap on the screen the bottom bar and top bar navigate between disappear and appear.
+                  if (isDetailsOfPostDisplayed)
+                    ClickOnImageDisplayPostDetails(
+                        postInformation: settingsMap['isFromPersonalProfile']
+                            ? allPosts[index]
+                            : postInformation),
+                  if (isDetailsOfPostDisplayed)
+                    //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
+                    ListTile(
+                      leading: GestureDetector(
+                        onTap: () {
+                          _goToNonprofile(
+                              context,
+                              settingsMap['isFromPersonalProfile']
+                                  ? allPosts[index]
+                                  : postInformation,
+                              currentPosts,
+                              flickrProfiles);
+                        },
+                        child: CircleAvatar(
+                          radius: MediaQuery.of(context).size.width / 20,
+                          backgroundImage: NetworkImage(
+                            settingsMap['isFromPersonalProfile']
+                                ? allPosts[index].picPoster.profilePicUrl
+                                : postInformation.picPoster.profilePicUrl,
+                          ),
+                          backgroundColor: Colors.transparent,
+                        ),
+                      ),
+                      title: GestureDetector(
+                        onTap: () {
+                          _goToNonprofile(
+                              context,
+                              settingsMap['isFromPersonalProfile']
+                                  ? allPosts[index]
+                                  : postInformation,
+                              currentPosts,
+                              flickrProfiles);
+                        },
+                        child: Text(
+                          settingsMap['isFromPersonalProfile']
+                              ? allPosts[index].picPoster.name
+                              : postInformation.picPoster.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.cancel_outlined),
+                        color: Colors.white,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                ],
               ),
-          ],
             ),
+          ),
         ),
       ),
     );
