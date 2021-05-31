@@ -22,6 +22,7 @@ import 'package:android_flickr/Classes/switch_Case_Helper.dart';
 ///Its a widget that occupies the full screen.
 class FlickrCameraScreen extends StatefulWidget {
   static const routeName = '/flickr-camera-screen';
+
   @override
   FlickrCameraScreenState createState() => FlickrCameraScreenState();
 }
@@ -97,34 +98,59 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
     final deviceHeight = MediaQuery.of(context).size.height;
     final deviceWidth = MediaQuery.of(context).size.width;
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 31, 31, 33),
-        body: Container(
-          height: deviceHeight,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                height: deviceHeight * 0.45,
-                child: Stack(
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 31, 31, 33),
+      body: Container(
+        height: deviceHeight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              height: deviceHeight * 0.45,
+              child: Stack(
+                children: [
+                  CameraAwesome(
+                    testMode: false,
+                    selectDefaultSize: (List<Size> availableSizes) {
+                      // print(availableSizes.toString());
+                      return availableSizes[0];
+                    },
+                    onOrientationChanged:
+                        (CameraOrientations newOrientation) {},
+                    zoom: _zoom,
+                    sensor: _sensor,
+                    photoSize: _photoSize,
+                    switchFlashMode: _switchFlash,
+                    captureMode: _captureMode,
+                    orientation: DeviceOrientation.portraitUp,
+                    fitted: false,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.only(top: 20, left: deviceWidth * 0.825),
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      // padding: EdgeInsets.all(10),
+                      color: Colors.black38,
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 33,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Stack(
                   children: [
-                    CameraAwesome(
-                      testMode: false,
-                      selectDefaultSize: (List<Size> availableSizes) {
-                        // print(availableSizes.toString());
-                        return availableSizes[0];
-                      },
-                      onOrientationChanged:
-                          (CameraOrientations newOrientation) {},
-                      zoom: _zoom,
-                      sensor: _sensor,
-                      photoSize: _photoSize,
-                      switchFlashMode: _switchFlash,
-                      captureMode: _captureMode,
-                      orientation: DeviceOrientation.portraitUp,
-                      fitted: false,
+                    Container(
+                      color: Color.fromARGB(255, 21, 21, 21),
+                      height: deviceHeight * 0.09,
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: deviceHeight * 0.025),
@@ -141,67 +167,77 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
                     ),
                   ],
                 ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        color: Color.fromARGB(255, 21, 21, 21),
-                        height: deviceHeight * 0.09,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: deviceHeight * 0.025),
-                        child: cameraModeButton('assets/images/CameraMode.png'),
-                      ),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: deviceHeight * 0.025),
-                          child: flashModeButton(
-                            flashModeSwitchCase(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    children: [
-                      Container(
-                        color: Color.fromARGB(255, 12, 12, 12),
-                        height: deviceHeight * 0.125,
-                      ),
-                      Align(
-                        child: GestureDetector(
-                          onTap: () {
-                            takePhoto();
-                          },
-                          child: Container(
-                            width: 60,
-                            height: deviceHeight * 0.125,
-                            decoration: BoxDecoration(
-                              color: isVideoMode
-                                  ? Color.fromARGB(255, 167, 23, 23)
-                                  : Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                      ),
-                      Align(
+                Stack(
+                  children: [
+                    Container(
+                      color: Color.fromARGB(255, 12, 12, 12),
+                      height: deviceHeight * 0.125,
+                    ),
+                    Align(
+                      child: GestureDetector(
+                        onTap: () {
+                          takePhoto();
+                        },
                         child: Container(
-                          width: 8,
+                          width: 60,
                           height: deviceHeight * 0.125,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isVideoMode
+                                ? Color.fromARGB(255, 167, 23, 23)
+                                : Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        alignment: isVideoMode
-                            ? Alignment(-0.2, 0)
-                            : Alignment(0.2, 0),
+                      ),
+                      alignment: Alignment.center,
+                    ),
+                    Align(
+                      child: Container(
+                        width: 8,
+                        height: deviceHeight * 0.125,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      alignment:
+                          isVideoMode ? Alignment(-0.2, 0) : Alignment(0.2, 0),
+                    ),
+                    Align(
+                      child: Container(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.045),
+                        width: 30,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isVideoMode = false;
+                            });
+                          },
+                          child: Image.asset(
+                            isVideoMode
+                                ? 'assets/images/Photo_Grey.png'
+                                : 'assets/images/Photo.png',
+                          ),
+                        ),
+                      ),
+                      alignment: Alignment(0.32, 0),
+                    ),
+                    Align(
+                      child: Container(
+                        padding: EdgeInsets.only(top: deviceHeight * 0.045),
+                        width: 30,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isVideoMode = true;
+                            });
+                          },
+                          child: Image.asset(
+                            isVideoMode
+                                ? 'assets/images/Video.png'
+                                : 'assets/images/Video_Grey.png',
+                          ),
+                        ),
                       ),
                       alignment: Alignment(-0.32, 0),
                     ),
@@ -227,58 +263,14 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
                                   fit: BoxFit.cover,
                                 ),
                         ),
-                        alignment: Alignment(0.32, 0),
                       ),
-                      Align(
-                        child: Container(
-                          padding: EdgeInsets.only(top: deviceHeight * 0.045),
-                          width: 30,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isVideoMode = true;
-                              });
-                            },
-                            child: Image.asset(
-                              isVideoMode
-                                  ? 'assets/images/Video.png'
-                                  : 'assets/images/Video_Grey.png',
-                            ),
-                          ),
-                        ),
-                        alignment: Alignment(-0.32, 0),
-                      ),
-                      Align(
-                        child: Container(
-                          padding: EdgeInsets.only(top: deviceHeight * 0.0525),
-                          width: 35,
-                          height: 70,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          PhotoGalleryScreen()));
-                            },
-                            child: recentImage == null
-                                ? Container(
-                                    color: Colors.grey,
-                                  )
-                                : Image.file(
-                                    recentImage,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                        alignment: Alignment(-0.9, 0),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                      alignment: Alignment(-0.9, 0),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
