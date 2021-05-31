@@ -13,17 +13,16 @@ class PublicViewGrid extends StatelessWidget {
   bool isNonProfile;
   PublicViewGrid(this.isNonProfile);
 
-  var postsToDisplay;
-
   void clickOnImageScreen(
-      BuildContext ctx, PostDetails postInformation, int gridindex) {
+      BuildContext ctx, List<PostDetails> postInformation, int gridindex) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': postsToDisplay,
+        'postDetails': postInformation,
         'postIndex': gridindex,
         'isFromPersonalProfile': isNonProfile ? false : true,
-        'isFromNon_Public': true
+        'ExORPup': 'puplic',
+        'allPosts': postInformation,
       },
     );
   }
@@ -39,7 +38,7 @@ class PublicViewGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         return InkWell(
           onTap: () {
-            clickOnImageScreen(context, postsToDisplay[index], index);
+            clickOnImageScreen(context, postsToDisplay, index);
           },
           child: Image.network(
             postsToDisplay[index].postImageUrl,

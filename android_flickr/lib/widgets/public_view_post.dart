@@ -33,7 +33,7 @@ class PublicViewPost extends StatelessWidget {
           value: postsToDisplay[index],
 
           /// True in explore post is to indicate that posts are displayed in public mode not explore mode.
-          child: ExplorePost(true),
+          child: ExplorePost(true, index),
         );
       },
     );

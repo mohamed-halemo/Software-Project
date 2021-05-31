@@ -39,6 +39,9 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   ///Scale of the Zoom of the photo.
   var photoscale = 1.0;
 
+  /// explore or puplic
+  String isExOrPuplic = '';
+
   bool isFirstLoad = true;
   SwiperController mySwipeController = new SwiperController();
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
@@ -56,29 +59,32 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
   bool isFromPersonalProfile;
   bool isFromNonProfile;
+
+  /// instance of Post details that contains info about the post we are currently displaying
   var postInformation;
   List<PostDetails> allPosts = [];
   var postIndex;
   void firstLoad(Map settingsMap) {
     isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
     isFromNonProfile = settingsMap['isFromNonProfile'];
-    if (isFromPersonalProfile) {
-      allPosts = settingsMap['postDetails'];
-      postIndex = settingsMap['postIndex'];
-      postInformation = allPosts[postIndex];
-    } else {
-      postInformation = settingsMap['postDetails'];
-    }
+    // if (isFromPersonalProfile) {
+    allPosts = settingsMap['postDetails'];
+    postIndex = settingsMap['postIndex'];
+    postInformation = allPosts[postIndex];
+    // } else {
+    //   isExOrPuplic = settingsMap['ExORPup'];
+    //   postInformation = settingsMap['postDetails'];
+    // }
     isFirstLoad = false;
   }
 
   void reload(Map settingsMap) {
-    if (isFromPersonalProfile) {
-      postInformation = allPosts[postIndex];
-    } else {
-      postInformation = settingsMap['postDetails'];
-      ;
-    }
+    // if (isFromPersonalProfile) {
+    postInformation = allPosts[postIndex];
+    // } else {
+    // postInformation = settingsMap['postDetails'];
+    // ;
+    // }
   }
 
   ///Main Build method. Rebuilds with state update.
@@ -86,8 +92,6 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   Widget build(BuildContext context) {
     final settingsMap =
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
-
-    /// instance of Post details that contains info about the post we are currently displaying
 
     isFirstLoad ? firstLoad(settingsMap) : reload(settingsMap);
     final currentPosts = Provider.of<Posts>(context).posts;
@@ -110,8 +114,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
           ),
           height: MediaQuery.of(context).size.height,
           child: Swiper(
-            itemCount:
-                settingsMap['isFromPersonalProfile'] ? allPosts.length : 1,
+            loop: false,
+            itemCount: allPosts.length,
             index: postIndex,
             controller: mySwipeController,
             // onTap: (_) {
@@ -142,58 +146,43 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                         maxScale: 8.0,
                         controller: photoViewController,
                         initialScale: photoscale,
-                        imageProvider: NetworkImage(
-                          settingsMap['isFromPersonalProfile']
-                              ? allPosts[index].postImageUrl
-                              : postInformation.postImageUrl,
-                        ),
+                        imageProvider:
+                            NetworkImage(allPosts[index].postImageUrl),
                       ),
                     ),
                   ),
+                  Align(alignment: Alignment.center),
 
                   /// So when we tap on the screen the bottom bar and top bar navigate between disappear and appear.
                   if (isDetailsOfPostDisplayed)
                     ClickOnImageDisplayPostDetails(
-                        postInformation: settingsMap['isFromPersonalProfile']
-                            ? allPosts[index]
-                            : postInformation),
+                      postInformation: allPosts[index],
+                      isFromPersonalProfile:
+                          settingsMap['isFromPersonalProfile'],
+                    ),
                   if (isDetailsOfPostDisplayed)
                     //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
                     ListTile(
                       leading: GestureDetector(
                         onTap: () {
-                          _goToNonprofile(
-                              context,
-                              settingsMap['isFromPersonalProfile']
-                                  ? allPosts[index]
-                                  : postInformation,
-                              currentPosts,
-                              flickrProfiles);
+                          _goToNonprofile(context, allPosts[index],
+                              currentPosts, flickrProfiles);
                         },
                         child: CircleAvatar(
                           radius: MediaQuery.of(context).size.width / 20,
                           backgroundImage: NetworkImage(
-                            settingsMap['isFromPersonalProfile']
-                                ? allPosts[index].picPoster.profilePicUrl
-                                : postInformation.picPoster.profilePicUrl,
+                            allPosts[index].picPoster.profilePicUrl,
                           ),
                           backgroundColor: Colors.transparent,
                         ),
                       ),
                       title: GestureDetector(
                         onTap: () {
-                          _goToNonprofile(
-                              context,
-                              settingsMap['isFromPersonalProfile']
-                                  ? allPosts[index]
-                                  : postInformation,
-                              currentPosts,
-                              flickrProfiles);
+                          _goToNonprofile(context, allPosts[index],
+                              currentPosts, flickrProfiles);
                         },
                         child: Text(
-                          settingsMap['isFromPersonalProfile']
-                              ? allPosts[index].picPoster.name
-                              : postInformation.picPoster.name,
+                          allPosts[index].picPoster.name,
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -219,41 +208,5 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   ///When the User presses the Edit button (if the photo is owned by this user), Displays a
   /// dialog that asks the user to wait till download is finished. Once finished, Downloaded image's
   ///  path is pushed to the photo edit screen.
-  void downloadImage(PostDetails postInformation) async {
-    var _alertDownload = AlertDialog(
-      content: Padding(
-        padding: EdgeInsets.all(20),
-        child: Text(
-          'Downloading',
-          style: TextStyle(
-            fontSize: 26,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-    showDialog(
-      context: context,
-      builder: (_) => _alertDownload,
-      barrierDismissible: false,
-    );
-    Uri uri = Uri.parse(postInformation.postImageUrl);
-    var response = await get(uri);
-    var tempDir = await getTemporaryDirectory();
-    var firstPath = tempDir.path + "/images";
-    var filePathAndName = tempDir.path + '/images/pic.jpg';
-    await Directory(firstPath).create(recursive: true).then(
-      (value) {
-        File file = new File(filePathAndName);
-        file.writeAsBytesSync(response.bodyBytes);
-        Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => PhotoEditScreen(filePathAndName),
-          ),
-        );
-      },
-    );
-  }
+
 }

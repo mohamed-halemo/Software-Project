@@ -16,7 +16,7 @@ class NonProfilePublicViewGrid extends StatelessWidget {
   var postsToDisplay;
 
   void clickOnImageScreen(
-      BuildContext ctx, PostDetails postInformation, int gridindex) {
+      BuildContext ctx, List<PostDetails> postInformation, int gridindex) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
@@ -39,7 +39,7 @@ class NonProfilePublicViewGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         return InkWell(
           onTap: () {
-            clickOnImageScreen(context, postsToDisplay[index], index);
+            clickOnImageScreen(context, postsToDisplay, index);
           },
           child: Image.network(
             postsToDisplay[index].postImageUrl,
