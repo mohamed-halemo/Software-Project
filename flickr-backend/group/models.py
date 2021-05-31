@@ -42,7 +42,7 @@ class group (models.Model):
 
     pool_count = models.PositiveIntegerField(default=0)
     topic_count = models.PositiveIntegerField(default=0)
-    date_create = models.DateTimeField(auto_now_add=True)
+    date_create = models.DateTimeField(auto_now_add=True )
     privacy = models.PositiveIntegerField(choices=PRIVACY_GROUP_CHOICES)
     eighteenplus = models.BooleanField(default=False)
     invitation_only = models.BooleanField(default=False)
@@ -63,7 +63,7 @@ class Members (models.Model):
     member = models.ForeignKey(Account, on_delete=models.CASCADE,
                                related_name='member_join')
     member_type = models.PositiveIntegerField(choices=GROUP_MEMBERS_TYPES_CHOICES)
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(auto_now_add=True, null=True)
     photos_count = models.PositiveIntegerField(default=0)
     topic_count = models.PositiveIntegerField(default=0)
 
