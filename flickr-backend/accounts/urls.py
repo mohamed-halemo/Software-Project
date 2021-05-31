@@ -57,12 +57,20 @@ path('cover-photo', upload_cover, name='upload_cover'),
 
 # Contacts
 path('follow/<int:userpk>', follow_unfollow, name='follow_unfollow'),
+
 # get the favourites photos list API
 path('followers', followers_list, name='followers_list'),
 path('following', following_list, name='following_list'),
 path('following/<int:userpk>', user_following, name='user_following'),
+
 #resend reset users password
 path('resend-password-reset-email', ResendPasswordResetEmail.as_view(),
      name="resend-reset-password"),
+
+# # search by username
+path('search/', search, name='search'),
+
+# # search by email
+path('search/email/', search_email, name='search_email'),
 
 ]

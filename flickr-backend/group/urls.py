@@ -21,7 +21,7 @@ urlpatterns = [
 
      # search groups
      # user is a member of APIs
-     path('member/search', views.find_my_groups, name='find_my_groups'),
+     # path('member/search', views.find_my_groups, name='find_my_groups'),
 
      # all groups APIs
      path('search', views.find_groups, name='find_groups'),
@@ -116,5 +116,9 @@ urlpatterns = [
           name='group_photo_request_respond'),
 
      # search for a topic by its message API
-     path('<int:group_id>/search', views.find_topic,  name='topic-search'),     
+     path('<int:group_id>/search', views.find_topic,  name='topic-search'),
+
+     # get top 5 contributers
+     path('<int:group_id>/top', views.top_contributers, name='top_contributers'),
+     
 ]

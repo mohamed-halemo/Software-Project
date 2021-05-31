@@ -63,7 +63,9 @@ class Members (models.Model):
     member = models.ForeignKey(Account, on_delete=models.CASCADE,
                                related_name='member_join')
     member_type = models.IntegerField(choices=GROUP_MEMBERS_TYPES_CHOICES)
+    date_joined = models.DateTimeField(auto_now_add=True)
     photos_count = models.IntegerField(default=0)
+    topic_count = models.IntegerField(default=0)
 
     class Meta:
         unique_together = [['group', 'member']]
@@ -90,9 +92,10 @@ class topic(models.Model):
                               related_name='topic_owner')
     count_replies = models.IntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)
-    last_reply= models.OneToOneField(Account, on_delete=models.CASCADE,
-                              related_name='last_replier')
+    last_reply = models.OneToOneField(Account, on_delete=models.CASCADE,
+                                      related_name='last_replier')
     last_edit = models.DateTimeField(auto_now=True)
+    is_sticky = models.BooleanField(default=False)
     notification = models.BooleanField(default=True)
 
     def __str__(self):

@@ -4,13 +4,14 @@ from djongo import models
 from accounts.models import *
 from accounts.serializers import *
 
+
 class GroupMemberSerializer(serializers.ModelSerializer):
 
     member = OwnerSerializer(read_only=True)
 
     class Meta:
         model = Members
-        fields = ['member', 'member_type']
+        fields = ['member', 'member_type', 'photos_count']
 
 
 class GroupPendingMemberSerializer(serializers.ModelSerializer):
@@ -34,15 +35,26 @@ class TopicSerializer(serializers.ModelSerializer):
         depth = 1
         extra_kwargs = {'group': {'read_only': True},
                         'owner': {'read_only': True}}
-                        
+
+
 class GroupSerializer(serializers.ModelSerializer):
-    group_topic= TopicSerializer(read_only=True, many=True)
+    group_topic = TopicSerializer(read_only=True, many=True)
 
     class Meta:
         model = group
         fields = ['id', 'name', 'description', 'privacy',
+                  'rules', 'eighteenplus', 'invitation_only',
                   'member_count', 'pool_count', 'date_create',
                   'topic_count', 'group_topic']
+
+
+class MemberGroupSerializer(serializers.ModelSerializer):
+
+    group = GroupSerializer(read_only=True)
+
+    class Meta:
+        model = Members
+        fields = ['group']
 
 
 class GroupRulesSerializer(serializers.ModelSerializer):

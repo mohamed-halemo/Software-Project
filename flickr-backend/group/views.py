@@ -1,5 +1,6 @@
 from .models import *
 from .serializers import *
+from .views_function import *
 from photo.serializers import *
 from photo.models import Photo
 from accounts.models import Account
@@ -11,9 +12,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import IsAuthenticated
 from project.permissions import IsOwner
 from django.contrib.auth.decorators import permission_required
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Q, Max
 # from notifications.models import Notification
 
+# push notifications
+import requests
+import json
 # Create your views here.
 
 # group
@@ -26,7 +30,9 @@ def group_info(request, id):
     try:
         group_obj = group.objects.get(id=id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
 
     serializer = GroupSerializer(group_obj)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -41,57 +47,74 @@ def join_leave_group(request, id):
         group_obj = group.objects.get(id=id)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
+    # check if member already exists in the group or not
+    exist = member_exists(request, group_obj)
     # Join group
     if request.method == 'POST':
-        Members.objects.create(group=group_obj,
-                               member=request.user,
-                               member_type=1)
-        group_obj.member_count += 1
-        group_obj.save()
-        return Response(status=status.HTTP_200_OK)
+        if exist:
+            return Response(
+                {'stat': 'fail',
+                 'message': 'member already exists in the group'},
+                status=status.HTTP_403_FORBIDDEN)
+        else:
+            user_obj = request.user
+            Members.objects.create(group=group_obj,
+                                   member=user_obj,
+                                   member_type=1)
+            group_obj_increment(group_obj, 'member_count')
+            user_obj.count_groups += 1
+            user_obj.save()
+            return Response({'stat': 'ok',
+                             'message': 'user join the group'},
+                            status=status.HTTP_200_OK)
 
     # Leave group
     elif request.method == 'DELETE':
-        group_member_obj = Members.objects.get(group=group_obj,
-                                               member=request.user)
-        group_members = Members.objects.all().filter(group=group_obj)
-        number = group_members.filter(member_type__exact=2).count()
+        if exist:
+            group_member_obj = Members.objects.get(group=group_obj,
+                                                   member=request.user)
+            group_members = Members.objects.all().filter(group=group_obj)
+            number = group_members.filter(member_type__exact=2).count()
 
-        # if the last member want to leave the group, delete the group
-        if group_obj.member_count == 1:
-            operation = group_obj.delete()
+            # if the last member want to leave the group, delete the group
+            if group_obj.member_count == 1:
+                group_obj.delete()
+                return Response({'stat': 'ok',
+                                 'message': 'group deleted'},
+                                status=status.HTTP_200_OK)
 
-        # if the last admin in the group want to leave,
-        # promote the oldest member to be admin
-        elif group_member_obj.member_type == 2 and number == 1:
-            group_member_obj1 = Members.objects.all(
-                ).filter(group=group_obj,
-                         member=request.user)
-            operation = group_member_obj1.delete()
-            group_obj.member_count -= 1
-            group_obj.save()
-            group_member1 = Members.objects.all().filter(group=group_obj)
-            first_member = group_member1.first()
-            Members.objects.filter(group=group_obj,
-                                   member=first_member.member).update(
-                                       member_type=2)
+            # if the last admin in the group want to leave,
+            # promote the oldest member to be admin
+            elif group_member_obj.member_type == 2 and number == 1:
+                group_member_obj1 = Members.objects.all(
+                    ).filter(group=group_obj,
+                             member=request.user)
+                group_member_obj1.delete()
+                group_obj_decrement(group_obj, 'member_count')
+                group_member1 = Members.objects.all().filter(group=group_obj)
+                first_member = group_member1.first()
+                Members.objects.filter(group=group_obj,
+                                       member=first_member.member).update(
+                                           member_type=2)
+                return Response({'stat': 'ok',
+                                 'message': 'member left the group, oldest member promoted'},
+                                status=status.HTTP_200_OK)
 
-        else:  # member leave
-            group_member_obj2 = Members.objects.all(
-                ).filter(group=group_obj,
-                         member=request.user)
-            operation = group_member_obj2.delete()
-            group_obj.member_count -= 1
-            group_obj.save()
-
-        data = {}
-        operation = True
-        if operation:
-            data["stat"] = "ok"
+            else:  # member leave
+                group_member_obj2 = Members.objects.all(
+                    ).filter(group=group_obj,
+                             member=request.user)
+                group_member_obj2.delete()
+                group_obj_decrement(group_obj, 'member_count')
+                return Response({'stat': 'ok',
+                                 'message': 'member left the group'},
+                                status=status.HTTP_200_OK)
         else:
-            data["stat"] = "fail"
-        return Response(data=data)
+            return Response(
+                {'stat': 'fail',
+                 'message': 'Member doesnot exist in the group'},
+                status=status.HTTP_403_FORBIDDEN)
+
 
 
 # get public groups user is a member of
@@ -104,8 +127,9 @@ def group_list(request, id):
     try:
         user_obj = Account.objects.get(id=id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
+        return Response({'stat': 'fail',
+                         'message': 'user not found'},
+                        status=status.HTTP_404_NOT_FOUND)
     groups = user_obj.group_member.all().filter(
         Q(privacy=3) | Q(privacy=2))
     result_page = paginator.paginate_queryset(groups, request)
@@ -123,8 +147,9 @@ def member_list(request, id):
     try:
         group_obj = group.objects.get(id=id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
     members = Members.objects.all().filter(group=group_obj)
     result_page = paginator.paginate_queryset(members, request)
     serializer = GroupMemberSerializer(result_page, many=True)
@@ -139,12 +164,16 @@ def member_manage(request, group_id, member_id):
     try:
         group_obj = group.objects.get(id=group_id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
 
     try:
         member_obj = Account.objects.get(id=member_id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'stat': 'fail',
+                         'message': 'member not found'},
+                        status=status.HTTP_404_NOT_FOUND)
 
     # Promote member to be admin by admin only
     if request.method == 'PUT':
@@ -162,15 +191,14 @@ def member_manage(request, group_id, member_id):
                 ).filter(group=group_obj,
                          member=member_obj)
         operation = group_member_obj.delete()
-        group_obj.member_count -= 1
-        group_obj.save()
-        data = {}
-        operation = True
+        group_obj_decrement(group_obj, 'member_count')
         if operation:
-            data["stat"] = "ok"
+            return Response({'stat': 'ok',
+                             'message': 'member deleted'},
+                            status=status.HTTP_200_OK)
         else:
-            data["stat"] = "fail"
-        return Response(data=data)
+            return Response({'stat': 'fail',
+                             'message': 'member still in the group'})
 
 
 # edit group rules by group admin only
@@ -180,8 +208,9 @@ def edit_group_rules(request, group_id):
     try:
         group_obj = group.objects.get(id=group_id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
     serializer = GroupRulesSerializer(group_obj, data=request.data)
 
     if serializer.is_valid():
@@ -197,7 +226,9 @@ def edit_group_name(request, group_id):
     try:
         group_obj = group.objects.get(id=group_id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
 
     serializer = GroupNameSerializer(group_obj, data=request.data)
 
@@ -214,7 +245,9 @@ def edit_group_roles(request, group_id):
     try:
         group_obj = group.objects.get(id=group_id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
 
     serializer = GroupRoleSerializer(group_obj, data=request.data)
 
@@ -229,32 +262,22 @@ def edit_group_roles(request, group_id):
 @permission_classes((IsAuthenticated,))
 def edit_group_privacy(request, group_id):
     try:
-        group_obj = group.objects.filter(id=group_id)
+        group_obj = group.objects.get(id=group_id)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    group_obj_test = group.objects.get(id=group_id)
     serializer = GroupPrivacySerializer(data=request.data)
 
     if serializer.is_valid():
-
-        if group_obj_test.privacy == 2 and (serializer.validated_data['privacy'] == 1 or serializer.validated_data['privacy'] == 3):
-            group_obj.update(privacy=request.data['privacy'],
-                             invitation_only=False)
-
-        elif group_obj_test.privacy == 1 and (serializer.validated_data['privacy'] == 2 or serializer.validated_data['privacy'] == 3):
+        # condition = 1 to edit privacy and invitation only
+        case = group_privacy_invitation(request, group_obj, serializer,
+                                        condition=1)
+        if case == 2:
             return Response(
-                 {'stat': 'fail',
-                  'message': 'Private groups can not be made public.'},
-                 status=status.HTTP_403_FORBIDDEN)
+                {'stat': 'fail',
+                 'message': 'Private groups can not be made public.'},
+                status=status.HTTP_403_FORBIDDEN)
 
-        elif serializer.validated_data['privacy'] == 1 or serializer.validated_data['privacy'] == 3:
-            group_obj.update(privacy=request.data['privacy'],
-                             invitation_only=False)
-
-        else:
-            group_obj.update(privacy=request.data['privacy'],
-                             invitation_only=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -278,73 +301,95 @@ def edit_group_18plus(request, group_id):
 @api_view(['POST', 'GET'])
 @permission_classes((IsAuthenticated,))
 def group_get_create(request):
-
+    # get groups user is an admin of +
+    # groups user is a member of
     if request.method == 'GET':
         user_obj = request.user
-        groups = user_obj.group_member.all()
-        serializer = GroupSerializer(groups, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        admin_groups = Members.objects.filter(member=user_obj,
+                                              member_type__exact=2)
+        member_groups = Members.objects.filter(member=user_obj,
+                                               member_type__exact=1)
+        admin_serializer = MemberGroupSerializer(admin_groups, many=True).data
+        member_serializer = MemberGroupSerializer(member_groups,
+                                                  many=True).data
+        return Response({'admin_serializer': admin_serializer,
+                         'member_serializer': member_serializer})
 
     elif request.method == 'POST':
         serializer = GroupSerializer(data=request.data)
         if serializer.is_valid():
-            if serializer.validated_data['privacy'] == 2:
-                new_group = group.objects.create(
-                    name=request.data["name"],
-                    privacy=request.data['privacy'],
-                    eighteenplus=request.data['eighteenplus'])
-                user_obj = request.user
-                new_group.invitation_only = True
-                new_group.save()
-                Members.objects.create(group=new_group,
-                                       member=user_obj,
-                                       member_type=2)
-            else:
-                new_group = group.objects.create(
-                    name=request.data["name"],
-                    privacy=request.data['privacy'],
-                    eighteenplus=request.data['eighteenplus'])
-                user_obj = request.user
-                new_group.save()
-                Members.objects.create(group=new_group,
-                                       member=user_obj,
-                                       member_type=2)
+            # create new group
+            group_obj = group.objects.create(
+                name=request.data["name"],
+                privacy=request.data['privacy'],
+                eighteenplus=request.data['eighteenplus'])
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            # check group privacy and if = 2, invitation_only = True
+            # condition = 1 to edit privacy and invitation only
+            group_privacy_invitation(request, group_obj, serializer,
+                                     condition=2)
+
+            # add new member (user) to group to be the admin
+            user_obj = request.user
+            Members.objects.create(group=group_obj,
+                                   member=user_obj,
+                                   member_type=2)
+
+            # group count of user
+            user_obj.count_groups += 1
+            user_obj.save()
+
+            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# top 5 contributers
+@api_view(['GET'])
+def top_contributers(request, group_id):
+    try:
+        group_obj = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    group_members = Members.objects.all().filter(group=group_obj)
+    m_group_members = group_members.values('group').annotate(
+        Max('photos_count')).order_by('photos_count')
+    group_members = group_members.filter(
+        photos_count__in=m_group_members.values('photos_count')).order_by(
+            '-photos_count')[:5]
+    serializer = GroupMemberSerializer(group_members, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# search for a group by its title ordered from the oldest
+# all flickr groups + groups you're a member of
 @api_view(['GET'])
 def find_groups(request):
-    # search for a group by its title ordered from the oldest
 
     paginator = PageNumberPagination()
     paginator.page_size = 10
 
     value = request.query_params.get("name")
-    groups = group.objects.filter(name__icontains=value)\
+    group_list = group.objects.filter(name__icontains=value)\
         .order_by('-date_create')
-    result_page = paginator.paginate_queryset(groups, request)
-    serializer = GroupSerializer(result_page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+    group_list = limit_groups_number(group_list, 500)
+    result_page = paginator.paginate_queryset(group_list, request)
+    groups = GroupSerializer(result_page, many=True).data
 
+    if request.user.is_anonymous:
+        joined_group = []
+    else:
+        user = request.user
+        group_member_list = user.group_member.all(
+            ).filter(name__icontains=value)\
+            .order_by('-date_create')[:3]
+        result_page1 = paginator.paginate_queryset(group_member_list, request)
+        joined_group = GroupSerializer(result_page1, many=True).data
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def find_my_groups(request):
-    # search for a group by its title ordered from the oldest
-    # group user is a member of
-
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
-
-    user_obj = request.user
-    value = request.query_params.get("name")
-    groups = user_obj.group_member.all().filter(name__icontains=value)\
-        .order_by('-date_create')
-    result_page = paginator.paginate_queryset(groups, request)
-    serializer = GroupSerializer(result_page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+    return paginator.get_paginated_response({'joined_group': joined_group,
+                                             'groups': groups})
 
 
 # Join request
@@ -356,8 +401,9 @@ def group_join_request(request, id):
     try:
         group_obj = group.objects.get(id=id)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
+        return Response({'stat': 'fail',
+                         'message': 'group not found'},
+                        status=status.HTTP_404_NOT_FOUND)
     # Get list of pending members in group
     if request.method == 'GET':
         pending_members = PendingMembers.objects.all().filter(group=group_obj)
@@ -371,8 +417,7 @@ def group_join_request(request, id):
             PendingMembers.objects.create(group=group_obj,
                                           pending_member=request.user,
                                           message=request.data['message'])
-            group_obj.pending_members_count += 1
-            group_obj.save()
+            group_obj_increment(group_obj, 'pending_members_count')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -381,10 +426,8 @@ def group_join_request(request, id):
         group_member_obj = PendingMembers.objects.all().filter(
             group=group_obj, pending_member=request.user)
         operation = group_member_obj.delete()
-        group_obj.pending_members_count -= 1
-        group_obj.save()
+        group_obj_decrement(group_obj, 'pending_members_count')
         data = {}
-        operation = True
         if operation:
             data["stat"] = "ok"
         else:
@@ -418,18 +461,19 @@ def group_join_request_respond(request, group_id, pending_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # Pending member join group
+        # add user to group pending member list
         Members.objects.create(group=group_obj,
                                member=pending_member_obj,
                                member_type=1)
-        group_obj.member_count += 1
-        group_obj.save()
+        group_obj_increment(group_obj, 'member_count')
+        pending_member_obj.count_groups += 1
+        pending_member_obj.save()
 
         # Delete pending member
         operation = group_member_obj.delete()
-        group_obj.pending_members_count -= 1
-        group_obj.save()
+        group_obj_decrement(group_obj, 'pending_members_count')
+
         data = {}
-        operation = True
         if operation:
             data["stat"] = "ok"
         else:
@@ -444,7 +488,6 @@ def group_join_request_respond(request, group_id, pending_id):
         group_obj.pending_members_count -= 1
         group_obj.save()
         data = {}
-        operation = True
         if operation:
             data["stat"] = "ok"
         else:
@@ -582,6 +625,19 @@ def create_reply(request, group_id, topic_id):
         group_topic.last_reply = request.user 
         group_topic.count_replies += 1
         group_topic.save()
+
+        # # push notification
+        header = {"Content-Type": "application/json; charset=utf-8",
+                  "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+
+        payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
+                   "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+                   "contents": {"en": str(request.user.first_name + " " + request.user.last_name + " replied to the discussion " + group_topic.subject + " in the group " + group_detail.name)}}
+
+        req = requests.post("https://app.onesignal.com/api/v1/notifications",
+                            headers=header, data=json.dumps(payload))
+        # print(req.status_code, req.reason)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -631,7 +687,7 @@ def reply_info(request, group_id, topic_id, reply_id):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def find_topic(request,group_id):
+def find_topic(request, group_id):
     # search for a topic by its message ordered from the oldest
     try:
         group_detail = group.objects.get(id=group_id)
@@ -762,6 +818,17 @@ def group_photo(request,  group_id,  photo_id):
 
     # 2 options:
     if request.method == 'POST':
+        try:
+            mem = Members.objects.get(group=group_obj, member=user_obj)
+            c = int(mem.photos_count)
+            c += 1
+            Members.objects.filter(group=group_obj, member=user_obj).update(
+                photos_count=c)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # mem.photos_count += 1
+        # mem.save()
         # 1) add his own photo to a group he is a member of
         # checks: photo does not exist in the group and
         #  limitation to user type

@@ -70,7 +70,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_pro = models.BooleanField(default=False)
     total_media= models.IntegerField(default=0)
     fav_count = models.IntegerField(default=0)
-    group_count = models.IntegerField(default=0)
+    count_groups = models.IntegerField(default=0)
     tag_count = models.IntegerField(default=0)
     galleries_count = models.IntegerField(default=0)
     photosets_count = models.IntegerField(default=0)

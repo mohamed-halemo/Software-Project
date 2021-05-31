@@ -27,6 +27,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.pagination import PageNumberPagination
+
+# push notifications
+import requests
+import json
 
 #Functionality
 def verifying_user(user):
@@ -111,6 +116,21 @@ def change_user_name(serializer,user):
         
     response = {'Success': 'Username changed'}
     return response
+
+
+def limit_people_number(people, max_limit):
+
+    required_people_ids_list = []
+    count = 1
+    for people1 in people:
+        if count <= max_limit:
+            required_people_ids_list.append(people1.id)
+            count += 1
+
+    required_people = Account.objects.filter(
+        id__in=required_people_ids_list).order_by('-date_joined')
+    return required_people
+
 
 #sign up user
 class SignUpView(generics.GenericAPIView):
@@ -469,6 +489,19 @@ def follow_unfollow(request, userpk):
         user.save()
         followed_user_obj.followers_count += 1
         followed_user_obj.save()
+
+        # # push notification
+        header = {"Content-Type": "application/json; charset=utf-8",
+                  "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+
+        payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
+                   "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+                   "contents": {"en": str(request.user.first_name + " " + request.user.last_name + " is now following you!")}}
+
+        req = requests.post("https://app.onesignal.com/api/v1/notifications",
+                            headers=header, data=json.dumps(payload))
+        # print(req.status_code, req.reason)
+
         return Response(status=status.HTTP_200_OK)
     # DELETE
     if request.method == 'DELETE':
@@ -524,3 +557,46 @@ def user_following(request, userpk):
     serializer = FollowingSerializer(
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)          
+
+
+@api_view(['GET'])
+def search(request):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+
+    value = request.query_params.get("username")
+    people = Account.objects.all().filter(username__icontains=value)
+    required_people = limit_people_number(people,500)
+    result_page = paginator.paginate_queryset(required_people, request)
+    all_people = OwnerSerializer(result_page, many=True).data
+
+    if request.user.is_anonymous:
+        following = []
+    else:
+        user = request.user
+        following_list = user.follow_follower.all().filter(user__in=people)
+        result_page1 = paginator.paginate_queryset(following_list, request)
+        following = FollowingSerializer(result_page1, many=True).data
+
+    return paginator.get_paginated_response({'following': following, 'all_people': all_people})
+
+
+@api_view(['GET'])
+def search_email(request):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+
+    value = request.query_params.get("email")
+    people = Account.objects.all().filter(email=value)
+    result_page = paginator.paginate_queryset(people, request)
+    all_people = OwnerSerializer(result_page, many=True).data
+
+    if request.user.is_anonymous:
+        following = []
+    else:
+        user = request.user
+        following_list = user.follow_follower.all().filter(user__in=people)
+        result_page1 = paginator.paginate_queryset(following_list, request)
+        following = FollowingSerializer(result_page1, many=True).data
+
+    return paginator.get_paginated_response({'following': following, 'all_people': all_people})

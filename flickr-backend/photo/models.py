@@ -12,7 +12,6 @@ def upload_to(instance, filename):
     return f"{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
 
 
-
 # Create your models here.
 class Photo(models.Model):
     
@@ -65,6 +64,9 @@ class Photo(models.Model):
 
     # Orientation
     rotated_by = models.PositiveSmallIntegerField(default=0)
+
+    # groups
+    group_count = models.IntegerField(default=0, blank=True)
 
 
 
