@@ -55,26 +55,29 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   }
 
   bool isFromPersonalProfile;
+  bool isFromNonProfile;
   var postInformation;
-  List<PostDetails> allPosts;
+  List<PostDetails> allPosts = [];
   var postIndex;
   void firstLoad(Map settingsMap) {
     isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
-    allPosts = settingsMap['postDetails'];
-    postIndex = settingsMap['postIndex'];
-    if (settingsMap['isFromPersonalProfile']) {
+    isFromNonProfile = settingsMap['isFromNonProfile'];
+    if (isFromPersonalProfile) {
+      allPosts = settingsMap['postDetails'];
+      postIndex = settingsMap['postIndex'];
       postInformation = allPosts[postIndex];
     } else {
-      postInformation = allPosts;
+      postInformation = settingsMap['postDetails'];
     }
     isFirstLoad = false;
   }
 
-  void reload() {
+  void reload(Map settingsMap) {
     if (isFromPersonalProfile) {
       postInformation = allPosts[postIndex];
     } else {
-      postInformation = allPosts;
+      postInformation = settingsMap['postDetails'];
+      ;
     }
   }
 
@@ -86,7 +89,7 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
     /// instance of Post details that contains info about the post we are currently displaying
 
-    isFirstLoad ? firstLoad(settingsMap) : reload();
+    isFirstLoad ? firstLoad(settingsMap) : reload(settingsMap);
     final currentPosts = Provider.of<Posts>(context).posts;
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     //final postInformation = Provider.of<PostDetails>(context);

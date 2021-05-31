@@ -16,7 +16,6 @@ class ProfilePublic extends StatefulWidget {
 class _ProfilePublicState extends State<ProfilePublic> {
   ScrollController _controller = ScrollController();
 
-  
   bool closeTopContainer = false;
   bool postView = false;
   bool gridView = true;
@@ -25,7 +24,6 @@ class _ProfilePublicState extends State<ProfilePublic> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      
       setState(() {
         closeTopContainer = _controller.offset > 50;
       });
@@ -83,7 +81,7 @@ class _ProfilePublicState extends State<ProfilePublic> {
           if (postView) Expanded(child: PublicViewPost()),
 
           /// Display the gridview which displays only the images of the post close to each other.
-          if (gridView) Expanded(child: PublicViewGrid()),
+          if (gridView) Expanded(child: PublicViewGrid(false)),
           /*  Expanded(
             child: ListView.builder(
               //controller: _controller,

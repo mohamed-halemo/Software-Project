@@ -1,3 +1,4 @@
+import 'package:android_flickr/widgets/non_profile_public_view_grid.dart';
 import 'package:android_flickr/widgets/public_view_grid.dart';
 import 'package:android_flickr/widgets/public_view_post.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import '../providers/flickr_post.dart';
 
 /// Public that is cuztomized for the other profiles to display their posts in grid view or list view.
 class NonProfilePublic extends StatefulWidget {
-  
   @override
   _NonProfilePublicState createState() => _NonProfilePublicState();
 }
@@ -36,8 +36,6 @@ class _NonProfilePublicState extends State<NonProfilePublic> {
       });
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +88,7 @@ class _NonProfilePublicState extends State<NonProfilePublic> {
           if (postView) Expanded(child: PublicViewPost()),
 
           /// Display the gridview which displays only the images of the post close to each other.
-          if (gridView) Expanded(child: PublicViewGrid()),
+          if (gridView) Expanded(child: NonProfilePublicViewGrid(true)),
         ],
       ),
     );

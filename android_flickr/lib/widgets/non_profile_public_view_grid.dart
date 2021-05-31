@@ -9,9 +9,9 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../providers/flickr_profiles.dart';
 
 /// Gridview that displays the only images of the posts in grid mode.
-class PublicViewGrid extends StatelessWidget {
+class NonProfilePublicViewGrid extends StatelessWidget {
   bool isNonProfile;
-  PublicViewGrid(this.isNonProfile);
+  NonProfilePublicViewGrid(this.isNonProfile);
 
   var postsToDisplay;
 
@@ -20,10 +20,10 @@ class PublicViewGrid extends StatelessWidget {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': postsToDisplay,
+        'postDetails': postInformation,
         'postIndex': gridindex,
         'isFromPersonalProfile': isNonProfile ? false : true,
-        'isFromNon_Public': true
+        'isFromNonProfile': true
       },
     );
   }
