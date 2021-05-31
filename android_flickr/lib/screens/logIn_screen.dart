@@ -1,11 +1,19 @@
 import 'package:android_flickr/screens/signUp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth.dart';
 
 class LogIn extends StatefulWidget {
   @override
   _LogInState createState() => _LogInState();
 }
+
+Map<String, String> _authData = {
+  'email': '',
+  'password': '',
+};
 
 class _LogInState extends State<LogIn> {
   // If true the text is visible e;se it is not
@@ -17,6 +25,7 @@ class _LogInState extends State<LogIn> {
   // Checks if the email valid or not
   bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,6 +91,7 @@ class _LogInState extends State<LogIn> {
                         _textInput(
                           hint: 'Email address',
                           label: 'Email address',
+                          userInfo: 'email',
                           keyboardType: TextInputType.emailAddress,
                         ),
                         //Checks if the email is valid or not
@@ -89,6 +99,7 @@ class _LogInState extends State<LogIn> {
                             ? _textInput(
                                 hint: 'Password',
                                 label: 'Password',
+                                userInfo: 'password',
                                 keyboardType: TextInputType.visiblePassword,
                                 obscure: _secureText,
                                 suffixIcon: _secureText
@@ -133,6 +144,13 @@ class _LogInState extends State<LogIn> {
                                   _isEmailValidated = true;
                                 }
                               });
+                              if (_buttonText == 'Sign in') {
+                                print(_authData);
+                                Provider.of<Auth>(context, listen: false).login(
+                                  _authData['email'],
+                                  _authData['password'],
+                                );
+                              }
                             },
                             child: Container(
                               child: Text(
@@ -205,6 +223,7 @@ Widget _textInput({
   obscure = false,
   suffixIcon,
   suffixIconPressed,
+  String userInfo,
 }) {
   return Container(
     margin: EdgeInsets.only(top: 10),
@@ -229,6 +248,9 @@ Widget _textInput({
       ),
       keyboardType: keyboardType,
       obscureText: obscure,
+      onChanged: (value) {
+        _authData[userInfo] = value;
+      },
     ),
   );
 }
