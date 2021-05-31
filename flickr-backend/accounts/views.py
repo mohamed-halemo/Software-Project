@@ -356,11 +356,44 @@ class UserInfo(generics.RetrieveAPIView):
         obj = queryset.get(id=self.request.user.id)
         return obj
 
-class UserDetailList(RetrieveAPIView):
+class UserDetailList(generics.RetrieveAPIView):
     serializer_class = OwnerSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Account.objects.all()
     lookup_field = 'id'
+
+#Resend Reset password mail
+class ResendPasswordResetEmail(generics.GenericAPIView):
+    serializer_class = ResendPasswordResetEmailSerializer
+    
+    #POST
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        email = request.data.get('email', '')
+        bool,error = check_account_exist_email(email)        
+        if bool:
+            user = Account.objects.get(email=email)
+            
+            #encode user id
+            uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+            
+            #create token
+            token = PasswordResetTokenGenerator().make_token(user)
+
+            #preparing mail
+            current_site = get_current_site(request=request).domain
+
+            email = prepare_reset_password_email(current_site,user,token,uidb64)
+
+            print(email)
+            #sending mail
+            Util.send_email(email)
+
+            return Response({'Success':
+                            'We have sent you a link to reset password'},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
 
 #Delete users account
 @api_view(['DELETE'])

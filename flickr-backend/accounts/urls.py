@@ -61,5 +61,8 @@ path('follow/<int:userpk>', follow_unfollow, name='follow_unfollow'),
 path('followers', followers_list, name='followers_list'),
 path('following', following_list, name='following_list'),
 path('following/<int:userpk>', user_following, name='user_following'),
+#resend reset users password
+path('resend-password-reset-email', ResendPasswordResetEmail.as_view(),
+     name="resend-reset-password"),
 
 ]

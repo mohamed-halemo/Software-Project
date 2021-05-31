@@ -166,7 +166,16 @@ class OwnerSerializer(serializers.ModelSerializer):
         model = Account
         exclude=("password","date_joined", "updated_at",
         "last_login", "login_from", "groups","user_permissions")
-        
+
+#Resend password mail serializer
+class ResendPasswordResetEmailSerializer(serializers.Serializer):
+    '''Serializer for Reset Password'''
+    
+    email = serializers.EmailField(min_length=2)
+
+    class Meta:
+        fields = ['email']
+
 #Photo user serializer
 class PhotoUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -181,12 +190,14 @@ class CoverUserSerializer(serializers.ModelSerializer):
 
 #Following serializer
 class FollowingSerializer(serializers.ModelSerializer):
+    followed= OwnerSerializer(read_only=True)
     class Meta:
         model = Contacts
         fields = ['followed']
 
 #Follower serializer
 class FollowerSerializer(serializers.ModelSerializer):
+    user= OwnerSerializer(read_only=True)
     class Meta:
         model = Contacts
         fields = ['user']   

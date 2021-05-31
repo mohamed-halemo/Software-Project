@@ -87,7 +87,9 @@ def create_set(request, photo_id):
         serializer = sets_serializer_post(sets_obj, data=request.data)
         
         if serializer.is_valid():
-            
+            user=request.user
+            user.photosets_count +=1
+            user.save()
             serializer.save(primary=photo_id)
               
             get_photo.sets_photos.add(sets_obj)
@@ -109,6 +111,9 @@ def delete_set(request, id):
                              '  this photoset'},
                  status=status.HTTP_403_FORBIDDEN)
         get_list.delete()
+        user=request.user
+        user.photosets_count -=1
+        user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
