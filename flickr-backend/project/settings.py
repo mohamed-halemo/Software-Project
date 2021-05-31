@@ -123,9 +123,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'flickr_database2',
+        'NAME': 'flickr_database_final',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database_final?retryWrites=true&w=majority",
                     'username': 'Fotone',
                     'password': config('DATABASE_PASSWORD')
                     },
