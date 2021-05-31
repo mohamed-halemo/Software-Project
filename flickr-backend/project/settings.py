@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'drf_yasg',
-    'profiles',
     'gallery',
     'photo',
     'django_filters',

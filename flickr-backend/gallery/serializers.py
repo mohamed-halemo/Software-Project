@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import *
-from profiles.serializers import *
 from accounts.serializers import *
 from photo.serializers import *
 
 # Serializers define the API representation.
 class CommentSerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+    owner = OwnerSerializer(read_only=True)
     class Meta:
         model = Comments
         # total info for a comment on a gallery
@@ -15,7 +14,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'gallery': {'read_only': True}, 'owner': {'read_only': True}}
 
 class GallerySerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+    owner = OwnerSerializer(read_only=True)
     photos = PhotoSerializer(read_only=True, many=True)
     comments= CommentSerializer(read_only=True, many=True)
     class Meta:
@@ -28,7 +27,7 @@ class GallerySerializer(serializers.ModelSerializer):
         extra_kwargs = {'owner': {'read_only': True}}
 
 class CreateGallerySerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+    owner = OwnerSerializer(read_only=True)
     class Meta:
         model = Gallery
         # specific info for a gallery needed to create and edit the gallery

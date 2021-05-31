@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from profiles.serializers import *
+from accounts.serializers import *
 
 
 # Serializers define the API representation.
@@ -26,7 +26,7 @@ class PhotoDatesSerializer(serializers.ModelSerializer):
 
 
 class PhotoCommentSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = OwnerSerializer(read_only=True)
     class Meta:
         model = Comment
         fields = ['comment_id', 'author', 'date_created', 'comment_text']
@@ -34,7 +34,7 @@ class PhotoCommentSerializer(serializers.ModelSerializer):
 
 
 class PhotoNoteSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = OwnerSerializer(read_only=True)
     class Meta:
         model = Note
         fields = [
@@ -44,7 +44,7 @@ class PhotoNoteSerializer(serializers.ModelSerializer):
 
 
 class PhotoTagSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = OwnerSerializer(read_only=True)
     class Meta:
         model = Tag
         fields = ['tag_id', 'author', 'tag_text']
@@ -58,20 +58,20 @@ class PeopleTaggingSerializer(serializers.ModelSerializer):
 
 
 class GetPeopleTaggingSerializer(serializers.ModelSerializer):
-    person_tagged = UserSerializer(read_only=True)
-    added_by = UserSerializer(read_only=True)
+    person_tagged = OwnerSerializer(read_only=True)
+    added_by = OwnerSerializer(read_only=True)
     class Meta:
         model = PeopleTagging
         fields = ['photo', 'person_tagged', 'added_by']
 
 
 class PhotoSerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+    owner = OwnerSerializer(read_only=True)
     photo_comments = PhotoCommentSerializer(read_only=True, many=True)
     photo_notes = PhotoNoteSerializer(read_only=True, many=True)
     photo_tags = PhotoTagSerializer(read_only=True, many=True)
     people_tagged = GetPeopleTaggingSerializer(read_only=True, many=True)
-    favourites = UserSerializer(read_only=True, many=True)
+    favourites = OwnerSerializer(read_only=True, many=True)
     class Meta:
         model = Photo
         fields = ['id','media_file', 'owner', 'title', 'description',
@@ -93,7 +93,7 @@ class PhotoRotationSerializer(serializers.ModelSerializer):
    
    
 class PhotoUploadSerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+    owner = OwnerSerializer(read_only=True)
     class Meta:
         model = Photo
         fields = [

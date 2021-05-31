@@ -48,7 +48,7 @@ urlpatterns = [
                                         namespace="social_accounts")),
     path('api/admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls', namespace='accounts')),
-    path('api/profiles/', include('profiles.urls', namespace='profiles')),
+    # path('api/profiles/', include('profiles.urls', namespace='profiles')),
     path('api/gallery/', include('gallery.urls', namespace='gallery')),
     path('api/photos/', include('photo.urls', namespace='photos')),
     path('api/photosets/', include('photosets.urls', namespace='photosets')),

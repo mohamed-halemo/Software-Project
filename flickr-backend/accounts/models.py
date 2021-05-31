@@ -68,6 +68,16 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_pro = models.BooleanField(default=False)
+    total_media= models.IntegerField(default=0)
+    fav_count = models.IntegerField(default=0)
+    group_count = models.IntegerField(default=0)
+    tag_count = models.IntegerField(default=0)
+    galleries_count = models.IntegerField(default=0)
+    photosets_count = models.IntegerField(default=0)
+    profile_pic = models.ImageField(upload_to="images/",null=True , blank=True)
+    cover_photo= models.ImageField(upload_to="images/",null=True , blank=True)
+    followers_count = models.IntegerField(default=0, null=True)
+    following_count = models.IntegerField(default=0, null=True)
     login_from = models.CharField(
         max_length=255, blank=False,
         null=False, default="email")
@@ -92,3 +102,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
+
+
+class Contacts(models.Model):
+    user = models.ForeignKey(Account, related_name='follow_follower', on_delete=models.CASCADE, editable=False)
+    followed = models.ForeignKey(Account, related_name='follow_followed', on_delete=models.CASCADE)
+    date_create = models.DateTimeField(auto_now_add=True)

@@ -2,7 +2,6 @@ from .models import *
 from accounts.models import *
 from .serializers import *
 from accounts.serializers import *
-from profiles.models import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -1087,7 +1086,6 @@ def upload_media(request):
         parser_classes = (MultiPartParser, FormParser)
         serializer = PhotoUploadSerializer(data=request.data)
         user = request.user
-        profile_obj = Profile.objects.get(owner=user)
         if serializer.is_valid():
             file_field = request.FILES['media_file']
 
@@ -1097,7 +1095,7 @@ def upload_media(request):
             if content_type in settings.IMAGE_TYPE:
                 # make limitations for the free user to have less than or equal 1000 media and 200mb as a max size of the photo
                 if user.is_pro is not True:
-                    if profile_obj.total_media >= 1000 and file_field.size > settings.MAX_IMAGE_SIZE:
+                    if user.total_media >= 1000 and file_field.size > settings.MAX_IMAGE_SIZE:
                         return Response(status=status.HTTP_400_BAD_REQUEST)
 
                 # calculate the display pixels
@@ -1125,8 +1123,8 @@ def upload_media(request):
                     date_taken = None
             else:
                 raise ValidationError(_('File type is not supported'))
-            profile_obj.total_media += 1
-            profile_obj.save()
+            user.total_media += 1
+            user.save()
             serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
             # increment the count of media 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -48,4 +48,18 @@ path('change-to-pro/', ChangeToPro.as_view(), name="change-to-pro"),
 #get account info
 path('user-info/', UserInfo.as_view(), name="user-info"),
 
+#get,put profile details of a specific user 
+path('<int:id>', UserDetailList.as_view(), name='Userdetail'),
+
+path('profile-pic', upload_profile, name='upload_profile'),
+
+path('cover-photo', upload_cover, name='upload_cover'),
+
+# Contacts
+path('follow/<int:userpk>', follow_unfollow, name='follow_unfollow'),
+# get the favourites photos list API
+path('followers', followers_list, name='followers_list'),
+path('following', following_list, name='following_list'),
+path('following/<int:userpk>', user_following, name='user_following'),
+
 ]

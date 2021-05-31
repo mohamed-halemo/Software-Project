@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account
+from accounts.models import *
 from django.contrib import auth
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -167,4 +167,26 @@ class OwnerSerializer(serializers.ModelSerializer):
         exclude=("password","date_joined", "updated_at",
         "last_login", "login_from", "groups","user_permissions")
         
-        
+#Photo user serializer
+class PhotoUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['profile_pic']
+
+#Cover photo serializer
+class CoverUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['cover_photo']
+
+#Following serializer
+class FollowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contacts
+        fields = ['followed']
+
+#Follower serializer
+class FollowerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contacts
+        fields = ['user']   

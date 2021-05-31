@@ -1,6 +1,5 @@
 from .models import *
 from accounts.models import *
-from profiles.models import *
 import os
 
 

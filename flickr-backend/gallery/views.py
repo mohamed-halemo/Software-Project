@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from .models import *
 from photo.models import *
-from profiles.models import *
+from accounts.models import *
 from .serializers import *
 from photo.serializers import *
 from project.permissions import check_permission
@@ -119,9 +119,9 @@ def gallery_list(request):
         serializer = CreateGallerySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user)
-            profile_obj = Profile.objects.get(owner=request.user)
+            owner=request.user
             # increment the count of galleries in the profile of the user by 1
-            increment_profile_items(profile_obj,'galleries_count')
+            increment_profile_items(owner,'galleries_count')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -252,9 +252,9 @@ def photo_galleries(request, phopk):
             # gallery_obj.save()
             increment_gallery_items(gallery_obj,'count_media')
 
-            profile_obj = Profile.objects.get(owner=request.user)
+            owner=request.user
             # increment the count of galleries in the profile of the user by 1
-            increment_profile_items(profile_obj,'galleries_count')
+            increment_profile_items(owner,'galleries_count')
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

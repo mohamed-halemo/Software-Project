@@ -1,12 +1,11 @@
 from django.http.response import Http404
-from profiles.models import *
 from django.http import request
 from rest_framework import generics, status, views
 from django.shortcuts import render, redirect
 from .serializers import *
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from accounts.models import Account
+from accounts.models import *
 from project.utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -25,12 +24,13 @@ from rest_framework import permissions,viewsets
 from project.permissions import IsOwner
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.exceptions import ObjectDoesNotExist
 
 #Functionality
 def verifying_user(user):
     if not user.is_verified:
-        # Creating user profile
-        Profile.objects.create(owner=user)
         user.is_verified = True
         user.save()
     
@@ -356,6 +356,12 @@ class UserInfo(generics.RetrieveAPIView):
         obj = queryset.get(id=self.request.user.id)
         return obj
 
+class UserDetailList(RetrieveAPIView):
+    serializer_class = OwnerSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = Account.objects.all()
+    lookup_field = 'id'
+
 #Delete users account
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -372,4 +378,116 @@ def DeleteAccount(request):
     user.delete()
     return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
 
-    
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def upload_profile(request):
+    try:
+        user=request.user
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        parser_classes = (MultiPartParser, FormParser)
+        serializer = PhotoUserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def upload_cover(request):
+    try:
+        user=request.user
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        parser_classes = (MultiPartParser, FormParser)
+        serializer = CoverUserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticated,))
+def follow_unfollow(request, userpk):
+
+    try:
+        followed_user_obj = Account.objects.get(id=userpk)
+        contact = Contacts.objects.filter(
+            user=request.user, followed=followed_user_obj)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    # POST
+    if request.method == 'POST':
+        if contact or followed_user_obj == request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        Contacts.objects.create(user=request.user, followed=followed_user_obj)
+        user=request.user
+        # increment the count of following for the calling user
+        # and the count of followers for the given user by 1
+        user.following_count += 1
+        user.save()
+        followed_user_obj.followers_count += 1
+        followed_user_obj.save()
+        return Response(status=status.HTTP_200_OK)
+    # DELETE
+    if request.method == 'DELETE':
+        if not contact:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user=request.user
+        # decrement the count of following for the calling user
+        # and the count of followers for the given user by 1
+        user.following_count -= 1
+        user.save()
+        followed_user_obj.followers_count -= 1
+        followed_user_obj.save()
+        contact.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)        
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def followers_list(request):
+    try:
+        user = request.user
+        followers_list = user.follow_followed.all().order_by('-date_create')
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = FollowerSerializer(
+        followers_list, many=True)
+        
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def following_list(request):
+    try:
+        user = request.user
+        following_list = user.follow_follower.all().order_by('-date_create')
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = FollowingSerializer(
+        following_list, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def user_following(request, userpk):
+    try:
+        user = Account.objects.get(id=userpk)
+        following_list = user.follow_follower.all().order_by('-date_create')
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    serializer = FollowingSerializer(
+        following_list, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)          

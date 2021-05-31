@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from profiles.serializers import *
+from accounts.serializers import *
 from photo.serializers import *
 
 
@@ -11,7 +11,7 @@ class setss_serializer(serializers.ModelSerializer):
 
 
 class comments_serializer(serializers.ModelSerializer):
-    owner=UserSerializer()
+    owner=OwnerSerializer(read_only=True)
     class Meta:
         model = commentss
         fields = '__all__'
@@ -28,7 +28,7 @@ class comments_serializer_post(serializers.ModelSerializer):
 
 
 class sets_serializer(serializers.ModelSerializer):
-    owner=UserSerializer(read_only=True)
+    owner=OwnerSerializer(read_only=True)
     comment= comments_serializer_post(read_only=True, many=True)
     photos = PhotoSerializer(read_only=True, many=True)
     class Meta:
