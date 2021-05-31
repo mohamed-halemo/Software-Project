@@ -131,7 +131,10 @@ class _SignUpState extends State<SignUp> {
                                   _authData['firstname'],
                                   _authData['lastname'],
                                   _authData['age'],
-                                );
+                                )
+                                    .then((value) {
+                                  print('ezz' + value.body);
+                                });
                                 // Moving to the log in page
                                 Navigator.push(
                                     context,

@@ -1,6 +1,7 @@
 import 'package:android_flickr/screens/signUp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 

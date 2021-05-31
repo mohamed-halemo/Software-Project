@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -10,7 +9,7 @@ class Auth with ChangeNotifier {
   DateTime _expiryDate;
   String _userId;
 
-  Future<void> signup(String email, String password, String firstname,
+  Future<http.Response> signup(String email, String password, String firstname,
       String lastname, String age) async {
     var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
         globals.isMockService ? '/sign-up/' : 'api/accounts/sign-up/');
@@ -25,11 +24,12 @@ class Auth with ChangeNotifier {
           },
         ),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    print(json.decode(response.body));
+    //print(json.decode(response.body));
     //print(response.statusCode);
+    return response;
   }
 
-  Future<void> login(String email, String password) async {
+  Future<http.Response> login(String email, String password) async {
     var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
         globals.isMockService ? '/login/' : 'api/accounts/login/');
     final response = await http.post(url,
@@ -40,7 +40,13 @@ class Auth with ChangeNotifier {
           },
         ),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      globals.accessToken = data['tokens']['access'];
+      globals.refreshToken = data['tokens']['refresh'];
+    }
     print(json.decode(response.body));
     //print(response.statusCode);
+    return response;
   }
 }
