@@ -33,16 +33,16 @@ class group (models.Model):
 
     members = models.ManyToManyField(Account, related_name='group_member',
                                      through='Members')
-    member_count = models.IntegerField(default=1, blank=True)
+    member_count = models.IntegerField(default=1)
 
     pending_members = models.ManyToManyField(
         Account, related_name='group_pending_member', through='PendingMembers',
         blank=True)
     pending_members_count = models.IntegerField(default=0)
 
-    pool_count = models.IntegerField(default=0, blank=True)
-    topic_count = models.IntegerField(default=0, blank=True)
-    date_create = models.DateTimeField(auto_now_add=True, blank=True)
+    pool_count = models.IntegerField(default=0)
+    topic_count = models.IntegerField(default=0)
+    date_create = models.DateTimeField(auto_now_add=True)
     privacy = models.IntegerField(choices=PRIVACY_GROUP_CHOICES)
     eighteenplus = models.BooleanField(default=False)
     invitation_only = models.BooleanField(default=False)
@@ -63,7 +63,7 @@ class Members (models.Model):
     member = models.ForeignKey(Account, on_delete=models.CASCADE,
                                related_name='member_join')
     member_type = models.IntegerField(choices=GROUP_MEMBERS_TYPES_CHOICES)
-    photos_count = models.IntegerField(default=0, blank=True)
+    photos_count = models.IntegerField(default=0)
 
     class Meta:
         unique_together = [['group', 'member']]
@@ -74,7 +74,7 @@ class PendingMembers (models.Model):
                               on_delete=models.CASCADE)
     pending_member = models.ForeignKey(Account, on_delete=models.CASCADE,
                                        related_name='member_join_request')
-    date_send_request = models.DateTimeField(auto_now_add=True, blank=True)
+    date_send_request = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=100)
 
     class Meta:
@@ -88,12 +88,11 @@ class topic(models.Model):
     message = models.TextField()
     owner = models.ForeignKey(Account, on_delete=models.CASCADE,
                               related_name='topic_owner')
-    count_replies = models.IntegerField(default=0, blank=True)
-    date_create = models.DateTimeField(auto_now_add=True, blank=True)
-    last_reply = models.OneToOneField('reply', on_delete=models.CASCADE,
-                                      related_name="last_reply",
-                                      blank=True)
-    last_edit = models.DateTimeField(auto_now=True, blank=True)
+    count_replies = models.IntegerField(default=0)
+    date_create = models.DateTimeField(auto_now_add=True)
+    last_reply= models.OneToOneField(Account, on_delete=models.CASCADE,
+                              related_name='last_replier')
+    last_edit = models.DateTimeField(auto_now=True)
     notification = models.BooleanField(default=True)
 
     def __str__(self):
@@ -106,8 +105,8 @@ class reply(models.Model):
     message = models.TextField()
     owner = models.ForeignKey(Account, on_delete=models.CASCADE,
                               related_name='reply_owner')
-    date_create = models.DateTimeField(auto_now_add=True, blank=True)
-    lastedit = models.DateTimeField(auto_now=True, blank=True)
+    date_create = models.DateTimeField(auto_now_add=True)
+    lastedit = models.DateTimeField(auto_now=True)
 
     # def member_reply_topic_add(sender, instance, *args, **kwargs):
     #     reply = instance

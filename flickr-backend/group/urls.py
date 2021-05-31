@@ -114,4 +114,7 @@ urlpatterns = [
      path('<int:group_id>/photos/<int:photo_id>/respond/<int:sender_id>',
           views.group_photo_request_respond,
           name='group_photo_request_respond'),
+
+     # search for a topic by its message API
+     path('<int:group_id>/search', views.find_topic,  name='topic-search'),     
 ]

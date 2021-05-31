@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # my apps
+    'django_seed',
     'corsheaders',
     'accounts',
     'rest_framework',
@@ -122,9 +123,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'flickr_database',
+        'NAME': 'flickr_database1',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database1?retryWrites=true&w=majority",
                     'username': 'Fotone',
                     'password': config('DATABASE_PASSWORD')
                     },

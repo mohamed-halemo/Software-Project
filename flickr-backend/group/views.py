@@ -579,7 +579,7 @@ def create_reply(request, group_id, topic_id):
             topic=group_topic,
             owner=request.user
         )
-        group_topic.last_reply = reply_obj
+        group_topic.last_reply = request.user 
         group_topic.count_replies += 1
         group_topic.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -629,6 +629,43 @@ def reply_info(request, group_id, topic_id, reply_id):
 
     serializer = ReplySerializer(group_topic_reply)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def find_topic(request,group_id):
+    # search for a topic by its message ordered from the oldest
+    try:
+        group_detail = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    value = request.query_params.get("message")
+    try: 
+        topics = topic.objects.filter(message__icontains=value, group=group_detail)\
+        .order_by('-date_create')
+    except:
+       return Response(status=status.HTTP_404_NOT_FOUND)
+            
+    serializer = TopicSerializer(topics, many=True)
+    return Response(serializer.data)
+
+# @api_view(['GET'])
+# def find_pools(request,group_id):
+#     # search for a topic by its message ordered from the oldest
+#     try:
+#         group_detail = group.objects.get(id=group_id)
+#     except ObjectDoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     value = request.query_params.get("message")
+#     try: 
+#         topics = topic.objects.filter(message__icontains=value, group=group_detail)\
+#         .order_by('-date_create')
+#     except:
+#        return Response(status=status.HTTP_404_NOT_FOUND)
+            
+#     serializer = TopicSerializer(topics, many=True)
+#     return Response(serializer.data)
+
 
 
 # edit or delete reply
