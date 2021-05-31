@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # my apps
-    'django_seed',
+    # 'django_seed',
     'corsheaders',
     'accounts',
     'rest_framework',
