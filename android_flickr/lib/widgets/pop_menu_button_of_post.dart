@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 
+/// Popup menu that is used to follow the recommended users in the explore.
 class PopupMenuButtonOfPost extends StatelessWidget {
-  final PostDetails
-      postInformation; //instance of post details that contains info about the post to set the info about faves and comments
+  ///
+  /// Instance of post details that contains info about the post to set the info about faves and comments.
+  final PostDetails postInformation;
+
   PopupMenuButtonOfPost(this.postInformation);
-  //returns the popupmenubutton to display as trailing in listtile if needed
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width / 20,
       child: PopupMenuButton(
-        //popupmenubutton takes on selected as an argument where we add the function followPicPoster to follow the owner of the post when option is pressed
-        //it also takes builder as an argument which returns a List of popmenu entry with our customization
+        /// Popupmenubutton takes on selected as an argument where we add the function followPicPoster to follow the owner of the post when option is pressed.
+
         onSelected: (int option) {
           if (option == 0) {
             postInformation.followPicPoster();

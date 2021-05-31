@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './tabbar_in_profile.dart';
 
+/// Profile of the user which includes their avatar, followers and following and a tabbar.
 class ProfileDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -52,6 +53,8 @@ class ProfileDisplay extends StatelessWidget {
           ),
         ];
       },
+
+      /// Tabbar (public,camera roll,groups...) that is nested in the main tabbar.
       body: TabbarInProfile(),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:android_flickr/providers/auth.dart';
 import 'package:android_flickr/providers/flickr_posts.dart';
+import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
 import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
@@ -7,6 +8,7 @@ import 'package:android_flickr/screens/get_started_page_screen.dart';
 import 'package:android_flickr/screens/group_view.dart';
 import 'package:android_flickr/screens/new_discussion.dart';
 import 'package:android_flickr/screens/non_profile_screen.dart';
+import 'package:android_flickr/screens/search_screen.dart';
 import 'package:android_flickr/screens/splash_screen.dart';
 import 'package:android_flickr/widgets/Explore_display.dart';
 //import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
@@ -61,9 +63,19 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (ctx) => Posts(),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => FlickrProfiles(),
         )
       ],
       child: MaterialApp(
+        onGenerateRoute: (settings) {
+          if (settings.name == SearchScreen.routeName) {
+            return MaterialPageRoute(
+              builder: (ctx) => SearchScreen(),
+            );
+          }
+        },
         title: 'Flickr',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -83,6 +95,9 @@ class MyApp extends StatelessWidget {
           ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),
           GetStartedScreen.routeName: (ctx) => GetStartedScreen(),
           //FlickrSplashScreen.routeName: (ctx) => FlickrSplashScreen(),
+          SearchScreen.routeName: (ctx) => SearchScreen(),
+          NonProfileScreen.routeName: (ctx) => NonProfileScreen(),
+          FlickrCameraScreen.routeName: (ctx) => FlickrCameraScreen(),
         },
       ),
     );

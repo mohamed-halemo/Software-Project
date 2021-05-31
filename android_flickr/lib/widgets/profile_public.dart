@@ -1,12 +1,13 @@
 import 'package:android_flickr/widgets/public_view_grid.dart';
 import 'package:android_flickr/widgets/public_view_post.dart';
 import 'package:flutter/material.dart';
-import 'package:android_flickr/widgets/explore_post.dart';
+//import 'package:android_flickr/widgets/explore_post.dart';
 
-import '../providers/flickr_posts.dart';
+//import '../providers/flickr_posts.dart';
 //import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+//import 'package:provider/provider.dart';
 
+/// Public that is cuztomized for the user to display his/her posts in grid view or list view.
 class ProfilePublic extends StatefulWidget {
   @override
   _ProfilePublicState createState() => _ProfilePublicState();
@@ -14,6 +15,8 @@ class ProfilePublic extends StatefulWidget {
 
 class _ProfilePublicState extends State<ProfilePublic> {
   ScrollController _controller = ScrollController();
+
+  
   bool closeTopContainer = false;
   bool postView = false;
   bool gridView = true;
@@ -22,6 +25,7 @@ class _ProfilePublicState extends State<ProfilePublic> {
   void initState() {
     super.initState();
     _controller.addListener(() {
+      
       setState(() {
         closeTopContainer = _controller.offset > 50;
       });
@@ -32,7 +36,9 @@ class _ProfilePublicState extends State<ProfilePublic> {
   Widget build(BuildContext context) {
     //final postsToDisplay = Provider.of<Posts>(context).posts;
     return Container(
-      decoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+      decoration: BoxDecoration(
+        color: postView ? Colors.black.withOpacity(0.9) : Colors.white,
+      ),
       child: Column(
         children: [
           AnimatedContainer(
@@ -72,7 +78,11 @@ class _ProfilePublicState extends State<ProfilePublic> {
               ),
             ),
           ),
+
+          /// Display the Listview of the posts like in explore mode.
           if (postView) Expanded(child: PublicViewPost()),
+
+          /// Display the gridview which displays only the images of the post close to each other.
           if (gridView) Expanded(child: PublicViewGrid()),
           /*  Expanded(
             child: ListView.builder(

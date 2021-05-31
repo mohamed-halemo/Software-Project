@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 
-//this class is responsible for displaying the loading screen with the flickr gif
+/// A class responsible for displaying the loading screen with the flickr gif when app is loading posts from the server.
 class FlickrSplashScreen extends StatefulWidget {
   static const routeName = '/flick-splash-screen';
-  final Widget
-      screenDisplayedAfterSplash; // takes a widget that it should display after it finishes loading
+
+  /// takes a widget that it should display after it finishes loading data from server.
+  final Widget screenDisplayedAfterSplash;
 
   FlickrSplashScreen(this.screenDisplayedAfterSplash);
   @override
@@ -39,18 +40,21 @@ class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
   } */
 
   @override
+  
   Widget build(BuildContext context) {
     return SplashScreen(
       //seconds: 3,
+
+      /// Use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructor.
       navigateAfterFuture: Provider.of<Posts>(context)
           .fetchAndSetExplorePosts()
-          .then((_) => widget
-              .screenDisplayedAfterSplash), // we use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructon
+          .then((_) => widget.screenDisplayedAfterSplash),
       backgroundColor: Colors.grey.withOpacity(0.1),
       loaderColor: Colors.transparent,
       image: Image.asset(
         'assets/images/flickr_loading_screen.gif',
       ),
+
       photoSize: 75,
       //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
     );

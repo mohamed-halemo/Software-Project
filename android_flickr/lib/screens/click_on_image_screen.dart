@@ -10,10 +10,16 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 
 //Personal imports
 import '../providers/flickr_post.dart';
+//import 'package:provider/provider.dart';
+import '../widgets/click_on_image_post_details.dart';
+import '../screens/non_profile_screen.dart';
+import '../providers/flickr_profiles.dart';
+import 'package:provider/provider.dart';
+import '../providers/flickr_posts.dart';
 import 'image_info_screen.dart';
 import 'package:android_flickr/screens/photoEditScreen.dart';
 
-///this class is responsible for all the features and widgets that will be displayed when we click on the post image in Explore display
+/// Whenever any post image is clicked, the app navigates to this screen in order to display the image and few other details.
 class ClickOnImageScreen extends StatefulWidget {
   ///Route name used for Navigation
   static const routeName = '/click-on-image-screen';
@@ -34,69 +40,26 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   var photoscale = 1.0;
 
   bool isFirstLoad = true;
-
   SwiperController mySwipeController = new SwiperController();
-
-  ///returns a widget which tells me the which string in Text widget that will be displayed based on the favesTotalNumber
-  Widget favesText(PostDetails postInformation) {
-    if ((postInformation.favesDetails.favesTotalNumber > 1 ||
-            postInformation.commentsTotalNumber != 0) &&
-        postInformation.favesDetails.favesTotalNumber != 1) {
-      return Text(
-        '${postInformation.favesDetails.favesTotalNumber}' + ' faves',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-        textAlign: TextAlign.right,
-      );
-    } else if (postInformation.favesDetails.favesTotalNumber == 1) {
-      return Text(
-        '${postInformation.favesDetails.favesTotalNumber}' + ' fave',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-        textAlign: TextAlign.right,
-      );
-    } else {
-      return SizedBox(
-        width: MediaQuery.of(context).size.width / 5.25,
-      );
-    }
-  }
-
-  ///returns a widget which tells me the which string in Text widget that will be displayed based on the commentsTotalNumber
-  Widget commentsText(PostDetails postInformation) {
-    if ((postInformation.commentsTotalNumber > 1 ||
-            postInformation.favesDetails.favesTotalNumber != 0) &&
-        postInformation.commentsTotalNumber != 1) {
-      return Text(
-        '${postInformation.commentsTotalNumber}' + ' comments',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-        textAlign: TextAlign.right,
-      );
-    } else if (postInformation.commentsTotalNumber == 1) {
-      return Text(
-        '${postInformation.commentsTotalNumber}' + ' comment',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-        textAlign: TextAlign.right,
-      );
-    } else {
-      return SizedBox(
-        width: MediaQuery.of(context).size.width / 5.25,
-      );
-    }
-  }
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
+        postInformation.picPoster, currentPosts);
+    /* final flickrProfileDetails = FlickrProfiles().profiles.where(
+        (profile) => profile.profileID == postInformation.picPoster.profileId); */
+    print(flickrProfileDetails.profileID);
+    Navigator.of(ctx).pushNamed(
+      NonProfileScreen.routeName,
+      arguments: [postInformation, flickrProfileDetails],
+    );
+      }
 
   bool isFromPersonalProfile;
   var postInformation;
   var allPosts;
   var postIndex;
-
   void firstLoad(Map settingsMap) {
+
     isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
     allPosts = settingsMap['postDetails'];
     postIndex = settingsMap['postIndex'];
@@ -121,6 +84,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     /// instance of Post details that contains info about the post we are currently displaying
 
     isFirstLoad ? firstLoad(settingsMap) : reload();
+    final currentPosts = Provider.of<Posts>(context).posts;
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
       backgroundColor: Colors.black87,
@@ -141,28 +106,43 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
           child: Stack(
             //fit: StackFit.expand,
             children: [
+            /// So when we tap on the screen the bottom bar and top bar navigate between disappear and appear.
+            if (isDetailsOfPostDisplayed)
+              ClickOnImageDisplayPostDetails(postInformation: postInformation),
               if (isDetailsOfPostDisplayed)
                 //display listtile which includes profile pic as circular avatar and name of the pic owner as title and cancel button to return to explore screen
                 ListTile(
-                  leading: CircleAvatar(
+                leading: GestureDetector(
+                  onTap: () {
+                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
+                  },
+                  child: CircleAvatar(
                     radius: MediaQuery.of(context).size.width / 20,
-                    backgroundImage: NetworkImage(postInformation.postImageUrl),
+                    backgroundImage: NetworkImage(
+                      postInformation.picPoster.profilePicUrl,
+                    ),
                     backgroundColor: Colors.transparent,
                   ),
-                  title: Text(
+                ),
+                title: GestureDetector(
+                  onTap: () {
+                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
+                  },
+                  child: Text(
                     postInformation.picPoster.name,
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.cancel_outlined),
-                    color: Colors.white,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
                 ),
+                trailing: IconButton(
+                  icon: Icon(Icons.cancel_outlined),
+                  color: Colors.white,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
               Center(
                 //display image of the post
                 child: Swiper(
@@ -209,117 +189,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                   ),
                 ),
               ),
-              if (isDetailsOfPostDisplayed) //so when we tap on the screen the bottom bar and top bar navigate between disappear and appear
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 1.2,
-                    ),
-                    if (postInformation.caption != null)
-                      Row(
-                        children: [
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 17),
-                          Text(postInformation.caption,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.white,
-                              )),
-                        ],
-                      ),
-                    if (postInformation.caption == null)
-                      Text(
-                        "",
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    Container(
-                      alignment: Alignment.center,
-                      width: MediaQuery.of(context).size.width / 1.1,
-                      child: Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        isFromPersonalProfile
-                            ? IconButton(
-                                icon: Icon(
-                                  Icons.edit_outlined,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {
-                                  downloadImage(postInformation);
-                                },
-                              )
-                            :
-                            //displays bottom bar which includes fave 0, comment button, share button, info button and faves and comments total number
-                            IconButton(
-                                icon: postInformation.favesDetails.isFaved
-                                    ? Icon(
-                                        Icons.star,
-                                        color: Colors.blue,
-                                      )
-                                    : Icon(
-                                        Icons.star_border_outlined,
-                                        color: Colors.white,
-                                      ),
-                                onPressed: () {
-                                  setState(
-                                    () {
-                                      postInformation.toggleFavoriteStatus();
-                                    },
-                                  );
-                                },
-                              ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.comment_outlined,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.share_outlined,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.info_outline,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    ImageInfoScreen(
-                                        postInformation, isFromPersonalProfile),
-                              ),
-                            );
-                          },
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            favesText(postInformation),
-                            commentsText(postInformation),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-            ],
-          ),
+          ],
+            ),
         ),
       ),
     );

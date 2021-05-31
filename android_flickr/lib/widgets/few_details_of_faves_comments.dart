@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
 
-//returns a widget that displays few information about the comment(last comment) and one or two names if availabe of the users who faved the post
+/// A widget that displays few information about the comment(last comment) and one or two names if availabe of the users who faved the post
 class FewDetailsOfFavesComments extends StatelessWidget {
-  final PostDetails
-      postInformation; //instance of post details that contains info about the post
+  final PostDetails postInformation;
+
+  /// Instance of post details that contains info about the post
   FewDetailsOfFavesComments(this.postInformation);
 
-  //gettter used to return string that contains the names of one or two users who faved ,if availabe
-  //it checks if there is only one faved as first case and as second case it checks if 2 users liked the post and last case if more than 3
+  /// Gettter used to return string that contains the names of one or two users who faved ,if availabe
+  ///
+  /// ```dart
+  /// You, ahmed and 5869 others faved, or
+  /// ahmed faved
+  /// ```
   String get favesNames {
     String names;
     if (postInformation.favesDetails.favedUsersNames.length == 1) {
@@ -29,8 +34,6 @@ class FewDetailsOfFavesComments extends StatelessWidget {
     }
   }
 
-  //returns a widget that contains a container where we use column inside it to place the string of the info about faves on top of the
-  //string about the last comment using Listtile for each widget in column to customize its apperance
   @override
   Widget build(BuildContext context) {
     return Container(
