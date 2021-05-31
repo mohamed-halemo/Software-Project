@@ -1,7 +1,10 @@
+import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../providers/flickr_post.dart';
 import './pop_menu_button_of_post.dart';
 import '../screens/non_profile_screen.dart';
+import '../providers/flickr_posts.dart';
 
 /// A Widget that displays picPoster avatar, name, caption and since when was this post posted.
 class PicPostedByInfoOnPost extends StatelessWidget {
@@ -14,10 +17,15 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   /// Helps me to diffrentiate whether I followed the user before/after running the app to select the widgets to display.
   bool isFollowedBeforeRunning = true;
 
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> currentPosts,FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(postInformation.picPoster, currentPosts);
+    /* final flickrProfileDetails = FlickrProfiles().profiles.where(
+        (profile) => profile.profileID == postInformation.picPoster.profileId); */
+    print(flickrProfileDetails.profileID);
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
-      arguments: postInformation,
+      arguments: [postInformation, flickrProfileDetails],
     );
   }
 
@@ -62,13 +70,15 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   PicPostedByInfoOnPost(this.postInformation, this.inPublicMode);
   @override
   Widget build(BuildContext context) {
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
+    final currentPosts = Provider.of<Posts>(context).posts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
           leading: GestureDetector(
             onTap: () {
-              _goToNonprofile(context, postInformation);
+              _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
             },
             child: CircleAvatar(
               radius: MediaQuery.of(context).size.width / 20,

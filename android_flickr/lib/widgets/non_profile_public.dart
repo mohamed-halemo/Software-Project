@@ -1,6 +1,8 @@
 import 'package:android_flickr/widgets/public_view_grid.dart';
 import 'package:android_flickr/widgets/public_view_post.dart';
 import 'package:flutter/material.dart';
+import 'package:android_flickr/providers/flickr_profiles.dart';
+import '../providers/flickr_post.dart';
 
 //import 'package:android_flickr/widgets/explore_post.dart';
 
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 
 /// Public that is cuztomized for the other profiles to display their posts in grid view or list view.
 class NonProfilePublic extends StatefulWidget {
+  
   @override
   _NonProfilePublicState createState() => _NonProfilePublicState();
 }
@@ -33,6 +36,8 @@ class _NonProfilePublicState extends State<NonProfilePublic> {
       });
     });
   }
+
+  
 
   @override
   Widget build(BuildContext context) {

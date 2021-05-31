@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 import '../providers/flickr_post.dart';
 import '../screens/non_profile_screen.dart';
+import '../providers/flickr_profiles.dart';
 
 /// Contains list of the people profiles that came from the search result.
 class SearchPeople extends StatefulWidget {
@@ -11,11 +12,16 @@ class SearchPeople extends StatefulWidget {
 }
 
 class _SearchPeopleState extends State<SearchPeople> {
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
-    ///Contains postInformation as an argument in order to know which profile did the user click on.
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
+        postInformation.picPoster, currentPosts);
+    /* final flickrProfileDetails = FlickrProfiles().profiles.where(
+        (profile) => profile.profileID == postInformation.picPoster.profileId); */
+    print(flickrProfileDetails.profileID);
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
-      arguments: postInformation,
+      arguments: [postInformation, flickrProfileDetails],
     );
   }
 
@@ -23,13 +29,16 @@ class _SearchPeopleState extends State<SearchPeople> {
   Widget build(BuildContext context) {
     /// Contains the list of the photos that came from the search result if any.
     final peopleSearchDetails = Provider.of<Posts>(context).posts;
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
+    final currentPosts = Provider.of<Posts>(context).posts;
     return ListView.builder(
       itemCount: peopleSearchDetails.length,
       itemBuilder: (ctx, index) {
         return ListTile(
             leading: GestureDetector(
               onTap: () {
-                _goToNonprofile(context, peopleSearchDetails[index]);
+                _goToNonprofile(
+                    context, currentPosts[index], currentPosts, flickrProfiles);
               },
               child: CircleAvatar(
                 radius: MediaQuery.of(context).size.width / 20,

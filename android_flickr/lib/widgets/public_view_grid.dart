@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '../providers/flickr_profiles.dart';
 
 /// Gridview that displays the only images of the posts in grid mode.
 class PublicViewGrid extends StatelessWidget {
@@ -18,7 +19,8 @@ class PublicViewGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final postsToDisplay = Provider.of<Posts>(context).posts;
+    final postsToDisplay = Provider.of<FlickrProfile>(context).profilePosts;
+    //final postsToDisplay = Provider.of<Posts>(context).posts;
     return StaggeredGridView.countBuilder(
       crossAxisCount: 4,
       padding: EdgeInsets.all(7),

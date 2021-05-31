@@ -2,16 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import '../Classes/globals_moaz.dart' as globals;
 
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
 ///he is a pro or not and if he is followed by the current user(the person using the application) as well as his profile picture url.
 class PicPosterDetails {
+  String profileId;
   String name;
   bool isPro;
   bool isFollowedByUser;
   bool followedDuringRunning = false;
   String profilePicUrl;
   PicPosterDetails(
+    this.profileId,
     this.name,
     this.isPro,
     this.isFollowedByUser,
@@ -81,17 +84,29 @@ class PostDetails with ChangeNotifier {
 
   ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on database.
   Future<void> updateFavoriteStatus(bool isFaved, int favesTotalNumber) async {
-    final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json');
-    await http.patch(
-      url,
-      body: json.encode(
-        {
-          'isFaved': favesDetails.isFaved,
-          'favesTotalNumber': favesDetails.favesTotalNumber,
+    /* final url = Uri.https(
+        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json'); */
+    final url =
+        Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts/$id');
+    print(url);
+    print(isFaved);
+    print(favesTotalNumber);
+    try {
+      await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
         },
-      ),
-    );
+        body: json.encode(
+          {
+            'isFaved': isFaved,
+            'favesTotalNumber': favesTotalNumber,
+          },
+        ),
+      );
+    } catch (error) {
+      throw (error);
+    }
   }
 
   ///Reflects the user action on screen as well as the data base if he chooses to follow the owner of the post
@@ -112,13 +127,18 @@ class PostDetails with ChangeNotifier {
 
   ///This function is called inside followPicPoster to reflect change on database.
   Future<void> updateFollowPicPoster() async {
-    final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json');
+    /* final url = Uri.https(
+        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json'); */
+    final url =
+        Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts/$id');
     await http.patch(
       url,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: json.encode(
         {
-          'isFollowedByUser': true,
+          'isFollowedByUser': picPoster.isFollowedByUser,
         },
       ),
     );

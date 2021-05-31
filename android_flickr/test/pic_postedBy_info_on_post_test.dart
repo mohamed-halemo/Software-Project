@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 void main() {
   final postInformation = PostDetails(
     id: "1",
-    picPoster: PicPosterDetails("moaz", true, false, ""),
+    picPoster: PicPosterDetails("1","moaz", true, false, ""),
     commentsTotalNumber: 20,
     postImageUrl: "postImageUrl",
     postedSince: "6w",

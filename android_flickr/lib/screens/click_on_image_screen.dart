@@ -3,6 +3,9 @@ import '../providers/flickr_post.dart';
 //import 'package:provider/provider.dart';
 import '../widgets/click_on_image_post_details.dart';
 import '../screens/non_profile_screen.dart';
+import '../providers/flickr_profiles.dart';
+import 'package:provider/provider.dart';
+import '../providers/flickr_posts.dart';
 
 /// Whenever any post image is clicked, the app navigates to this screen in order to display the image and few other details.
 class ClickOnImageScreen extends StatefulWidget {
@@ -14,10 +17,16 @@ class ClickOnImageScreen extends StatefulWidget {
 class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
   bool isDetailsOfPostDisplayed = true;
 
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation) {
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
+        postInformation.picPoster, currentPosts);
+    /* final flickrProfileDetails = FlickrProfiles().profiles.where(
+        (profile) => profile.profileID == postInformation.picPoster.profileId); */
+    print(flickrProfileDetails.profileID);
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
-      arguments: postInformation,
+      arguments: [postInformation, flickrProfileDetails],
     );
   }
 
@@ -26,6 +35,9 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
     /// Instance of Post details that contains info about the post we are currently displaying.
     final postInformation =
         ModalRoute.of(context).settings.arguments as PostDetails;
+
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
+    final currentPosts = Provider.of<Posts>(context).posts;
 
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(
@@ -48,7 +60,7 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
               ListTile(
                 leading: GestureDetector(
                   onTap: () {
-                    _goToNonprofile(context, postInformation);
+                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
                   },
                   child: CircleAvatar(
                     radius: MediaQuery.of(context).size.width / 20,
@@ -60,7 +72,7 @@ class _ClickOnImageScreenState extends State<ClickOnImageScreen> {
                 ),
                 title: GestureDetector(
                   onTap: () {
-                    _goToNonprofile(context, postInformation);
+                    _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
                   },
                   child: Text(
                     postInformation.picPoster.name,

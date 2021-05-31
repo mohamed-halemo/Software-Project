@@ -1,4 +1,5 @@
 import 'package:android_flickr/providers/flickr_posts.dart';
+import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
 import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
@@ -36,6 +37,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (ctx) => Posts(),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => FlickrProfiles(),
         )
       ],
       child: MaterialApp(

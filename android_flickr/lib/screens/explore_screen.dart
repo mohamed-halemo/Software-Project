@@ -21,6 +21,7 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
+  ScrollController _controller = ScrollController();
 
   /// The index of the selected tab which is used to navigate from the notification view to the profile view.
   ///
@@ -52,13 +53,10 @@ class _ExploreScreenState extends State<ExploreScreen>
 
   @override
   Widget build(BuildContext context) {
-    return /* DefaultTabController(
-      initialIndex: currentIndex,
-      length: 5,
-      child:  */
-        Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black.withOpacity(0.5),
       body: NestedScrollView(
+        controller: _controller,
         headerSliverBuilder: (context, index) {
           return [
             SliverAppBar(

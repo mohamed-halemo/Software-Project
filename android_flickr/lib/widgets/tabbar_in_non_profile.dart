@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 /// Tabbar that is nested in the other profiles screen(public,album,groups...).
 class TabbarInNonProfile extends StatelessWidget {
+  final profileData;
+
+  TabbarInNonProfile(this.profileData);
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
