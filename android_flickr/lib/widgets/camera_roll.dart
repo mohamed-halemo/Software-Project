@@ -28,15 +28,14 @@ class CameraRollState extends State<CameraRoll> {
   ///List of all user Posts.
   List<PostDetails> postsToDisplay;
 
+  List<DateTime> gridDates = [];
+
+  List<List<PostDetails>> sortedPosts = [];
+
   ///fetch user images at initState
   @override
   void initState() {
     super.initState();
-
-    // var mockUrl =
-    //     // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
-    //     Uri.http(globals.HttpSingleton().getBaseUrl(),
-    //         globals.isMockService ? '/Photo' : '/api/Photo');
   }
 
   ///Main widget tree, rebuilds with every state update.
@@ -49,6 +48,17 @@ class CameraRollState extends State<CameraRoll> {
         hasImages = false;
       });
     } else {
+      gridDates.add(postsToDisplay.first.dateTaken);
+      for (var i = 0; i < postsToDisplay.length; i++) {
+        if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
+          gridDates.add(postsToDisplay[i].dateTaken);
+        }
+      }
+      for (var i = 0; i < gridDates.length; i++) {
+        var iterable = postsToDisplay
+            .where((element) => element.dateTaken == gridDates[i]);
+        sortedPosts.add(iterable.toList());
+      }
       setState(() {
         hasImages = true;
       });
@@ -138,8 +148,7 @@ class CameraRollState extends State<CameraRoll> {
               child: Align(
                 alignment: Alignment.topLeft,
                 child: Text(
-                  DateFormat('EEEE _ MMM d, yyyy')
-                      .format(postsToDisplay.first.dateTaken),
+                  DateFormat('EEEE _ MMM d, yyyy').format(gridDates[listindex]),
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontSize: 16,
@@ -157,7 +166,7 @@ class CameraRollState extends State<CameraRoll> {
                   crossAxisCount: 4,
                 ),
                 //TODO dynamic count
-                itemCount: 6,
+                itemCount: sortedPosts[listindex].length,
                 itemBuilder: (context, gridindex) {
                   return Container(
                       child: GestureDetector(
@@ -166,7 +175,10 @@ class CameraRollState extends State<CameraRoll> {
                             ClickOnImageScreen.routeName,
                             arguments: {
                               'postDetails': postsToDisplay,
-                              'postIndex': gridindex,
+                              'postIndex': postsToDisplay.indexWhere(
+                                  (element) =>
+                                      sortedPosts[listindex][gridindex].id ==
+                                      element.id),
                               'isFromPersonalProfile': true
                             },
                           );
@@ -174,8 +186,8 @@ class CameraRollState extends State<CameraRoll> {
                         child: Stack(
                           children: [
                             Image.network(
-                                postsToDisplay[gridindex].postImageUrl),
-                            postsToDisplay[gridindex].privacy
+                                sortedPosts[listindex][gridindex].postImageUrl),
+                            sortedPosts[listindex][gridindex].privacy
                                 ? Container()
                                 : Padding(
                                     padding: const EdgeInsets.all(4.0),
@@ -202,7 +214,7 @@ class CameraRollState extends State<CameraRoll> {
         );
       },
       //TODO dynamic count
-      itemCount: 10,
+      itemCount: gridDates.length,
     );
   }
 }
