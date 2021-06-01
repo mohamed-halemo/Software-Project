@@ -1,4 +1,4 @@
-from project.permissions import check_permission
+from project.permissions import *
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from .models import *
@@ -38,6 +38,7 @@ def add_photo_to_gallery(user,photo_obj,gallery_obj,phopk):
     return response 
     
 def remove_photo_from_gallery(photo_obj,gallery_obj,user):
+    # get list of all photos from a given gallery
     photos = gallery_obj.photos.all() 
     exist= check_existence_of_object_in_list(photo_obj,photos)
     if exist:
@@ -58,6 +59,7 @@ def check_gallery_exists(galpk):
     response=''
     bool= False
     try:
+        # check if the gallery exists
         gallery_obj = Gallery.objects.get(id=galpk)
         bool= True
     except ObjectDoesNotExist:
@@ -67,6 +69,7 @@ def check_gallery_exists(galpk):
 def search_gallery(value):
     response=''
     bool= False
+    # search for a gallery with the title
     galleries = Gallery.objects.filter(title__icontains=value)\
     .order_by('-date_create')
     if galleries:
@@ -91,6 +94,7 @@ def check_comment_exists(compk,gallery_obj):
     response=''
     bool= False
     try:
+        #check if the comment is found in the gallery
         comment_obj = gallery_obj.comments.get(id=compk)
         bool= True
     except ObjectDoesNotExist:
@@ -100,6 +104,7 @@ def check_comment_exists(compk,gallery_obj):
 def get_user_galleries(userpk):
     response=''
     bool= False
+    # get all the galleries for a given user 
     gallery_list = Gallery.objects.all().filter(
         owner_id=userpk).order_by('-date_create')
     if gallery_list:    

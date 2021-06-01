@@ -109,6 +109,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
 
 class Contacts(models.Model):
+    # table to represent the following-followers system
     user = models.ForeignKey(Account, related_name='follow_follower', on_delete=models.CASCADE, editable=False)
     followed = models.ForeignKey(Account, related_name='follow_followed', on_delete=models.CASCADE)
     date_create = models.DateTimeField(auto_now_add=True)

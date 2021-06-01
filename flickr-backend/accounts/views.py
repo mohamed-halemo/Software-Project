@@ -62,6 +62,7 @@ def decrement_profile_items(obj,field):
     obj.save()  
 
 def follow(contact,followed_user_obj,user):
+    # check if it the request user or someone i followed  before
     if contact or followed_user_obj == user:
         return status.HTTP_400_BAD_REQUEST
     Contacts.objects.create(user=user, followed=followed_user_obj)
@@ -83,6 +84,7 @@ def follow(contact,followed_user_obj,user):
 
 
 def unfollow(contact,user,followed_user_obj):
+    # can't unfoolow someone not in my contacts
     if not contact:
         return status.HTTP_400_BAD_REQUEST
     
@@ -595,6 +597,7 @@ def follow_unfollow(request, userpk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     # POST
     if request.method == 'POST':
+        # call function follow
         response= follow(contact,followed_user_obj,request.user)
         return Response(status=response)
     # DELETE
@@ -617,7 +620,7 @@ def followers_list(request):
         followers_list = user.follow_followed.all().order_by('-date_create')
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
-
+    # check to make the flag if he is followed or not
     for one in following_list:
         account2=Account.objects.get(id=one.user.id)
         for two in followers_list:
@@ -662,7 +665,7 @@ def user_following(request, userpk):
         following_list_user = user.follow_follower.all().order_by('-date_create')
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)     
-
+    # check to make the flag if he is followed or not
     for one in following_list:
         account2=Account.objects.get(id=one.user.id)
     for two in following_list_user:

@@ -1213,8 +1213,9 @@ def get_photos_logged(request):
     return Paginator.get_paginated_response({'photos': photos})
 
 @api_view(['GET'])
- #  Get all photos of loggedin user
 def Home(request):
+    #check if he is not logged in wiil return an empty list of following photos
+    #  and return from public members only
     if request.user.is_anonymous:
         following_photos=[]
         Paginator = RespondPagination()
@@ -1225,7 +1226,8 @@ def Home(request):
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
     else:
-            
+        # if he is logged in will return list of recent photos from 
+        # the people he follows and list from public members
         user=request.user
         following_list_ids = []
         following_list = user.follow_follower.all()
