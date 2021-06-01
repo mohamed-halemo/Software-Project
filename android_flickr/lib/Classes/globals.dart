@@ -34,7 +34,7 @@ class HttpSingleton {
 
   Future<bool> tokenRefresh() async {
     var url = Uri.https(HttpSingleton().getBaseUrl(),
-        isMockService ? '/login/' : 'api/accounts/login/');
+        isMockService ? '/login/' : 'api/accounts/api/token/refresh/');
     final response = await http.post(url,
         body: json.encode(
           {
@@ -42,6 +42,7 @@ class HttpSingleton {
           },
         ),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    print(response.body);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -63,8 +64,10 @@ class HttpSingleton {
         final Map<String, dynamic> data = json.decode(response.body);
         accessToken = data['tokens']['access'];
         refreshToken = data['tokens']['refresh'];
+        print('Token Login');
         return true;
       }
+      print('failed');
     }
     return false;
   }

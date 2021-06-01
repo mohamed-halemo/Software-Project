@@ -19,6 +19,7 @@ import 'package:http_parser/http_parser.dart';
 //personal imports
 import '../Classes/globals.dart' as globals;
 import 'package:android_flickr/screens/add_tags_screen.dart';
+import 'explore_screen.dart';
 
 ///Photo upload screen where user adds image info before uploading it to the server
 class PhotoUploadScreen extends StatefulWidget {
@@ -114,6 +115,20 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
                 ),
                 child: TextButton(
                   onPressed: () {
+                    var snackBar = SnackBar(
+                      elevation: 0,
+                      behavior: SnackBarBehavior.fixed,
+                      backgroundColor: Colors.blue.shade500,
+                      duration: Duration(days: 1),
+                      content: Text(
+                        'Uploading',
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+
+                    try {
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    } catch (e) {}
                     postAndSaveImage();
                   },
                   child: Text(
@@ -366,9 +381,9 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     };
 
     print(formData.fields.toString());
-    Response response;
+
     try {
-      response = await dio.post(
+      await dio.post(
         globals.isMockService ? '/photos' : '/api/photos/upload',
         data: formData,
         onSendProgress: (int sent, int total) {
@@ -376,25 +391,37 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         },
       ).then((value) {
         print(value);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         return value;
       });
     } on DioError catch (e) {
       print(e.response.data);
       print(e.response.statusCode);
+      if (e.response.statusCode == 401) {
+        await globals.HttpSingleton().tokenRefresh().then(
+          (value) async {
+            try {
+              await dio.post(
+                globals.isMockService ? '/photos' : '/api/photos/upload',
+                data: formData,
+                onSendProgress: (int sent, int total) {
+                  print('$sent $total');
+                },
+              ).then((value) {
+                print(value);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                return value;
+              });
+            } on DioError catch (e) {
+              print(e.response.data);
+              print(e.response.statusCode);
+            }
+          },
+        );
+      }
     }
 
-    // var toBeEncodedMap = {
-    //   'title': titleController.text,
-    //   'description': descriptionController.text,
-    //   'is_public': privacy == 'Public' ? true : false,
-    //   'photo_width': 1,
-    //   'photo_height': 1
-    // };
-    // var jsonBody = json.encode(toBeEncodedMap);
-    // print('Post Request: ' + jsonBody);
-    // await http.post(mockUrl, body: jsonBody, headers: {
-    //   "Content-Type": "multipart/form-data",
-    //   "Authorization": 'Bearer ' + globals.accessToken
-    // }).then((value) => print(value.statusCode));
+    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
+    Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
 }

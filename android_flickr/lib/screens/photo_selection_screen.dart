@@ -166,7 +166,7 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
     String imagePath;
     await widget._album.listMedia().then(
       (value) {
-        value.items[index].getFile().then((value) {
+        value.items[value.items.length - index - 1].getFile().then((value) {
           imagePath = value.path;
           Navigator.push(
             context,
