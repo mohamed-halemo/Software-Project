@@ -1123,25 +1123,7 @@ def upload_media(request):
                 height = request.data['photo_height']
                 width = request.data['photo_width']
                 pixels = (250*int(width))/int(height)
-                image = Image(file_field)
-
-                # check if the image has exif to etxraxt the date taken from it  
-                if(image.has_exif):
-
-                    try:
-                        datetime_str = image.datetime_original
-                        # convert the string date to the needed format (UTC)
-                        naive_datetime = datetime.strptime(datetime_str, '%Y:%m:%d %H:%M:%S')
-                        local_time = pytz.timezone("America/New_York")
-                        local_datetime = local_time.localize(
-                            naive_datetime, is_dst=None)
-                        date_taken = local_datetime.astimezone(pytz.utc)
-                    # if it doesn't have the exif or date taken set it to be null    
-                    except: 
-                        date_taken = None
-    
-                else:
-                    date_taken = None
+                date_taken = None
             else:
                 raise ValidationError(_('File type is not supported'))
             user.total_media += 1

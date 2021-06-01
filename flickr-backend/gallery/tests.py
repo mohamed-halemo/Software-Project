@@ -163,21 +163,24 @@ class GalleryFunctionsTests(TestCase):
         user=create_test_user('test@gmail.com')
         Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         photo_obj=Photo.objects.all().first()
-
         Gallery.objects.create(title='title',description='description',owner=user)
         gallery_obj=Gallery.objects.all().first()
         Comment.objects.create(content='content',owner=user,gallery=gallery_obj)
         comment_obj=Comment.objects.all().first()
-
+        bool3= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
+        self.assertEqual(bool3, False)    
+        gallery_obj.delete()
+        comment_obj.delete()
+        photo_obj.delete()
         bool,response,_=check_gallery_exists(gallery_obj.id)
         bool1,response1,_=check_photo_exists(photo_obj.id)
         bool2,response2,_=check_comment_exists(comment_obj.id,gallery_obj)
         self.assertEqual(response,'')
         self.assertEqual(response1,'')
         self.assertEqual(response2,'')
-        self.assertEqual(bool,True)
-        self.assertEqual(bool1,True)
-        self.assertEqual(bool2,True)    
+        self.assertEqual(bool,False)
+        self.assertEqual(bool1,False)
+        self.assertEqual(bool2,False)    
 
     def test_create_gallery_with_primary_photo_success(self):
         
@@ -287,3 +290,34 @@ class GalleryFunctionsTests(TestCase):
         remove_photo_from_gallery(photo_obj,gallery_obj)
         response= remove_photo_from_gallery(photo_obj,gallery_obj)
         self.assertEqual(response,400)               
+
+    def test_search_gallery_with_title_found(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_gallery('t')
+        self.assertEqual(response,'')    
+        self.assertEqual(bool,True)
+    
+    def test_search_gallery_with_title_no_found(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_gallery('a')
+        self.assertEqual(response,404)    
+        self.assertEqual(bool,False)
+
+    def test_get_user_galleries_succeded(self):
+
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        owner=create_test_user('test2@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=owner)
+        bool,response,list=get_user_galleries(1)
+        self.assertEqual(response,'')    
+        self.assertEqual(bool,True)
+
+    def test_get_user_galleries_failure(self):
+        Gallery.objects.create(title='title',description='description')
+        bool,response,list=get_user_galleries(1)
+        self.assertEqual(response,404)    
+        self.assertEqual(bool,False)
+

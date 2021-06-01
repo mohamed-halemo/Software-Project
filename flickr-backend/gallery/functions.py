@@ -64,11 +64,11 @@ def check_gallery_exists(galpk):
 def search_gallery(value):
     response=''
     bool= False
-    try: 
-        galleries = Gallery.objects.filter(title__icontains=value)\
-        .order_by('-date_create')
+    galleries = Gallery.objects.filter(title__icontains=value)\
+    .order_by('-date_create')
+    if galleries:
         bool= True
-    except:
+    else:
        response = status.HTTP_404_NOT_FOUND
     return bool, response, galleries
 
@@ -100,6 +100,7 @@ def get_user_galleries(userpk):
             owner_id=userpk).order_by('-date_create')
         bool= True            
     except ObjectDoesNotExist:
+        bool=False
         response =status.HTTP_404_NOT_FOUND
     return bool, response, gallery_list  
 
