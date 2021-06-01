@@ -164,7 +164,7 @@ def set_dates(request, id):
                 # For each date provided, check whether it is in the future or way in the past
                 for date in request.data:
                     if ((request.data[date] < '1970-01-01T00:00:00-05:00') or
-                       (request.data[date] > str(datetime.datetime.now()))):
+                       (request.data[date] > str(d.datetime.now()))):
                         return Response(
                             {'stat': 'fail',
                              'message': 'Date posted or date taken is '
@@ -563,7 +563,7 @@ def add_comment_or_get_photo_comments(request, id):
                 #   than 1000 characters
 
                 increment_photo_meta_counts(photo, 'comments')
-                created_comment.save(author=request.user, photo=photo, date_created=datetime.datetime.now()) 
+                created_comment.save(author=request.user, photo=photo, date_created=d.datetime.now()) 
                 return Response({'stat': 'ok',
                                 'photo_id': id,
                                 'comment': created_comment.data},
@@ -1219,9 +1219,9 @@ def Home(request):
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
         public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+        public_photos= limit_photos_number(public_photos,300)
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
-        public_photos= limit_photos_number(public_photos,300)
     else:
             
         user=request.user
@@ -1240,7 +1240,7 @@ def Home(request):
         public_photos= limit_photos_number(public_photos,150)
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
-    return Paginator.get_paginated_response({'following photos': following_photos,'public photos': public_photos})
+    return Paginator.get_paginated_response({'following_photos': following_photos,'public_photos': public_photos})
 
 
 
