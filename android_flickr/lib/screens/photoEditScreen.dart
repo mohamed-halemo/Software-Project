@@ -517,7 +517,8 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
       BitmapContrast(sliderValueList[2] * 2),
     );
     editedBitMap = editedBitMap.apply(
-      BitmapBrightness(sliderValueList[3] - 0.5),
+      BitmapBrightness(
+          double.parse((sliderValueList[3] - 0.5).toStringAsFixed(1))),
     );
 
     setState(() {
