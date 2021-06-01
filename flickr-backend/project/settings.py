@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 from pathlib import Path
 import datetime,os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,19 +27,21 @@ SECRET_KEY = '(3r1br6f-viu4n-32s1+audnd)2q0+pj@hxo5lf$4evu78zae2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'back',
+    'www.fotone.me',
+    'fotone.me',
+    '127.0.0.1',
+]
 AUTH_USER_MODEL = 'accounts.Account'
-
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 # Application definition
+CORS_ORIGIN_ALLOW_ALL=True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -47,23 +50,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework_simplejwt.token_blacklist',
 
     # my apps
+    # 'django_seed',
+    'corsheaders',
     'accounts',
     'rest_framework',
     'drf_yasg',
-    'profiles',
     'gallery',
     'photo',
     'django_filters',
     'django_google_maps',
     'photosets',
     'group',
+    'notifications',
 ]
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=20),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
 }
 
@@ -78,6 +82,8 @@ SWAGGER_SETTINGS = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -114,7 +120,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'djongo',
-#         'NAME': 'db',
+#         'NAME': 'demo6',
 #     }
 # }
 DATABASES = {
@@ -122,9 +128,9 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': 'flickr_database',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:1234567890@cluster0.khmwk.mongodb.net/flickr_databse?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database?retryWrites=true&w=majority",
                     'username': 'Fotone',
-                    'password': '1234567890',
+                    'password': config('DATABASE_PASSWORD')
                     },
     }
 }
@@ -172,8 +178,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
+STATIC_URL = '/api/static/'
+MEDIA_URL = '/api/media/'
 
 
 STATICFILES_DIRS = [
@@ -188,13 +194,15 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-GOOGLE_MAPS_API_KEY = 'AIzaSyA3cBIV6ygzdx68f1N3ZjeznbbdA6Tr7ao'
-# print(os.environ)
+GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY')
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_USER='mohammed99kamel@gmail.com'
-EMAIL_HOST_PASSWORD='qflxdbmyyzuzmiql'
-SECRET_KEY='111111111'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT')
+EMAIL_HOST_USER=config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
+IMAGE_TYPE = ['image']
+MAX_IMAGE_SIZE = 209715200
+VALIDATE_MAIL_API_KEY=config('VALIDATE_MAIL_API_KEY')
+AUTH_NOTIFY=config('AUTH_NOTIFY')
+API_KEY=config('API_KEY')
+PLAYER_ID=config('PLAYER_ID')

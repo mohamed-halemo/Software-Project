@@ -1,283 +1,328 @@
+from project.permissions import check_permission
+from gallery.serializers import CreateGallerySerializer
+from accounts.views import verifying_user
 from django.test import TestCase
 from rest_framework.test import APITestCase
-from .models import gallery, Comments
+from .models import *
 from django.urls import reverse
 from rest_framework.views import status
+from .functions import *
+from accounts.views import *
 
 
 # Create your tests here.
-
+def create_test_user(email):
+#prepare user
+    first_name = 'test2'
+    last_name = 'name'
+    age = '50'
+    password = 'Kamel1234567'
+    email = email
+    Account.objects.create_user(email,first_name,last_name,age,password)
+    user=Account.objects.get(email = email)
+    verifying_user(user)
+    return user 
+    
 class TestModels(TestCase):
     def test_model_str(self):
-        gallery_obj = gallery.objects.create(title="New Gallery")
+        gallery_obj = Gallery.objects.create(title="New Gallery")
         comment_obj = Comments.objects.create(content="New comment")
         self.assertEqual(str(gallery_obj), "New Gallery")
         self.assertEqual(str(comment_obj), "New comment")
 
+class GallerySerializerTests(TestCase):
 
-class GalleryListCreateAPIView(APITestCase):
-    def setUp(self):
-        self.url = reverse('gallery-list')
+    # def setUp(self):
+    #     Gallery.objects.create(title='just a title', description='just a des')
+    def test_create_gallery_success(self):
+        # prepare gallery data
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
 
-    def test_create_gallery(self):
-        self.assertEquals(
-            gallery.objects.count(),
-            0
-        )
-        data = {
-            'title': 'title',
-            'description': 'description'
-        }
-        response = self.client.post(self.url, data=data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(
-            gallery.objects.count(),
-            1
-        )
-        gallery_obj = gallery.objects.first()
-        self.assertEquals(
-            gallery_obj.title,
-            data['title']
-        )
-        self.assertEquals(
-            gallery_obj.description,
-            data['description']
-        )
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors,{})
 
-    def test_create_gallery_failure(self):
-        self.assertEquals(
-            gallery.objects.count(),
-            0
-        )
-        data = {
-            'description': 'description'
-        }
-        response = self.client.post(self.url, data=data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(
-            gallery.objects.count(),
-            0
-        )
+    def test_create_gallery_missing_title(self):
+        # prepare gallery data
+        data={}
+        description='description'
+        for variable in ["description"]:
+            data[variable] = eval(variable)
 
-    def test_got_gallery_list(self):
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        gallery_obj = gallery.objects.all()
-        self.assertEqual(gallery_obj.count(), 0)
-        print("GET Method status code", response.status_code)
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['title'][0],'This field is required.')
 
+    def test_create_gallery_exceeds_title(self):
+        # prepare gallery data
+        data={}
+        title=''
+        for i in range (101):
+            title=title + 's'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
 
-class GalleryInfoAPIViewTest(APITestCase):
-    def setUp(self):
-        self.gallery = gallery.objects.create(
-            title='title2', description='description2')
-        self.url = reverse('gallery-info', kwargs={'galpk': self.gallery.id})
-        self.gallery_invalid_url = reverse('gallery-info', kwargs={'galpk': 0})
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['title'][0],'Ensure this field has no more than 100 characters.')           
 
-    def test_invalid_gallery(self):
-        response = self.client.get(self.gallery_invalid_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_change_gallery_title(self):
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
 
-    def test_get_gallery_info(self):
-        response = self.client.get(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        data = response.json()
-        self.assertEquals(
-            data['id'],
-            self.gallery.id
-        )
-        self.assertEquals(
-            data['title'],
-            self.gallery.title
-        )
-        self.assertEquals(
-            data['description'],
-            self.gallery.description
-        )
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        serializer.save()
+        obj=Gallery.objects.get(title=title)
+        title='new'
+        data={}
+        title='new'
+        for variable in ["title"]:
+            data[variable] = eval(variable)
+        changed_serializer= CreateGallerySerializer(obj,data=data) 
+        changed_serializer.is_valid()
+        changed_serializer.save()
+        gallery_obj=Gallery.objects.get(title=title)
+        self.assertEqual(gallery_obj.title,'new')
 
-    def test_update_gallery(self):
-        response = self.client.get(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        data = response.json()
-        data['title'] = 'new_title'
-        data['description'] = 'new_description'
-        response = self.client.put(self.url, data=data, format='json')
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        self.gallery.refresh_from_db()
-        self.assertEquals(
-            self.gallery.title,
-            data['title']
-        )
-        self.assertEquals(
-            self.gallery.description,
-            data['description']
-        )
+    def test_change_gallery_description(self):
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        serializer.save()
+        obj=Gallery.objects.get(title=title)
+        data={}
+        title='title'
+        description='new'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+        changed_serializer= CreateGallerySerializer(obj,data=data) 
+        changed_serializer.is_valid()
+        changed_serializer.save()
+        gallery_obj=Gallery.objects.get(title=title)
+        self.assertEqual(gallery_obj.description,'new')
 
     def test_delete_gallery(self):
-        self.assertEquals(
-            gallery.objects.count(),
-            1
-        )
-        response = self.client.delete(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_204_NO_CONTENT
-        )
-        self.assertEquals(
-            gallery.objects.count(),
-            0
-        )
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = CreateGallerySerializer(data = data)
+        serializer.is_valid()
+        serializer.save()
+        gallery_obj=Gallery.objects.get(title=title)
+        gallery_obj.delete()   
+        deleted_obj=Gallery.objects.filter(title=title)
+        self.assertEqual(deleted_obj.exists(),False)
 
 
-class CommentsListCreateAPIView(APITestCase):
-    def setUp(self):
-        self.gallery = gallery.objects.create(
-            title='title2', description='description2')
-        self.url = reverse(
-            'gallery-comments-list', kwargs={'galpk': self.gallery.id})
+class GalleryFunctionsTests(TestCase):   
+    def check_objects_existence_success(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
 
-    def test_create_comment(self):
-        self.assertEquals(
-            Comments.objects.count(),
-            0
-        )
-        data = {
-            'content': 'content',
-        }
-        response = self.client.post(self.url, data=data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        print("Create comment Method status code", response.status_code)
-        self.assertEquals(
-            Comments.objects.count(),
-            1
-        )
+        Gallery.objects.create(title='title',description='description',owner=user,photos=photo_obj)
+        gallery_obj=Gallery.objects.all().first()
+        Comment.objects.create(content='content',owner=user,gallery=gallery_obj)
+        comment_obj=Comment.objects.all().first()
 
-    def test_create_comment_failure(self):
-        self.assertEquals(
-            Comments.objects.count(),
-            0
-        )
-        data = {}
-        response = self.client.post(self.url, data=data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(
-            Comments.objects.count(),
-            0
-        )
+        bool,response,_=check_gallery_exists(gallery_obj.id)
+        bool1,response1,_=check_photo_exists(photo_obj.id)
+        bool2,response2,_=check_comment_exists(comment_obj.id,gallery_obj)
+        bool3= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
+        self.assertEqual(response,'')
+        self.assertEqual(response1,'')
+        self.assertEqual(response2,'')
+        self.assertEqual(bool,True)
+        self.assertEqual(bool1,True)
+        self.assertEqual(bool2,True)
+        self.assertEqual(bool3,True)
 
-    def test_get_comments(self):
-        response = self.client.get(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
+    def check_objects_existence_failure(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
+        Gallery.objects.create(title='title',description='description',owner=user)
+        gallery_obj=Gallery.objects.all().first()
+        Comment.objects.create(content='content',owner=user,gallery=gallery_obj)
+        comment_obj=Comment.objects.all().first()
+        bool3= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
+        self.assertEqual(bool3, False)    
+        gallery_obj.delete()
+        comment_obj.delete()
+        photo_obj.delete()
+        bool,response,_=check_gallery_exists(gallery_obj.id)
+        bool1,response1,_=check_photo_exists(photo_obj.id)
+        bool2,response2,_=check_comment_exists(comment_obj.id,gallery_obj)
+        self.assertEqual(response,'')
+        self.assertEqual(response1,'')
+        self.assertEqual(response2,'')
+        self.assertEqual(bool,False)
+        self.assertEqual(bool1,False)
+        self.assertEqual(bool2,False)    
+
+    def test_create_gallery_with_primary_photo_success(self):
+        
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+
+        photo_obj= Photo.objects.all().first()
+        bool,response=check_permission(user,photo_obj) 
+        self.assertEqual(bool,True)
+        self.assertEqual(response,'')
+        public_photo= check_photo_privacy(photo_obj)
+        self.assertEqual(public_photo,True)
+        title='title'
+        description= 'description'
+        owner = create_test_user('new@gmail.com')
+        create_gallery_with_primary_photo(title ,description, owner, photo_obj.id ,photo_obj)
+        gallery_obj=Gallery.objects.all().first()
+        self.assertEqual(gallery_obj.title,'title')
+        self.assertEqual(gallery_obj.primary_photo_id,photo_obj.id)
+        self.assertEqual(gallery_obj.count_media,1)
+        self.assertEqual(owner.galleries_count,1)
+
+    def test_add_private_photo_to_gallery_failure(self):
+        user=create_test_user('test2@gmail.com')
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=user,is_public=False)
+
+        photo_obj= Photo.objects.all().first()
+        bool,response=check_permission(user,photo_obj) 
+        self.assertEqual(bool,True)
+        self.assertEqual(response,'')
+        public_photo= check_photo_privacy(photo_obj)
+        self.assertEqual(public_photo,False)
+        title='title2'
+        description= 'description2'
+        owner = create_test_user('new2@gmail.com')
+        Gallery.objects.create(owner=owner, title=title,description=description)
+        gallery_obj=Gallery.objects.all().first()
+        response= add_photo_to_gallery(owner,photo_obj,gallery_obj,photo_obj.id)
+        self.assertEqual(gallery_obj.title,'title2')
+        self.assertEqual(response['privacy'][0],'photo must be public.')
+        self.assertEqual(gallery_obj.primary_photo_id,None)
+
+    def test_add_owner_photo_to_his_gallery_failure(self):
+        user=create_test_user('test2@gmail.com')
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=user)
+
+        photo_obj= Photo.objects.all().first()
+        title='title2'
+        description= 'description2'
+        Gallery.objects.create(owner=user, title=title,description=description)
+
+        gallery_obj=Gallery.objects.all().first()
+        response= add_photo_to_gallery(user,photo_obj,gallery_obj,photo_obj.id)
+        self.assertEqual(gallery_obj.title,'title2')
+        self.assertEqual(gallery_obj.primary_photo_id,None)               
+        self.assertEqual(response['photo_owner'][0],'Cant add your own photo.')
+
+    def test_add_existed_photo_in_gallery_failure(self):
+        owner=create_test_user('test@gmail.com')
+        title='title2'
+        description= 'description2'
+        Gallery.objects.create(owner=owner, title=title,description=description,count_media=500)
+        gallery_obj=Gallery.objects.all().first()
+        self.assertEqual(gallery_obj.title,'title2')
+        user=create_test_user('test2@gmail.com')
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=user)
+
+        photo_obj= Photo.objects.all().first()
+        response= add_photo_to_gallery(owner,photo_obj,gallery_obj,photo_obj.id)
+        self.assertEqual(response['limit'][0],'max 500 photos in a gallery.')    
+    
+    
+    def test_remove_photo_from_gallery_success(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+
+        photo_obj= Photo.objects.all().first()
+        title='title'
+        description= 'description'
+        owner = create_test_user('new@gmail.com')
+        create_gallery_with_primary_photo(title ,description, owner, photo_obj.id ,photo_obj)
+        gallery_obj=Gallery.objects.all().first()
+        self.assertEqual(gallery_obj.title,'title')
+        self.assertEqual(gallery_obj.primary_photo_id,photo_obj.id)
+        self.assertEqual(gallery_obj.count_media,1)
+        response= remove_photo_from_gallery(photo_obj,gallery_obj)
+        self.assertEqual(gallery_obj.count_media,0)
+        self.assertEqual(gallery_obj.primary_photo_id,None)               
+        self.assertEqual(response,204)  
 
 
-class CommentsInfoAPIViewTest(APITestCase):
-    def setUp(self):
-        self.gallery = gallery.objects.create(
-            title='title2', description='description2')
-        self.comment = self.gallery.comments.create(content='content2')
-        self.url = reverse(
-            'gallery-comment-info',
-            kwargs={'galpk': self.gallery.id, 'compk': self.comment.id})
-        self.comment_invalid_url = reverse(
-            'gallery-comment-info',
-            kwargs={'galpk': self.gallery.id, 'compk': 0})
+    def test_remove_photo_from_gallery_failure(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        photo_obj= Photo.objects.all().first()
+        title='title'
+        description= 'description'
+        owner = create_test_user('new@gmail.com')
+        create_gallery_with_primary_photo(title ,description, owner, photo_obj.id ,photo_obj)
+        gallery_obj=Gallery.objects.all().first()
+        remove_photo_from_gallery(photo_obj,gallery_obj)
+        response= remove_photo_from_gallery(photo_obj,gallery_obj)
+        self.assertEqual(response,400)               
 
-    def test_invalid_comment(self):
-        response = self.client.get(self.comment_invalid_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_search_gallery_with_title_found(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_gallery('t')
+        self.assertEqual(response,200)    
+        self.assertEqual(bool,True)
+    
+    def test_search_gallery_with_title_no_found(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_gallery('a')
+        self.assertEqual(response,404)    
+        self.assertEqual(bool,False)
 
-    def test_get_comment_details(self):
-        response = self.client.get(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        data = response.json()
-        self.assertEquals(
-            data['id'],
-            self.comment.id
-        )
-        self.assertEquals(
-            data['content'],
-            self.comment.content
-        )
+    def test_get_user_galleries_succeded(self):
 
-    def test_update_comment(self):
-        response = self.client.get(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        data = response.json()
-        data['content'] = 'new_content'
-        response = self.client.put(self.url, data=data, format='json')
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        self.comment.refresh_from_db()
-        self.assertEquals(
-            self.comment.content,
-            data['content']
-        )
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        owner=create_test_user('test2@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=owner)
+        bool,response,list=get_user_galleries(1)
+        self.assertEqual(response,200)    
+        self.assertEqual(bool,True)
 
-    def test_delete_comment(self):
-        self.assertEquals(
-            Comments.objects.count(),
-            1
-        )
-        response = self.client.delete(self.url)
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_204_NO_CONTENT
-        )
-        self.assertEquals(
-            Comments.objects.count(),
-            0
-        )
+    def test_get_user_galleries_succeded(self):
 
-
-'''
-    def test_get_gallery_list(self):
-        comment = Comments(content='content')
-        comment.save()
-        gallery_obj = gallery(title='title1', description='description1')
-        gallery_obj.save()
-        comment.gallery.add(comment)
-
-        response = self.client.get(self.url)
-        response_json = response.json()
-        self.assertEquals(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-        self.assertEquals(
-            len(response_json),
-            1
-        )
-        data = response_json[0]
-        self.assertEquals(
-            data['title'],
-            gallery_obj.title
-        )
-        self.assertEquals(
-            data['description'],
-            gallery_obj.description
-        )
-        self.assertEquals(
-            data['comments'][0]['content'],
-            comment.content
-        )
-'''
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        owner=create_test_user('test2@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=owner)
+        bool,response,list=get_user_galleries(2)
+        self.assertEqual(response,404)    
+        self.assertEqual(bool,False)
