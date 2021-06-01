@@ -16,7 +16,7 @@ bool secureText = true;
 /// The text written on the button in login screen
 String buttonText = 'Sign up';
 
-final formKey = GlobalKey<FormState>();
+GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 /// A map that takes the email and the password of the user
 Map<String, String> authData = {
@@ -188,7 +188,7 @@ class _SignUpState extends State<SignUp> {
                                 });
 
                                 ///Moving to the log in page if the data entred is all good
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => LogIn()));
@@ -224,7 +224,7 @@ class _SignUpState extends State<SignUp> {
                             FlatButton(
                                 padding: EdgeInsets.all(0.0),
                                 onPressed: () {
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => LogIn()));

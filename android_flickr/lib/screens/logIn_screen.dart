@@ -256,7 +256,7 @@ class _LogInState extends State<LogIn> {
                               FlatButton(
                                   padding: EdgeInsets.all(0.0),
                                   onPressed: () {
-                                    Navigator.push(
+                                    Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => SignUp()));
