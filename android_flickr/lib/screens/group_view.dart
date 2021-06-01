@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/groups_tab_bar.dart';
 
+/// Group view including photos and discussions
 class GroupView extends StatefulWidget {
   @override
   GroupViewState createState() => GroupViewState();
@@ -44,7 +45,7 @@ class GroupViewState extends State<GroupView> {
                 )
               ],
             ),
-            expandedHeight: 200,
+            expandedHeight: 120,
           ),
         ];
       },

@@ -1,3 +1,4 @@
+import 'package:android_flickr/Classes/globals.dart';
 import 'package:android_flickr/screens/signUp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
@@ -6,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 import 'explore_screen.dart';
 import 'splash_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Login page
 class LogIn extends StatefulWidget {
@@ -14,24 +16,28 @@ class LogIn extends StatefulWidget {
 }
 
 /// A map that takes the email and the password of the user
-Map<String, String> _authData = {
+Map<String, String> authData = {
   'email': '',
   'password': '',
 };
 
 class _LogInState extends State<LogIn> {
   ///  A boolean that is true if the text is visible else it is hidden
-  bool _secureText = true;
+  bool secureText = true;
 
   /// The text written on the button in login screen
-  String _buttonText = 'Next';
+  String buttonText = 'Next';
 
   /// Remeber email address
-  bool _rememberMe = true;
+  bool rememberMe = true;
 
   /// Checks if the email valid or not
-  bool _isEmailValidated = false;
-  final _formKey = GlobalKey<FormState>();
+  bool isEmailValidated = false;
+
+  /// Key used in the validation process
+  final formKey = GlobalKey<FormState>();
+
+  /// Moving to explore screen when the user log in
   void loginScreen(BuildContext ctx) {
     Navigator.of(ctx).push(
       MaterialPageRoute(
@@ -116,7 +122,7 @@ class _LogInState extends State<LogIn> {
               ),
             ),
             Form(
-              key: _formKey,
+              key: formKey,
               child: Expanded(
                 child: SingleChildScrollView(
                   child: Container(
@@ -130,19 +136,19 @@ class _LogInState extends State<LogIn> {
                           userInfo: 'email',
                           keyboardType: TextInputType.emailAddress,
                         ),
-                        _isEmailValidated
+                        isEmailValidated
                             ? _textInput(
                                 hint: 'Password',
                                 label: 'Password',
                                 userInfo: 'password',
                                 keyboardType: TextInputType.visiblePassword,
-                                obscure: _secureText,
-                                suffixIcon: _secureText
+                                obscure: secureText,
+                                suffixIcon: secureText
                                     ? Icons.remove_red_eye_outlined
                                     : Icons.remove_red_eye,
                                 suffixIconPressed: () {
                                   setState(() {
-                                    _secureText = !_secureText;
+                                    secureText = !secureText;
                                   });
                                 })
                             : Container(),
@@ -150,10 +156,10 @@ class _LogInState extends State<LogIn> {
                           children: <Widget>[
                             Padding(padding: EdgeInsets.all(0.0)),
                             Checkbox(
-                                value: _rememberMe,
+                                value: rememberMe,
                                 onChanged: (value) {
                                   setState(() {
-                                    _rememberMe = value;
+                                    rememberMe = value;
                                   });
                                 }),
 
@@ -162,7 +168,7 @@ class _LogInState extends State<LogIn> {
                               child: Text('Remeber email address'),
                               onTap: () {
                                 setState(() {
-                                  _rememberMe = !_rememberMe;
+                                  rememberMe = !rememberMe;
                                 });
                               },
                             )
@@ -174,23 +180,30 @@ class _LogInState extends State<LogIn> {
                         Container(
                           child: RaisedButton(
                             onPressed: () {
-                              final form = _formKey.currentState;
-                              _formKey.currentState.validate();
+                              final form = formKey.currentState;
+                              formKey.currentState.validate();
                               setState(() {
-                                if (_formKey.currentState.validate()) {
-                                  _buttonText = 'Sign in';
-                                  _isEmailValidated = true;
+                                if (formKey.currentState.validate()) {
+                                  buttonText = 'Sign in';
+                                  isEmailValidated = true;
                                 }
                               });
-                              if (_buttonText == 'Sign in') {
-                                print(_authData);
+                              if (buttonText == 'Sign in') {
+                                print(authData);
                                 Provider.of<Auth>(context, listen: false)
                                     .login(
-                                  _authData['email'],
-                                  _authData['password'],
+                                  authData['email'],
+                                  authData['password'],
                                 )
-                                    .then((value) {
+                                    .then((value) async {
                                   if (value.statusCode == 200) {
+                                    if (rememberMe) {
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
+                                      prefs?.setBool('remember', true);
+                                      prefs?.setString('email', email);
+                                      prefs?.setString('password', password);
+                                    }
                                     loginScreen(context);
                                     return;
                                   }
@@ -204,7 +217,7 @@ class _LogInState extends State<LogIn> {
                             },
                             child: Container(
                               child: Text(
-                                _buttonText,
+                                buttonText,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -299,7 +312,7 @@ Widget _textInput({
       keyboardType: keyboardType,
       obscureText: obscure,
       onChanged: (value) {
-        _authData[userInfo] = value;
+        authData[userInfo] = value;
       },
     ),
   );

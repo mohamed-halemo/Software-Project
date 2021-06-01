@@ -11,15 +11,15 @@ class SignUp extends StatefulWidget {
 }
 
 ///  A boolean that is true if the text is visible else it is hidden
-bool _secureText = true;
+bool secureText = true;
 
 /// The text written on the button in login screen
-String _buttonText = 'Sign up';
+String buttonText = 'Sign up';
 
-final _formKey = GlobalKey<FormState>();
+final formKey = GlobalKey<FormState>();
 
 /// A map that takes the email and the password of the user
-Map<String, String> _authData = {
+Map<String, String> authData = {
   'email': '',
   'password': '',
   'firstname': '',
@@ -29,8 +29,9 @@ Map<String, String> _authData = {
 
 class _SignUpState extends State<SignUp> {
   @override
+
+  /// Widget that shows an error message
   Widget build(BuildContext context) {
-    /// Shows an error message
     void _showError(String message) {
       showDialog(
         context: context,
@@ -103,7 +104,7 @@ class _SignUpState extends State<SignUp> {
 
             /// Text fields to collect the user Sing up information
             Form(
-              key: _formKey,
+              key: formKey,
               child: Expanded(
                 child: SingleChildScrollView(
                   child: Container(
@@ -134,13 +135,13 @@ class _SignUpState extends State<SignUp> {
                           label: 'Password',
                           userInfo: 'password',
                           keyboardType: TextInputType.visiblePassword,
-                          obscure: _secureText,
-                          suffixIcon: _secureText
+                          obscure: secureText,
+                          suffixIcon: secureText
                               ? Icons.remove_red_eye_outlined
                               : Icons.remove_red_eye,
                           suffixIconPressed: () {
                             setState(() {
-                              _secureText = !_secureText;
+                              secureText = !secureText;
                             });
                           }),
 
@@ -148,16 +149,16 @@ class _SignUpState extends State<SignUp> {
                       Container(
                         child: RaisedButton(
                           onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              if (_formKey.currentState.validate()) {
-                                print(_authData);
+                            if (formKey.currentState.validate()) {
+                              if (formKey.currentState.validate()) {
+                                print(authData);
                                 Provider.of<Auth>(context, listen: false)
                                     .signup(
-                                  _authData['email'],
-                                  _authData['password'],
-                                  _authData['firstname'],
-                                  _authData['lastname'],
-                                  _authData['age'],
+                                  authData['email'],
+                                  authData['password'],
+                                  authData['firstname'],
+                                  authData['lastname'],
+                                  authData['age'],
                                 )
                                     .then((value) {
                                   var errorMessage = 'Error !';
@@ -196,7 +197,7 @@ class _SignUpState extends State<SignUp> {
                           },
                           child: Container(
                             child: Text(
-                              _buttonText,
+                              buttonText,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -290,7 +291,7 @@ Widget _textInput({
       keyboardType: keyboardType,
       obscureText: obscure,
       onChanged: (value) {
-        _authData[userInfo] = value;
+        authData[userInfo] = value;
       },
     ),
   );

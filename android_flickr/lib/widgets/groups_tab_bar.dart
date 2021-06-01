@@ -2,6 +2,7 @@ import 'package:android_flickr/screens/new_discussion.dart';
 import 'package:flutter/material.dart';
 import 'package:android_flickr/widgets/public_view_grid.dart';
 
+/// The Appbar of the groups view
 class GroupsTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

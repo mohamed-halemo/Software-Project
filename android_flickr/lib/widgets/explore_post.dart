@@ -1,4 +1,5 @@
 import 'package:android_flickr/providers/flickr_posts.dart';
+import 'package:android_flickr/screens/comments.dart';
 
 import './few_details_of_faves_comments.dart';
 import 'package:flutter/material.dart';
@@ -119,7 +120,12 @@ class ExplorePost extends StatelessWidget {
                       children: <Widget>[
                         IconButton(
                           icon: Icon(Icons.comment_outlined),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Comments()));
+                          },
                         ),
                         if (postInformation.commentsTotalNumber != 0)
                           Text(
