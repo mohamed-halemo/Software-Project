@@ -2,15 +2,33 @@ import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:android_flickr/widgets/tabbar_in_non_profile.dart';
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
+import '../providers/flickr_posts.dart';
 import 'package:provider/provider.dart';
 
 /// Screen that displays the other users profile with tabbar to navigate between diffrent details in this profile.
-class NonProfileScreen extends StatelessWidget {
+class NonProfileScreen extends StatefulWidget {
 /*   void getProfileDetails(String profileid) {
     FlickrProfiles().profiles.where((profile) => profile.profileID == profileid);
   } */
 
   static const routeName = '/non-profile-screen';
+
+  @override
+  _NonProfileScreenState createState() => _NonProfileScreenState();
+}
+
+class _NonProfileScreenState extends State<NonProfileScreen> {
+  void toggleFollowPicPoster(
+      PicPosterDetails personDetails, List<PostDetails> currentPosts) {
+    print("first");
+    print(personDetails.isFollowedByUser);
+    final profileFirstPostFound = currentPosts.firstWhere(
+        (post) => post.picPoster.profileId == personDetails.profileId);
+    profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
+    print("second");
+    print(personDetails.isFollowedByUser);
+  }
+
   @override
   Widget build(BuildContext context) {
     final detailsOfProfile = ModalRoute.of(context).settings.arguments as List;
@@ -20,8 +38,17 @@ class NonProfileScreen extends StatelessWidget {
     final profileData = detailsOfProfile[1] as FlickrProfile;
     //print(profileData.profilePosts.length);
 
-    return ChangeNotifierProvider(
-      create: (context) => profileData,
+    final currentPosts = Provider.of<Posts>(context).posts;
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => profileData,
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => postInformation,
+        ),
+      ],
       child: Scaffold(
         body: DefaultTabController(
           length: 4,
@@ -54,6 +81,24 @@ class NonProfileScreen extends StatelessWidget {
                       ],
                     ),
                     expandedHeight: 200,
+                    actions: [
+                      FlatButton(
+                        shape: Border.all(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                        color: Colors.transparent,
+                        onPressed: () {
+                          setState(() {
+                            toggleFollowPicPoster(
+                                postInformation.picPoster, currentPosts);
+                          });
+                        },
+                        child: postInformation.picPoster.isFollowedByUser
+                            ? Icon(Icons.beenhere_outlined)
+                            : Text("+" + " Follow"),
+                      ),
+                    ],
                   ),
                 ];
               },

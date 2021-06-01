@@ -19,9 +19,10 @@ class _SearchScreenState extends State<SearchScreen> {
   final searchTextController = TextEditingController();
 
   List<PostDetails> photosSearchResult = [];
-  List<PostDetails> peopleSearchResult = [];
+  List<PicPosterDetails> peopleSearchResult = [];
 
-  void submitData(List<PostDetails> postsToDisplay) {
+  void submitData(List<PostDetails> postsToDisplay,
+      List<PicPosterDetails> loadedPicPosterProfiles) {
     setState(
       () {
         if (searchTextController.text.length > 0) {
@@ -32,25 +33,24 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             )
           ];
-          if (globals.isMockService) {
-            peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
-            print(peopleSearchResult[49].picPoster.profileId);
-            peopleSearchResult = [
-              ...peopleSearchResult.where(
-                (post) => post.picPoster.name.contains(
+          //peopleSearchResult = loadedPicPosterProfiles;
+           peopleSearchResult = loadedPicPosterProfiles
+              .where(
+                (profile) => profile.name.contains(
                   searchTextController.text,
                 ),
               )
-            ];
-          } else {
-            peopleSearchResult = [
-              ...postsToDisplay.where(
-                (post) => post.picPoster.name.contains(
-                  searchTextController.text,
-                ),
-              )
-            ];
-          }
+              .toList(); 
+
+          //peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
+          //print(peopleSearchResult[49].picPoster.profileId);
+          /* peopleSearchResult = [
+            ...peopleSearchResult.where(
+              (post) => post.picPoster.name.contains(
+                searchTextController.text,
+              ),
+            )
+          ]; */
         } else {
           photosSearchResult = [];
           peopleSearchResult = [];
@@ -97,6 +97,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final postsToDisplay = Provider.of<Posts>(context).posts;
+    final loadedPicPosterProfiles =
+        Provider.of<Posts>(context).picPosterProfilesDetails;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -107,7 +109,8 @@ class _SearchScreenState extends State<SearchScreen> {
           automaticallyImplyLeading: false,
           title: TextField(
             controller: searchTextController,
-            onSubmitted: (_) => submitData(postsToDisplay),
+            onSubmitted: (_) =>
+                submitData(postsToDisplay, loadedPicPosterProfiles),
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: "Search Flickr",

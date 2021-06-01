@@ -53,10 +53,10 @@ class PicPostedByInfoOnPost extends StatelessWidget {
 
   /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
   Widget widgetToBeDisplayedAsTrailing(double widthsize) {
-    print("/*");
+  /*   print("/*");
     print(postInformation.picPoster.isFollowedByUser);
     print(postInformation.postedSince);
-    print("*/");
+    print("*/"); */
     if ((postInformation.picPoster.isFollowedByUser &&
             !postInformation.picPoster.followedDuringRunning) ||
         inPublicMode) {

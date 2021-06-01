@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 void main() {
   final postInformation = PostDetails(
     id: "1",
+    dateTaken: DateTime.now(),
+    privacy: false,
+    description: "",
+    tags: "",
     picPoster: PicPosterDetails("1", "moaz", true, false, "",""),
     commentsTotalNumber: 20,
     postImageUrl: "postImageUrl",

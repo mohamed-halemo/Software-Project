@@ -18,7 +18,7 @@ void main() {
         favedUsersNames: [], isFaved: true, favesTotalNumber: 2),
   );
   final clickOnImageDisplayPostDetailsInstance = ClickOnImageDisplayPostDetails(
-    postInformation: postInformation,
+    postInformation: postInformation,isFromPersonalProfile: false,
   ).createState();
 
   group(("FavesText"), () {

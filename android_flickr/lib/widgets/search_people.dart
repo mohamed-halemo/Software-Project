@@ -27,16 +27,26 @@ class _SearchPeopleState extends State<SearchPeople> {
     );
   }
 
+  void toggleFollowPicPoster(
+      PicPosterDetails personDetails, List<PostDetails> currentPosts) {
+    final profileFirstPostFound = currentPosts.firstWhere(
+        (post) => post.picPoster.profileId == personDetails.profileId);
+    profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
+  }
+
   @override
   Widget build(BuildContext context) {
     /// Contains the list of the photos that came from the search result if any.
-    final peopleSearchDetails = widget.peopleSearchResult;
+    final peopleSearchDetails =
+        widget.peopleSearchResult as List<PicPosterDetails>;
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     final currentPosts = Provider.of<Posts>(context).posts;
     return ListView.builder(
       itemCount: peopleSearchDetails.length,
       itemBuilder: (ctx, index) {
-        return ListTile(
+        return ChangeNotifierProvider.value(
+          value: peopleSearchDetails[index],
+          child: ListTile(
             leading: GestureDetector(
               onTap: () {
                 _goToNonprofile(
@@ -45,13 +55,13 @@ class _SearchPeopleState extends State<SearchPeople> {
               child: CircleAvatar(
                 radius: MediaQuery.of(context).size.width / 20,
                 backgroundImage: NetworkImage(
-                  peopleSearchDetails[index].picPoster.profilePicUrl,
+                  peopleSearchDetails[index].profilePicUrl,
                 ),
                 backgroundColor: Colors.transparent,
               ),
             ),
             title: Text(
-              peopleSearchDetails[index].picPoster.name,
+              peopleSearchDetails[index].name,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -69,13 +79,18 @@ class _SearchPeopleState extends State<SearchPeople> {
               color: Colors.transparent,
               onPressed: () {
                 setState(() {
-                  peopleSearchDetails[index].toggleFollowPicPoster();
+                  toggleFollowPicPoster(
+                      peopleSearchDetails[index], currentPosts);
+                  /* peopleSearchDetails[index]
+                        .toggleFollowPicPoster(currentPosts); */
                 });
               },
-              child: peopleSearchDetails[index].picPoster.isFollowedByUser
+              child: peopleSearchDetails[index].isFollowedByUser
                   ? Icon(Icons.beenhere_outlined)
                   : Text("+" + " Follow"),
-            ));
+            ),
+          ),
+        );
       },
     );
   }

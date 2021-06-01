@@ -16,6 +16,9 @@ class Posts with ChangeNotifier {
   ///List of user profile posts.
   List<PostDetails> _myPosts = [];
 
+  /// List of other profiles that have posts which is used in search mode.
+  List<PicPosterDetails> _picPosterProfilesDetails = [];
+
   /* Future<void> _addPostsToDatabase() async {
     final url = Uri.https(
         'https://flickr-explore-default-rtdb.firebaseio.com', '/posts.json');
@@ -90,13 +93,37 @@ class Posts with ChangeNotifier {
       //print("start");
       //print(extactedposts);
       final List<PostDetails> loadedPosts = [];
+      final List<PicPosterDetails> loadedPicPosterProfiles = [];
+      final List<String> loadedPicPosterProfilesIds = [];
       //final List<String> loadedProfilesId = [];
       extactedposts.forEach(
         (postDetails) {
           //print(postDetails);
-          int postUrl = postDetails['id'] * 2;
+          //int postUrl = postDetails['id'] * 2;
           //print(postDetails['title']);
           //print(postDetails['title'].length);
+          if (!loadedPicPosterProfilesIds.contains(
+            postDetails['owner']['id'].toString(),
+          )) {
+            loadedPicPosterProfilesIds.add(
+              postDetails['owner']['id'].toString(),
+            );
+            loadedPicPosterProfiles.add(
+              PicPosterDetails(
+                postDetails['owner']['id'].toString(), //found
+                (postDetails['owner']['first_name'] +
+                    " " +
+                    postDetails['owner']['last_name']), //found
+                postDetails['owner']['is_pro'], //found
+                postDetails['owner'][
+                    'is_staff'], //not found, using placeholder for is_followed_by_user
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['owner']['id']}', //found
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['owner']['id'] * 3}', //found
+              ),
+            );
+          }
           loadedPosts.add(
             PostDetails(
               id: postDetails['id'].toString(), //found
@@ -150,9 +177,10 @@ class Posts with ChangeNotifier {
       );
       //print(loadedProfilesId.length);
       _posts = loadedPosts;
-      //FlickrProfiles.profilesId = loadedProfilesId;
-      //print(loadedProfiles[1].profileName);
-      //print(loadedProfiles[51].profileID);
+      _picPosterProfilesDetails = loadedPicPosterProfiles;
+      print("check profile count");
+      print(_picPosterProfilesDetails.length);
+
       notifyListeners();
     } catch (error) {
       print("error");
@@ -179,7 +207,9 @@ class Posts with ChangeNotifier {
       final extractedData = json.decode(response.body) as List<dynamic>;
       //print(extractedData);
       final List<PostDetails> loadedPosts = [];
-      //final List<String> loadedProfilesId = [];
+      final List<PicPosterDetails> loadedPicPosterProfiles = [];
+      final List<String> loadedPicPosterProfilesIds = [];
+
       extractedData.forEach(
         (postDetails) {
           /* if (!loadedProfilesId.contains(
@@ -193,6 +223,27 @@ class Posts with ChangeNotifier {
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
               '${postDetails['id'] + 5}'; */
           //print(postDetailsId);
+
+          if (!loadedPicPosterProfilesIds.contains(
+            postDetails['ProfileId'].toString(),
+          )) {
+            loadedPicPosterProfilesIds.add(
+              postDetails['ProfileId'].toString(),
+            );
+            loadedPicPosterProfiles.add(
+              PicPosterDetails(
+                postDetails['ProfileId'].toString(),
+                postDetails['PicPosterDetailsname'],
+                postDetails['isPro'],
+                postDetails['isFollowedByUser'],
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['ProfileId']}',
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['ProfileId'] * 3}',
+              ),
+            );
+          }
+
           loadedPosts.add(
             PostDetails(
               id: postDetails['id'].toString(),
@@ -240,6 +291,9 @@ class Posts with ChangeNotifier {
       );
       //print(loadedProfilesId.length);
       _posts = loadedPosts;
+      _picPosterProfilesDetails = loadedPicPosterProfiles;
+      print("check profile count");
+      print(_picPosterProfilesDetails.length);
       //FlickrProfiles.profilesId = loadedProfilesId;
       //print(loadedProfiles[1].profileName);
       //print(loadedProfiles[51].profileID);
@@ -275,7 +329,7 @@ class Posts with ChangeNotifier {
             loadedProfilesId.add(postDetails['ProfileId'].toString());
           } */
 
-          int postUrl = postDetails['id'] * 2;
+          int postUrl = postDetails['id'] * 10;
           //print(postUrl);
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
               '${postDetails['id'] + 5}'; */
@@ -347,5 +401,10 @@ class Posts with ChangeNotifier {
   List<PostDetails> get myPosts {
     //print(_posts);
     return [..._myPosts];
+  }
+
+  List<PicPosterDetails> get picPosterProfilesDetails {
+    //print(_posts);
+    return [..._picPosterProfilesDetails];
   }
 }

@@ -13,7 +13,7 @@ void main() {
       //Arrange
       bool original = globals.isMockService;
       globals.isMockService = true;
-      String matcher = '10.0.2.2:8000';
+      String matcher = '192.168.1.10:3000';
       //Act
       String actual = globals.HttpSingleton().getBaseUrl();
       //Assert

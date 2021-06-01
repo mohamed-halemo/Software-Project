@@ -3,11 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Classes/globals.dart' as globals;
+import '../providers/flickr_posts.dart';
 
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
 ///he is a pro or not and if he is followed by the current user(the person using the application) as well as his profile picture url.
-class PicPosterDetails {
-  
+class PicPosterDetails with ChangeNotifier {
   String profileId;
   String name;
   bool isPro;
@@ -23,6 +23,9 @@ class PicPosterDetails {
     this.profilePicUrl,
     this.profileCoverPhoto,
   );
+  void notify() {
+    notifyListeners();
+  }
 }
 
 ///Class FavedPostDetails this class describes the post fave details which is how many users faved the post as well as
@@ -114,37 +117,58 @@ class PostDetails with ChangeNotifier {
 
   ///Reflects the user action on screen as well as the data base if he chooses to follow the owner of the post
   ///by clicking on the pop menu button and then follow.
-  void followPicPoster() {
+  void followPicPoster(List<PostDetails> posts) {
     picPoster.isFollowedByUser = true;
     picPoster.followedDuringRunning = true;
+
     notifyListeners();
-    updateFollowPicPoster();
+    updateFollowPicPoster(posts);
   }
 
-  void toggleFollowPicPoster() {
+  void toggleFollowPicPoster(
+      List<PostDetails> posts, PicPosterDetails personDetails) {
+    personDetails.isFollowedByUser = !personDetails.isFollowedByUser;
+
+    posts.forEach((post) {
+      if (post.picPoster.profileId == personDetails.profileId) {
+        post.picPoster.isFollowedByUser = !post.picPoster.isFollowedByUser;
+      }
+    });
+
     picPoster.isFollowedByUser = !picPoster.isFollowedByUser;
     //picPoster.followedDuringRunning = true;
+    personDetails.notify();
     notifyListeners();
-    updateFollowPicPoster();
+    updateFollowPicPoster(posts);
   }
 
   ///This function is called inside followPicPoster to reflect change on database.
-  Future<void> updateFollowPicPoster() async {
+  Future<void> updateFollowPicPoster(List<PostDetails> posts) async {
     /* final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json'); */
-    final url =
-        Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts/$id');
-    await http.patch(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: json.encode(
-        {
-          'isFollowedByUser': picPoster.isFollowedByUser,
+    //print(Posts().posts.length);
+    final loopList = posts
+        .where((post) => post.picPoster.profileId == picPoster.profileId)
+        .toList();
+
+    print(loopList.length);
+
+    for (int idcounter = 0; idcounter < loopList.length; idcounter++) {
+      final url = Uri.http(globals.HttpSingleton().getBaseUrl(),
+          '/Explore_posts/${loopList[idcounter].id}');
+      print(url);
+      await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
         },
-      ),
-    );
+        body: json.encode(
+          {
+            'isFollowedByUser': picPoster.isFollowedByUser,
+          },
+        ),
+      );
+    }
   }
 
   ///Returns the short list of the users names who faved the post to display on screen.

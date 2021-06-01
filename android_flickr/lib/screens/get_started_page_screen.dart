@@ -37,7 +37,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   ///contains forth swipe image.
   Image swipeImage4;
 
-  String _setStartedScreenTitle(int index) {
+  String setStartedScreenTitle(int index) {
     /// Returns the String to be displayed as title based on the Swipe image we are on.
     switch (index) {
       case 0:
@@ -57,7 +57,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
-  String _setStartedScreenSubTitle(int index) {
+  String setStartedScreenSubTitle(int index) {
     /// Returns the String to be dsplayed as subtitle based on the Swipe image we are on.
     switch (index) {
       case 0:
@@ -178,7 +178,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                _setStartedScreenTitle(index),
+                                setStartedScreenTitle(index),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -191,7 +191,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 height: 10,
                               ),
                               Text(
-                                _setStartedScreenSubTitle(index),
+                                setStartedScreenSubTitle(index),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
