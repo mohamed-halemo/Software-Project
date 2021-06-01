@@ -211,8 +211,8 @@ class LogInState extends State<LogIn> {
                                   var errorMessage = 'Error !';
                                   if (value.body.contains('Invalid')) {
                                     errorMessage = 'Invalid email or password.';
+                                    _showError(errorMessage);
                                   }
-                                  _showError(errorMessage);
                                 });
                               }
                             },
