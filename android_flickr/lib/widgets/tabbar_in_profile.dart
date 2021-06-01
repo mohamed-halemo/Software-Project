@@ -26,10 +26,16 @@ class TabbarInProfile extends StatelessWidget {
             //isScrollable: true,
             tabs: [
               Tab(
-                text: "About",
+                child: Text(
+                  "About",
+                  style: TextStyle(decoration: TextDecoration.lineThrough),
+                ),
               ),
               Tab(
-                text: "Stats",
+                child: Text(
+                  "Stats",
+                  style: TextStyle(decoration: TextDecoration.lineThrough),
+                ),
               ),
               Tab(
                 text: "Camera roll",
@@ -38,7 +44,10 @@ class TabbarInProfile extends StatelessWidget {
                 text: "Public",
               ),
               Tab(
-                text: "Albums",
+                child: Text(
+                  "Albums",
+                  style: TextStyle(decoration: TextDecoration.lineThrough),
+                ),
               ),
               Tab(
                 text: "Groups",

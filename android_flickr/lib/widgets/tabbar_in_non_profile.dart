@@ -27,13 +27,25 @@ class TabbarInNonProfile extends StatelessWidget {
                 text: "Public",
               ),
               Tab(
-                text: "album",
+                child: Text(
+                  "Albums",
+                  style: TextStyle(decoration: TextDecoration.lineThrough),
+                ),
               ),
               Tab(
-                text: "Groups",
+                //text: "Groups",
+                child: Text.rich(
+                  TextSpan(
+                    text: "Groups",
+                  ),
+                ),
               ),
               Tab(
-                text: "about",
+                //text: "about",
+                child: Text(
+                  "About",
+                  style: TextStyle(decoration: TextDecoration.lineThrough),
+                ),
               ),
             ],
           ),

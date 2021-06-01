@@ -34,6 +34,7 @@ class _ExploreScreenState extends State<ExploreScreen>
     await Provider.of<Posts>(context, listen: false).fetchAndSetExplorePosts();
   }
 
+  /// If we click on the camera tab or swipe towards it, then we navigate to FlickrCameraScreen widget.
   void _goToFlickrCamera(BuildContext ctx) {
     Navigator.of(ctx).pushNamed(
       FlickrCameraScreen.routeName,

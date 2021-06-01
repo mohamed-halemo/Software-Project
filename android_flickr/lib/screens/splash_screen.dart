@@ -8,21 +8,23 @@ import '../providers/flickr_posts.dart';
 
 /// A class responsible for displaying the loading screen with the flickr gif when app is loading posts from the server.
 class FlickrSplashScreen extends StatefulWidget {
-  
   static const routeName = '/flick-splash-screen';
+
+  /// If true,then dont fetch data from server.
+  ///
+  /// if false, then get the data drom server or mock service.
   final doneFetching;
 
   /// takes a widget that it should display after it finishes loading data from server.
   final Widget screenDisplayedAfterSplash;
 
-  FlickrSplashScreen(this.screenDisplayedAfterSplash,this.doneFetching);
+  FlickrSplashScreen(this.screenDisplayedAfterSplash, this.doneFetching);
   @override
   _FlickrSplashScreenState createState() => _FlickrSplashScreenState();
 }
 
 class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
   //var _init = true;
-
 
   /* @override
   void didChangeDependencies() {
@@ -43,40 +45,46 @@ class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
   } */
 
   @override
-  
-  Widget build(BuildContext context) {
-    return widget.doneFetching? SplashScreen(
-      seconds:1,
-      navigateAfterSeconds:  widget.screenDisplayedAfterSplash,
 
-      /// Use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructor.
-      /*  navigateAfterFuture: Provider.of<Posts>(context)
+  ///If donefetching = true then the splash screen will wait 1 sec then go to the required widget.
+  ///
+  ///If donefetching = false then the splash screen will wait till the data is fetched from the server/mock service
+  /// then go to the required widget.
+  Widget build(BuildContext context) {
+    return widget.doneFetching
+        ? SplashScreen(
+            seconds: 1,
+            navigateAfterSeconds: widget.screenDisplayedAfterSplash,
+
+            /// Use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructor.
+            /*  navigateAfterFuture: Provider.of<Posts>(context)
           .fetchAndSetExplorePosts()
           .then((_) => widget.screenDisplayedAfterSplash), */
-      backgroundColor: Colors.grey.withOpacity(0.1),
-      loaderColor: Colors.transparent,
-      image: Image.asset(
-        'assets/images/flickr_loading_screen.gif',
-      ),
+            backgroundColor: Colors.grey.withOpacity(0.1),
+            loaderColor: Colors.transparent,
+            image: Image.asset(
+              'assets/images/flickr_loading_screen.gif',
+            ),
 
-      photoSize: 75,
-      //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
-    ): SplashScreen(
-      //seconds: widget.doneFetching?1:5,
-      //navigateAfterSeconds:  widget.screenDisplayedAfterSplash,
+            photoSize: 75,
+            //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
+          )
+        : SplashScreen(
+            //seconds: widget.doneFetching?1:5,
+            //navigateAfterSeconds:  widget.screenDisplayedAfterSplash,
 
-      /// Use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructor.
-       navigateAfterFuture: Provider.of<Posts>(context)
-          .fetchAndSetExplorePosts()
-          .then((_) => widget.screenDisplayedAfterSplash),
-      backgroundColor: Colors.grey.withOpacity(0.1),
-      loaderColor: Colors.transparent,
-      image: Image.asset(
-        'assets/images/flickr_loading_screen.gif',
-      ),
+            /// Use navigateAfterFuture where we fetch data from database and then loads the screen widget we passed in the constructor.
+            navigateAfterFuture: Provider.of<Posts>(context)
+                .fetchAndSetExplorePosts()
+                .then((_) => widget.screenDisplayedAfterSplash),
+            backgroundColor: Colors.grey.withOpacity(0.1),
+            loaderColor: Colors.transparent,
+            image: Image.asset(
+              'assets/images/flickr_loading_screen.gif',
+            ),
 
-      photoSize: 75,
-      //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
-    );
+            photoSize: 75,
+            //navigateAfterSeconds: widget.screenDisplayedAfterSplash,
+          );
   }
 }

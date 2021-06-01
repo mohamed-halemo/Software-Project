@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
+import '../providers/flickr_posts.dart';
+import 'package:provider/provider.dart';
 
 /// Popup menu that is used to follow the recommended users in the explore.
 class PopupMenuButtonOfPost extends StatelessWidget {
@@ -10,6 +12,7 @@ class PopupMenuButtonOfPost extends StatelessWidget {
   PopupMenuButtonOfPost(this.postInformation);
   @override
   Widget build(BuildContext context) {
+    final allPosts = Provider.of<Posts>(context).posts;
     return SizedBox(
       width: MediaQuery.of(context).size.width / 20,
       child: PopupMenuButton(
@@ -17,7 +20,7 @@ class PopupMenuButtonOfPost extends StatelessWidget {
 
         onSelected: (int option) {
           if (option == 0) {
-            postInformation.followPicPoster();
+            postInformation.followPicPoster(allPosts);
           }
           if (option == 1) {
             //GestureDetector().onTap();

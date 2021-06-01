@@ -104,8 +104,9 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
 
     isFirstLoad ? firstLoad(settingsMap) : reload(settingsMap);
-
+    ///All posts available at the moment. 
     final currentPosts = Provider.of<Posts>(context).posts;
+    ///All profiles available at the moment.
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     //final postInformation = Provider.of<PostDetails>(context);
     return Scaffold(

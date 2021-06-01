@@ -26,7 +26,7 @@ void main() {
       //Arrange
       bool original = globals.isMockService;
       globals.isMockService = false;
-      String matcher = 'https://fotone.me/api';
+      String matcher = 'fotone.me';
       //Act
       String actual = globals.HttpSingleton().getBaseUrl();
       //Assert

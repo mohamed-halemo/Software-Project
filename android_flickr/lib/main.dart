@@ -1,4 +1,5 @@
 import 'package:android_flickr/providers/auth.dart';
+import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/providers/flickr_posts.dart';
 import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
