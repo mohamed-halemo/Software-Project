@@ -165,7 +165,6 @@ class CameraRollState extends State<CameraRoll> {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                 ),
-                //TODO dynamic count
                 itemCount: sortedPosts[listindex].length,
                 itemBuilder: (context, gridindex) {
                   return Container(
@@ -213,7 +212,6 @@ class CameraRollState extends State<CameraRoll> {
           ],
         );
       },
-      //TODO dynamic count
       itemCount: gridDates.length,
     );
   }

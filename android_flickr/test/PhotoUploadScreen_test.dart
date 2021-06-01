@@ -17,6 +17,8 @@ void main() {
   MockBuildContext _myMockContext;
 
   PhotoUploadScreen _photoUploadScreen;
+  //Tag management, tests empty tags
+  //Non empty tags require app context and widget testing
   group('Photo Upload Tests', () {
     test('empty Tags Widget', () {
       //Arrange

@@ -123,6 +123,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
     });
   }
 
+  ///main rebuild method. rebuilds with state update
   @override
   Widget build(BuildContext context) {
     // final deviceHeight = MediaQuery.of(context).size.height;
@@ -479,7 +480,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   ///Apply changes the user wants on the Bitmap and update the displayed headed bitmap accordingly.
-  ///The method Takes [widget.brushMode] as a parameter and uses the local [sliderValueList] variable
+  ///The method Takes [brushMode] as a parameter and uses the local [sliderValueList] variable
   /// as enhancment factor for the image.
   void applyChanges(BrushMode burshMode) async {
     if (imageBitMap == null) {

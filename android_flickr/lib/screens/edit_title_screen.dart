@@ -1,13 +1,17 @@
+//out of the box imports
 import 'package:flutter/material.dart';
 
+///Screen where user can edit a post's description
 class EditTitleScreen extends StatefulWidget {
   @override
   EditTitleScreenState createState() => EditTitleScreenState();
 }
 
 class EditTitleScreenState extends State<EditTitleScreen> {
+  ///Text controller to retrieve values entered
   TextEditingController myTextController;
 
+  ///main build method, rebuilds with state update
   @override
   Widget build(BuildContext context) {
     return Scaffold(

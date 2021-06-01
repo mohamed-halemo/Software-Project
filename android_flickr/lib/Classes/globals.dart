@@ -28,10 +28,13 @@ class HttpSingleton {
   HttpSingleton._internal();
 
   ///Returns the base url of the server APIs, returns mock url if isMockService is true.
+  ///JSON server was used for mock, it was hosted localy on ip adress with port 3000, Real server
+  /// has fotone.me base url
   String getBaseUrl() {
     return isMockService == true ? '192.168.1.10:3000' : 'fotone.me';
   }
 
+  ///uses Refresh token to get new access token, if refresh is expired, post a login request to get new access and refresh
   Future<bool> tokenRefresh() async {
     var url = Uri.https(HttpSingleton().getBaseUrl(),
         isMockService ? '/login/' : 'api/accounts/api/token/refresh/');

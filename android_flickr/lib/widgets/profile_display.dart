@@ -26,7 +26,10 @@ class ProfileDisplay extends StatelessWidget {
                 itemBuilder: (context) {
                   return [
                     PopupMenuItem(
-                      child: Text("nice"),
+                      child: GestureDetector(
+                        child: Text("Logout"),
+                        onTap: () {},
+                      ),
                     ),
                     PopupMenuItem(
                       child: Text("bad"),

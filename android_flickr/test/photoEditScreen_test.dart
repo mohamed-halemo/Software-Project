@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 //Assert: Expect Actual to be equal to matcher, if yes test pass
 void main() {
   PhotoEditScreen photoEditScreen;
-  //Tag management Testing, tests adding and deleting tags
+  //Brush mode management, tests Settint brush mode
   group('Brush Mode', () {
     test('Set Brush Mode: Saturation', () {
       //Arrange

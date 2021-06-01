@@ -1,10 +1,7 @@
 //out of the box imports
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 //packages and plugins
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' show get;
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 
@@ -16,8 +13,6 @@ import '../screens/non_profile_screen.dart';
 import '../providers/flickr_profiles.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
-import 'image_info_screen.dart';
-import 'package:android_flickr/screens/photoEditScreen.dart';
 
 /// Whenever any post image is clicked, the app navigates to this screen in order to display the image and few other details.
 class ClickOnImageScreen extends StatefulWidget {
@@ -42,8 +37,14 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   /// explore or puplic
   String isExOrPuplic = '';
 
+  ///Bool used to determine data intitialization completion
   bool isFirstLoad = true;
+
+  ///Swiper controller for swiping images
   SwiperController mySwipeController = new SwiperController();
+
+  ///Function that navigates to non personal profile screen of the profile pressed, takes the build context
+  /// and the information of the current post
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
     final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
@@ -57,13 +58,20 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     );
   }
 
+  /// true if this screen was opened from camera roll, false otherwise
   bool isFromPersonalProfile;
   bool isFromNonProfile;
 
   /// instance of Post details that contains info about the post we are currently displaying
   var postInformation;
+
+  ///List of all Posts
   List<PostDetails> allPosts = [];
+
+  ///Index of current post
   var postIndex;
+
+  ///Data and state variables initializer
   void firstLoad(Map settingsMap) {
     isFromPersonalProfile = settingsMap['isFromPersonalProfile'];
     isFromNonProfile = settingsMap['isFromNonProfile'];
@@ -78,6 +86,7 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
     isFirstLoad = false;
   }
 
+  ///called with every rebuild, updates post information with new index
   void reload(Map settingsMap) {
     // if (isFromPersonalProfile) {
     postInformation = allPosts[postIndex];
@@ -90,10 +99,12 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   ///Main Build method. Rebuilds with state update.
   @override
   Widget build(BuildContext context) {
+    ///Modal route settings from calling screen
     final settingsMap =
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
 
     isFirstLoad ? firstLoad(settingsMap) : reload(settingsMap);
+
     final currentPosts = Provider.of<Posts>(context).posts;
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     //final postInformation = Provider.of<PostDetails>(context);

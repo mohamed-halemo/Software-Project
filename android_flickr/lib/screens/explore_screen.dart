@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:splashscreen/splashscreen.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// This is the Main screen where we have diffrent tabs(explore, search,personal profile, notifications, camera).
 class ExploreScreen extends StatefulWidget {
@@ -39,10 +40,23 @@ class _ExploreScreenState extends State<ExploreScreen>
     );
   }
 
+  void getPermissions() async {
+    await [
+      Permission.camera,
+      Permission.storage,
+    ].request();
+
+    var status = await Permission.camera.status;
+    if (status.isDenied) {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: 5);
+    getPermissions();
   }
 
   @override

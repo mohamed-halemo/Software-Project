@@ -17,13 +17,11 @@ import 'package:photo_gallery/photo_gallery.dart';
 import 'package:android_flickr/screens/photoEditScreen.dart';
 import 'package:android_flickr/Enums/enums.dart';
 import 'package:android_flickr/Classes/switch_Case_Helper.dart';
-
 import 'package:android_flickr/screens/explore_screen.dart';
 
 ///Main Camera View where users take images or videos,
 ///Its a widget that occupies the full screen.
 class FlickrCameraScreen extends StatefulWidget {
-  
   static const routeName = '/flickr-camera-screen';
 
   @override
@@ -49,14 +47,10 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
   ///zoom level notifier, accepts a double between 0 and 1.
   ValueNotifier<double> _zoom = ValueNotifier(0);
 
-  /// Controllers.
+  // Controllers.
 
   ///Picture Controller which is called to take pictures.
   PictureController _pictureController = new PictureController();
-
-  //TODO PErmission Handler.
-  // List of images on the device (customized to only load the first 2 images,
-  /// we get the recent image from this list.
 
   /// the last image stored on the device.
   List<int> recentImage;
@@ -90,6 +84,7 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
     initGallary();
   }
 
+  ///When screen is poped, explore is pushed
   Future<bool> _onWillPop() async {
     return await Navigator.of(context)
         .pushNamed(ExploreScreen.routeName)
@@ -109,7 +104,7 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
 
     return WillPopScope(
       onWillPop: _onWillPop,
-          child: Scaffold(
+      child: Scaffold(
         backgroundColor: Color.fromARGB(255, 31, 31, 33),
         body: Container(
           height: deviceHeight,
@@ -211,8 +206,9 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
                             shape: BoxShape.circle,
                           ),
                         ),
-                        alignment:
-                            isVideoMode ? Alignment(-0.2, 0) : Alignment(0.2, 0),
+                        alignment: isVideoMode
+                            ? Alignment(-0.2, 0)
+                            : Alignment(0.2, 0),
                       ),
                       Align(
                         child: Container(

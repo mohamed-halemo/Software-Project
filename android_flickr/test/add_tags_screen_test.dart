@@ -10,10 +10,11 @@ class MockBuildContext extends Mock implements BuildContext {}
 //Act: Proceed with the method Call and get the Actual value
 //Assert: Expect Actual to be equal to matcher, if yes test pass
 void main() {
+  //used for mocking app context
   MockBuildContext _myMockContext;
-
+  //an instance of the add tags screen widget
   AddTagsScreen _addTagsScreen;
-  //Tag management Testing, tests adding and deleting tags
+  //Tag management Testing, tests for adding and deleting tags
   group('Tag management', () {
     test('add one tag', () {
       //Arrange

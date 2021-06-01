@@ -2,19 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'dart:typed_data' as typedData;
-import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
 //Packages and Plugins
 import 'package:bitmap/bitmap.dart' as btm;
 import 'package:path_provider/path_provider.dart';
 import 'package:save_in_gallery/save_in_gallery.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
-import 'dart:ui' as ui;
-import 'package:http_parser/http_parser.dart';
 
 //personal imports
 import '../Classes/globals.dart' as globals;
@@ -22,6 +17,7 @@ import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'explore_screen.dart';
 
 ///Photo upload screen where user adds image info before uploading it to the server
+// ignore: must_be_immutable
 class PhotoUploadScreen extends StatefulWidget {
   /// The headedBitmap from the Photo edit screen is passed to this widget through the constructor
   /// it is a [Uint8List] and is used to render image on screen
@@ -352,10 +348,6 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     print(decodedImage.width);
     print(decodedImage.height);
 
-    // var mockUrl =
-    //     // Uri.https('mockservice-zaka-default-rtdb.firebaseio.com', 'Photo.json');
-    //     Uri.http(globals.HttpSingleton().getBaseUrl(),
-    //         globals.isMockService ? '/Photo' : '/api/photos/upload');
     FormData formData = new FormData.fromMap(
       {
         'title': titleController.text,
