@@ -5,6 +5,7 @@ import '../providers/flickr_posts.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../Classes/globals.dart' as globals;
 
 /// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
 class SearchScreen extends StatefulWidget {
@@ -31,15 +32,25 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             )
           ];
-          peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
-          print(peopleSearchResult[49].picPoster.profileId);
-          peopleSearchResult = [
-            ...peopleSearchResult.where(
-              (post) => post.picPoster.name.contains(
-                searchTextController.text,
-              ),
-            )
-          ];
+          if (globals.isMockService) {
+            peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
+            print(peopleSearchResult[49].picPoster.profileId);
+            peopleSearchResult = [
+              ...peopleSearchResult.where(
+                (post) => post.picPoster.name.contains(
+                  searchTextController.text,
+                ),
+              )
+            ];
+          } else {
+            peopleSearchResult = [
+              ...postsToDisplay.where(
+                (post) => post.picPoster.name.contains(
+                  searchTextController.text,
+                ),
+              )
+            ];
+          }
         } else {
           photosSearchResult = [];
           peopleSearchResult = [];

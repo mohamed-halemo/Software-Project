@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import './tabbar_in_profile.dart';
+import '../providers/flickr_posts.dart';
+import 'package:provider/provider.dart';
+import '../providers/flickr_profiles.dart';
 
 /// Profile of the user which includes their avatar, followers and following and a tabbar.
 class ProfileDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final profilePicAndCover =
+        Provider.of<MyProfile>(context).getProfilePicCoverPhoto;
+
     return NestedScrollView(
       headerSliverBuilder: (context, index) {
         return [
@@ -33,8 +39,8 @@ class ProfileDisplay extends StatelessWidget {
             flexibleSpace: Stack(
               children: [
                 FlexibleSpaceBar(
-                  background: Image.asset(
-                    'assets/images/Logo.png',
+                  background: Image.network(
+                    profilePicAndCover['profilePic'],
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -42,8 +48,8 @@ class ProfileDisplay extends StatelessWidget {
                   top: MediaQuery.of(context).size.height * 0.1,
                   left: MediaQuery.of(context).size.width * 0.43,
                   child: CircleAvatar(
-                    backgroundImage: AssetImage(
-                      'assets/images/Logo.png',
+                    backgroundImage: NetworkImage(
+                      profilePicAndCover['profileCoverPhoto'],
                     ),
                   ),
                 ),

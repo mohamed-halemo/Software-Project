@@ -9,7 +9,7 @@ void main() {
       privacy: false,
       description: "",
       tags: "",
-      picPoster: PicPosterDetails("1","moaz", true, false, ""),
+      picPoster: PicPosterDetails("1","moaz", true, false, "",""),
       commentsTotalNumber: 20,
       postImageUrl: "postImageUrl",
       postedSince: "6w",

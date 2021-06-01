@@ -67,6 +67,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => FlickrProfiles(),
         ),
+        ChangeNotifierProvider(
+          create: (ctx) => MyProfile(),
+        ),
       ],
       child: MaterialApp(
         onGenerateRoute: (settings) {
@@ -85,6 +88,7 @@ class MyApp extends StatelessWidget {
         ),
         home: FlickrSplashScreen(
           GetStartedScreen(),
+          true,
         ),
         //NonProfileScreen()
         /*  FlickrSplashScreen(

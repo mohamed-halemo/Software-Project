@@ -76,7 +76,10 @@ class ExplorePost extends StatelessWidget {
               ),
             ),
 
+            
+
             /// Widget that displays picPoster avatar, name, caption and since when was this post posted.
+            
             PicPostedByInfoOnPost(postInformation, inPublicMode),
 
             /// Configurations and widgets choosen for the three buttons, fave , comments and share.
