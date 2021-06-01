@@ -3,12 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Classes/globals.dart' as globals;
-import '../providers/flickr_posts.dart';
+// import '../providers/flickr_posts.dart';
 
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
 ///he is a pro or not and if he is followed by the current user(the person using the application) as well as his profile picture url.
 class PicPosterDetails with ChangeNotifier {
-  
   String profileId;
   String name;
   bool isPro;
@@ -91,12 +90,11 @@ class PostDetails with ChangeNotifier {
 
   ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on mock service and database.
   Future<void> updateFavoriteStatus(bool isFaved, int favesTotalNumber) async {
-
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts/$id');
-    print(url);
-    print(isFaved);
-    print(favesTotalNumber);
+    // print(url);
+    // print(isFaved);
+    // print(favesTotalNumber);
     try {
       await http.patch(
         url,
@@ -146,35 +144,30 @@ class PostDetails with ChangeNotifier {
 
   ///This function is called inside followPicPoster and toggleFollowPicPoster to reflect change on database and mock service.
   Future<void> updateFollowPicPoster(List<PostDetails> posts) async {
-   try{
-     final loopList = posts
-        .where((post) => post.picPoster.profileId == picPoster.profileId)
-        .toList();
+    try {
+      final loopList = posts
+          .where((post) => post.picPoster.profileId == picPoster.profileId)
+          .toList();
 
-    print(loopList.length);
+      // print(loopList.length);
 
-     for (int idcounter = 0; idcounter < loopList.length; idcounter++) {
-      final url = Uri.http(globals.HttpSingleton().getBaseUrl(),
-          '/Explore_posts/${loopList[idcounter].id}');
-      print(url);
-      await http.patch(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: json.encode(
-          {
-            'isFollowedByUser': picPoster.isFollowedByUser,
+      for (int idcounter = 0; idcounter < loopList.length; idcounter++) {
+        final url = Uri.http(globals.HttpSingleton().getBaseUrl(),
+            '/Explore_posts/${loopList[idcounter].id}');
+        // print(url);
+        await http.patch(
+          url,
+          headers: {
+            "Content-Type": "application/json",
           },
-        ),
-      );
-    }
-    
-   }
-   catch(error){
-
-    }
-     
+          body: json.encode(
+            {
+              'isFollowedByUser': picPoster.isFollowedByUser,
+            },
+          ),
+        );
+      }
+    } catch (error) {}
   }
 
   ///Returns the short list of the users names who faved the post to display on screen.

@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 //personal imports
 import '../providers/flickr_posts.dart';
 import 'package:android_flickr/providers/flickr_post.dart';
-import 'package:android_flickr/screens/PhotoGalleryScreen.dart';
+import 'package:android_flickr/screens/photo_gallery_screen.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
 // import '../Classes/globals.dart' as globals;
 

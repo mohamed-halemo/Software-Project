@@ -1,32 +1,32 @@
-import 'package:android_flickr/providers/auth.dart';
-import 'package:android_flickr/providers/flickr_post.dart';
-import 'package:android_flickr/providers/flickr_posts.dart';
-import 'package:android_flickr/providers/flickr_profiles.dart';
-import 'package:android_flickr/screens/click_on_image_screen.dart';
-import 'package:android_flickr/screens/explore_screen.dart';
-import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:android_flickr/screens/get_started_page_screen.dart';
-import 'package:android_flickr/screens/group_view.dart';
-import 'package:android_flickr/screens/new_discussion.dart';
+import 'package:android_flickr/screens/click_on_image_screen.dart';
+import 'package:android_flickr/screens/flickr_camera_screen.dart';
 import 'package:android_flickr/screens/non_profile_screen.dart';
+import 'package:android_flickr/providers/flickr_profiles.dart';
+import 'package:android_flickr/providers/flickr_posts.dart';
+import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/search_screen.dart';
 import 'package:android_flickr/screens/splash_screen.dart';
-import 'package:android_flickr/widgets/Explore_display.dart';
-//import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
-import 'package:provider/provider.dart';
-import './providers/auth.dart';
-import './colors/blackSwatch.dart' as primBlack;
-import './screens/login_screen.dart';
-import './screens/photoEditScreen.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:android_flickr/providers/auth.dart';
+import 'colors/black_swatch.dart' as primBlack;
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import './providers/auth.dart';
+// import 'package:android_flickr/providers/flickr_post.dart';
+// import 'package:android_flickr/screens/group_view.dart';
+// import 'package:android_flickr/screens/new_discussion.dart';
+// import 'package:android_flickr/widgets/explore_display.dart';
+// import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
+// import './screens/login_screen.dart';
+// import 'screens/photo_edit_screen.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-import 'Classes/globals.dart' as globals;
-import './providers/auth.dart' as auth;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
+// import 'Classes/globals.dart' as globals;
+// import './providers/auth.dart' as auth;
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import 'dart:io';
 //import './providers/flickr_post.dart';
 
 /// Main function, before App runs, we check user preferences for remember email flag,
@@ -106,13 +106,13 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        onGenerateRoute: (settings) {
-          if (settings.name == SearchScreen.routeName) {
-            return MaterialPageRoute(
-              builder: (ctx) => SearchScreen(),
-            );
-          }
-        },
+        // onGenerateRoute: (settings) {
+        //   if (settings.name == SearchScreen.routeName) {
+        //     return MaterialPageRoute(
+        //       builder: (ctx) => SearchScreen(),
+        //     );
+        //   }
+        // },
         title: 'Flickr',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

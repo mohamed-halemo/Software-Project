@@ -1,5 +1,5 @@
 import 'package:android_flickr/Enums/enums.dart';
-import 'package:android_flickr/screens/photoEditScreen.dart';
+import 'package:android_flickr/screens/photo_edit_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 //This Test Follows the Arrange Act Assert pattern for tasting

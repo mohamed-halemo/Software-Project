@@ -7,7 +7,7 @@ import '../providers/auth.dart';
 /// Sign up page
 class SignUp extends StatefulWidget {
   @override
-  _SignUpState createState() => _SignUpState();
+  SignUpState createState() => SignUpState();
 }
 
 ///  A boolean that is true if the text is visible else it is hidden
@@ -27,7 +27,7 @@ Map<String, String> authData = {
   'age': '',
 };
 
-class _SignUpState extends State<SignUp> {
+class SignUpState extends State<SignUp> {
   @override
 
   /// Widget that shows an error message
@@ -151,7 +151,7 @@ class _SignUpState extends State<SignUp> {
                           onPressed: () {
                             if (formKey.currentState.validate()) {
                               if (formKey.currentState.validate()) {
-                                print(authData);
+                                // print(authData);
                                 Provider.of<Auth>(context, listen: false)
                                     .signup(
                                   authData['email'],

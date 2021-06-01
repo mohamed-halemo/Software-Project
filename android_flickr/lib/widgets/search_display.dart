@@ -8,10 +8,10 @@ import '../providers/flickr_post.dart';
 /// SearchDisplay is displayed when the search tab is pressed and it shows random photos and search textfield which when pressed navigates to search screen.
 class SearchDisplay extends StatefulWidget {
   @override
-  _SearchDisplayState createState() => _SearchDisplayState();
+  SearchDisplayState createState() => SearchDisplayState();
 }
 
-class _SearchDisplayState extends State<SearchDisplay> {
+class SearchDisplayState extends State<SearchDisplay> {
   ScrollController _controller = ScrollController();
 
   /// To know whether to hide the grid/list view options or know based on user scrolling.

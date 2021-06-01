@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import './tabbar_in_profile.dart';
-import '../providers/flickr_posts.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_profiles.dart';
+// import '../providers/flickr_posts.dart';
 
 /// Profile of the user which includes their avatar, followers and following and a tabbar.
 class ProfileDisplay extends StatelessWidget {

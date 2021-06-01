@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' show get;
 
-import 'package:android_flickr/screens/photoEditScreen.dart';
+import 'package:android_flickr/screens/photo_edit_screen.dart';
 
 /// This class is responsible for all the features and widgets that will be displayed when we click on the post image.
 class ClickOnImageDisplayPostDetails extends StatefulWidget {
@@ -19,11 +19,11 @@ class ClickOnImageDisplayPostDetails extends StatefulWidget {
   final bool isFromPersonalProfile;
 
   @override
-  _ClickOnImageDisplayPostDetailsState createState() =>
-      _ClickOnImageDisplayPostDetailsState();
+  ClickOnImageDisplayPostDetailsState createState() =>
+      ClickOnImageDisplayPostDetailsState();
 }
 
-class _ClickOnImageDisplayPostDetailsState
+class ClickOnImageDisplayPostDetailsState
     extends State<ClickOnImageDisplayPostDetails> {
   /// Returns a widget which tells me the string in Text widget that will be displayed based on the favesTotalNumber.
   Widget favesText(PostDetails postInformation) {

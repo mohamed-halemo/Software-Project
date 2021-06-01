@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Classes/globals.dart' as globals;
 
-
 ///Class Posts is used to obtain lists of class post in order to display these posts on our explore screen.
 class Posts with ChangeNotifier {
   ///List of other users profiles posts.
@@ -19,8 +18,6 @@ class Posts with ChangeNotifier {
 
   /// List of other profiles that have posts which is used in search mode.
   List<PicPosterDetails> _picPosterProfilesDetails = [];
-
-  
 
   ///Used to fetch data from the main database or mock service based on boolean isMockService and set them in the List of posts.
   ///
@@ -40,7 +37,7 @@ class Posts with ChangeNotifier {
     } catch (error) {
       throw (error);
     }
-    print("done fetching");
+    // print("done fetching");
   }
 
   /// If isMockService = false then, this function is called to fetch data from the main server.
@@ -154,12 +151,12 @@ class Posts with ChangeNotifier {
       //print(loadedProfilesId.length);
       _posts = loadedPosts;
       _picPosterProfilesDetails = loadedPicPosterProfiles;
-      print("check profile count");
-      print(_picPosterProfilesDetails.length);
+      // print("check profile count");
+      // print(_picPosterProfilesDetails.length);
 
       notifyListeners();
     } catch (error) {
-      print("error");
+      // print("error");
       //print('https://picsum.photos/200/200?random=' + '$postUrl');
       throw (error);
     }
@@ -167,7 +164,6 @@ class Posts with ChangeNotifier {
 
   /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts if isMockService = false.
   Future<void> mockServiceExplorePosts() async {
-
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts');
     //print(url);
@@ -177,16 +173,18 @@ class Posts with ChangeNotifier {
       final response = await http.get(url);
 
       final extractedData = json.decode(response.body) as List<dynamic>;
+
       ///Posts from server are added to loadedPosts.
       final List<PostDetails> loadedPosts = [];
-      ///Profiles from server/service are added to this list. 
+
+      ///Profiles from server/service are added to this list.
       final List<PicPosterDetails> loadedPicPosterProfiles = [];
+
       ///Helps to check if we added the user to loadedPicPosterProfiles or no.
       final List<String> loadedPicPosterProfilesIds = [];
 
       extractedData.forEach(
         (postDetails) {
-
           int postUrl = postDetails['id'] * 2;
           //print(postUrl);
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
@@ -261,14 +259,14 @@ class Posts with ChangeNotifier {
       //print(loadedProfilesId.length);
       _posts = loadedPosts;
       _picPosterProfilesDetails = loadedPicPosterProfiles;
-      print("check profile count");
-      print(_picPosterProfilesDetails.length);
+      // print("check profile count");
+      // print(_picPosterProfilesDetails.length);
       //FlickrProfiles.profilesId = loadedProfilesId;
       //print(loadedProfiles[1].profileName);
       //print(loadedProfiles[51].profileID);
       notifyListeners();
     } catch (error) {
-      print("error");
+      // print("error");
       //print('https://picsum.photos/200/200?random=' + '$postUrl');
       throw (error);
     }
@@ -348,14 +346,14 @@ class Posts with ChangeNotifier {
       );
       //print(loadedProfilesId.length);
       _myPosts = loadedPosts;
-      print(_myPosts.length);
+      // print(_myPosts.length);
 
       //FlickrProfiles.profilesId = loadedProfilesId;
       //print(loadedProfiles[1].profileName);
       //print(loadedProfiles[51].profileID);
       notifyListeners();
     } catch (error) {
-      print("error");
+      // print("error");
       //print('https://picsum.photos/200/200?random=' + '$postUrl');
       throw (error);
     }
@@ -366,11 +364,13 @@ class Posts with ChangeNotifier {
     //print(_posts);
     return [..._posts];
   }
+
   ///Returns copy of the List of the user posts.
   List<PostDetails> get myPosts {
     //print(_posts);
     return [..._myPosts];
   }
+
   /// Returns list of all users that posted on flickr.
   List<PicPosterDetails> get picPosterProfilesDetails {
     //print(_posts);

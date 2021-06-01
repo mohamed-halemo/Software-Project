@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 /// Public that is cuztomized for the user to display his/her posts in grid view or list view.
 class ProfilePublic extends StatefulWidget {
   @override
-  _ProfilePublicState createState() => _ProfilePublicState();
+  ProfilePublicState createState() => ProfilePublicState();
 }
 
-class _ProfilePublicState extends State<ProfilePublic> {
+class ProfilePublicState extends State<ProfilePublic> {
   ScrollController _controller = ScrollController();
 
   bool closeTopContainer = false;
@@ -82,7 +82,6 @@ class _ProfilePublicState extends State<ProfilePublic> {
 
           /// Display the gridview which displays only the images of the post close to each other.
           if (gridView) Expanded(child: PublicViewGrid(false)),
-          
         ],
       ),
     );

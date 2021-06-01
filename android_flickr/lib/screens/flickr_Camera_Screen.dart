@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import './PhotoGalleryScreen.dart';
+import 'photo_gallery_screen.dart';
 
 import 'package:photo_gallery/photo_gallery.dart';
 
 //Personal Imports
-import 'package:android_flickr/screens/photoEditScreen.dart';
+import 'package:android_flickr/screens/photo_edit_screen.dart';
 import 'package:android_flickr/Enums/enums.dart';
 import 'package:android_flickr/Classes/switch_Case_Helper.dart';
 import 'package:android_flickr/screens/explore_screen.dart';

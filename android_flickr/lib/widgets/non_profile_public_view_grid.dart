@@ -9,6 +9,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../providers/flickr_profiles.dart';
 
 /// Gridview that displays only the images of the non profile posts in grid mode.
+// ignore: must_be_immutable
 class NonProfilePublicViewGrid extends StatelessWidget {
   bool isNonProfile;
   NonProfilePublicViewGrid(this.isNonProfile);

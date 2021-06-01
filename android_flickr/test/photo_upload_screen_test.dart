@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:android_flickr/screens/PhotoUploadScreen.dart';
+import 'package:android_flickr/screens/photo_upload_screen.dart';
 import 'package:bitmap/bitmap.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';

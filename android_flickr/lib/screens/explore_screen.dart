@@ -1,4 +1,4 @@
-import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
+import 'package:android_flickr/screens/flickr_camera_screen.dart';
 //import 'package:android_flickr/screens/search_screen.dart';
 import 'package:android_flickr/widgets/profile_display.dart';
 import 'package:android_flickr/widgets/search_display.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../widgets/explore_display.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
-import 'package:swipedetector/swipedetector.dart';
+// import 'package:swipedetector/swipedetector.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -16,10 +16,10 @@ class ExploreScreen extends StatefulWidget {
   static const routeName = '/explore-screen';
 
   @override
-  _ExploreScreenState createState() => _ExploreScreenState();
+  ExploreScreenState createState() => ExploreScreenState();
 }
 
-class _ExploreScreenState extends State<ExploreScreen>
+class ExploreScreenState extends State<ExploreScreen>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
   ScrollController _controller = ScrollController();

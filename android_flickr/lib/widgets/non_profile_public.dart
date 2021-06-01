@@ -1,10 +1,10 @@
 import 'package:android_flickr/widgets/non_profile_public_view_grid.dart';
 import 'package:android_flickr/widgets/non_profile_public_view_post.dart';
-import 'package:android_flickr/widgets/public_view_grid.dart';
-import 'package:android_flickr/widgets/public_view_post.dart';
 import 'package:flutter/material.dart';
-import 'package:android_flickr/providers/flickr_profiles.dart';
-import '../providers/flickr_post.dart';
+// import 'package:android_flickr/widgets/public_view_grid.dart';
+// import 'package:android_flickr/widgets/public_view_post.dart';
+// import 'package:android_flickr/providers/flickr_profiles.dart';
+// import '../providers/flickr_post.dart';
 
 //import 'package:android_flickr/widgets/explore_post.dart';
 
@@ -15,10 +15,10 @@ import '../providers/flickr_post.dart';
 /// Public that is cuztomized for the other profiles to display their posts in grid view or list view.
 class NonProfilePublic extends StatefulWidget {
   @override
-  _NonProfilePublicState createState() => _NonProfilePublicState();
+  NonProfilePublicState createState() => NonProfilePublicState();
 }
 
-class _NonProfilePublicState extends State<NonProfilePublic> {
+class NonProfilePublicState extends State<NonProfilePublic> {
   ScrollController _controller = ScrollController();
 
   /// To know whether to hide the grid/list view options or know based on user scrolling.

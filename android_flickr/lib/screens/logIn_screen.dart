@@ -1,18 +1,17 @@
-import 'package:android_flickr/Classes/globals.dart';
-import 'package:android_flickr/screens/signUp_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:email_validator/email_validator.dart';
-import 'package:http/http.dart';
+import 'package:android_flickr/screens/sign_up_screen.dart';
+// import 'package:email_validator/email_validator.dart';
+// import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 import 'explore_screen.dart';
 import 'splash_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 /// Login page
 class LogIn extends StatefulWidget {
   @override
-  _LogInState createState() => _LogInState();
+  LogInState createState() => LogInState();
 }
 
 /// A map that takes the email and the password of the user
@@ -21,7 +20,7 @@ Map<String, String> authData = {
   'password': '',
 };
 
-class _LogInState extends State<LogIn> {
+class LogInState extends State<LogIn> {
   ///  A boolean that is true if the text is visible else it is hidden
   bool secureText = true;
 
@@ -191,7 +190,7 @@ class _LogInState extends State<LogIn> {
                                 }
                               });
                               if (buttonText == 'Sign in') {
-                                print(authData);
+                                // print(authData);
                                 Provider.of<Auth>(context, listen: false)
                                     .login(
                                   authData['email'],

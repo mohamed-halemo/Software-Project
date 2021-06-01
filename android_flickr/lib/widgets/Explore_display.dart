@@ -10,10 +10,10 @@ import 'package:provider/provider.dart';
 /// Explore describes how the posts on explore page are build and displayed.
 class Explore extends StatefulWidget {
   @override
-  _ExploreState createState() => _ExploreState();
+  ExploreState createState() => ExploreState();
 }
 
-class _ExploreState extends State<Explore> {
+class ExploreState extends State<Explore> {
   final inPublicMode = false;
   final isProfile = false;
 

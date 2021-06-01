@@ -333,20 +333,20 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         '-' +
         DateTime.now().second.toString();
     final _imageSaver = ImageSaver();
-    final res = await _imageSaver.saveImage(
+    await _imageSaver.saveImage(
       imageBytes: imageBytes,
       directoryName: "Flickr",
       imageName: imageName + '.jpg',
     );
-    print(res);
-    print(imageName);
+    // print(res);
+    // print(imageName);
 
     final directory = await getApplicationDocumentsDirectory();
     File image = await File('${directory.path}/image.jpg').create();
     await image.writeAsBytes(widget.editedBitmap.buildHeaded());
     var decodedImage = await decodeImageFromList(imageBytes);
-    print(decodedImage.width);
-    print(decodedImage.height);
+    // print(decodedImage.width);
+    // print(decodedImage.height);
 
     FormData formData = new FormData.fromMap(
       {
@@ -372,7 +372,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
       HttpHeaders.contentTypeHeader: 'multipart/form-data'
     };
 
-    print(formData.fields.toString());
+    // print(formData.fields.toString());
 
     try {
       await dio.post(
@@ -382,7 +382,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
           print('$sent $total');
         },
       ).then((value) {
-        print(value);
+        // print(value);
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         return value;
       });
@@ -400,7 +400,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
                   print('$sent $total');
                 },
               ).then((value) {
-                print(value);
+                // print(value);
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 return value;
               });

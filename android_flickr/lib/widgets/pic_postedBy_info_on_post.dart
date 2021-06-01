@@ -7,6 +7,7 @@ import '../screens/non_profile_screen.dart';
 import '../providers/flickr_posts.dart';
 
 /// A Widget that displays picPoster avatar, name, caption and since when was this post posted.
+// ignore: must_be_immutable
 class PicPostedByInfoOnPost extends StatelessWidget {
   bool inPublicMode;
 
@@ -25,7 +26,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
         postInformation.picPoster, currentPosts);
     /* final flickrProfileDetails = FlickrProfiles().profiles.where(
         (profile) => profile.profileID == postInformation.picPoster.profileId); */
-    print(flickrProfileDetails.profileID);
+    // print(flickrProfileDetails.profileID);
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
       arguments: [postInformation, flickrProfileDetails],
@@ -55,7 +56,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
 
   /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
   Widget widgetToBeDisplayedAsTrailing(double widthsize) {
-  /*   print("/*");
+    /*   print("/*");
     print(postInformation.picPoster.isFollowedByUser);
     print(postInformation.postedSince);
     print("*/"); */
@@ -73,7 +74,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
       return PopupMenuButtonOfPost(postInformation);
     }
   }
-  
+
   PicPostedByInfoOnPost(this.postInformation, this.inPublicMode);
   @override
   Widget build(BuildContext context) {

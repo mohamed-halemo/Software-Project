@@ -45,13 +45,13 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
 
   ///Function that navigates to non personal profile screen of the profile pressed, takes the build context
   /// and the information of the current post
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+  void goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
     final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
         postInformation.picPoster, currentPosts);
     /* final flickrProfileDetails = FlickrProfiles().profiles.where(
         (profile) => profile.profileID == postInformation.picPoster.profileId); */
-    print(flickrProfileDetails.profileID);
+    // print(flickrProfileDetails.profileID);
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
       arguments: [postInformation, flickrProfileDetails],
@@ -104,8 +104,10 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
         ModalRoute.of(context).settings.arguments as Map<String, dynamic>;
 
     isFirstLoad ? firstLoad(settingsMap) : reload(settingsMap);
-    ///All posts available at the moment. 
+
+    ///All posts available at the moment.
     final currentPosts = Provider.of<Posts>(context).posts;
+
     ///All profiles available at the moment.
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     //final postInformation = Provider.of<PostDetails>(context);
@@ -134,7 +136,7 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
             //   // isDetailsOfPostDisplayed = false;
             // },
             onIndexChanged: (value) async {
-              print(value);
+              // print(value);
               if (settingsMap['isFromPersonalProfile']) {
                 if (allPosts.length > value) {
                   postIndex = value;
@@ -177,8 +179,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                     ListTile(
                       leading: GestureDetector(
                         onTap: () {
-                          _goToNonprofile(context, allPosts[index],
-                              currentPosts, flickrProfiles);
+                          goToNonprofile(context, allPosts[index], currentPosts,
+                              flickrProfiles);
                         },
                         child: CircleAvatar(
                           radius: MediaQuery.of(context).size.width / 20,
@@ -190,8 +192,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                       ),
                       title: GestureDetector(
                         onTap: () {
-                          _goToNonprofile(context, allPosts[index],
-                              currentPosts, flickrProfiles);
+                          goToNonprofile(context, allPosts[index], currentPosts,
+                              flickrProfiles);
                         },
                         child: Text(
                           allPosts[index].picPoster.name,

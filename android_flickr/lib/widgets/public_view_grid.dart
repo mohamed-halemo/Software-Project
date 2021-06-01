@@ -9,6 +9,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../providers/flickr_posts.dart';
 
 /// Gridview that displays only the images of the user(currently using the device) posts in grid mode.
+// ignore: must_be_immutable
 class PublicViewGrid extends StatelessWidget {
   bool isNonProfile;
   PublicViewGrid(this.isNonProfile);
@@ -50,7 +51,6 @@ class PublicViewGrid extends StatelessWidget {
           new StaggeredTile.count(2, index.isEven ? 2 : 1),
       mainAxisSpacing: 4.0,
       crossAxisSpacing: 4.0,
-      
     );
   }
 }

@@ -1,9 +1,9 @@
-import '../providers/flickr_posts.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+// import '../providers/flickr_posts.dart';
+// import 'package:provider/provider.dart';
 
 /// Displays list of the photos that the user search for.
 class SearchPhotos extends StatelessWidget {

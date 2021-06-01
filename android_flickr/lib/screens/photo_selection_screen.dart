@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 
 //personal imports
-import 'package:android_flickr/screens/photoEditScreen.dart';
+import 'package:android_flickr/screens/photo_edit_screen.dart';
 
 ///A Screen where the user can tap on an image to pick it for upload
 class PhotoSelectionScreen extends StatefulWidget {

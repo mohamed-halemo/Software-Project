@@ -9,7 +9,7 @@ import 'package:bitmap/bitmap.dart';
 import 'package:circle_wheel_scroll/circle_wheel_scroll_view.dart';
 
 //Personal Imports
-import 'package:android_flickr/screens/PhotoUploadScreen.dart';
+import 'package:android_flickr/screens/photo_upload_screen.dart';
 import 'package:android_flickr/Enums/enums.dart';
 import '../Classes/switch_Case_Helper.dart';
 

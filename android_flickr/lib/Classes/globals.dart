@@ -45,12 +45,12 @@ class HttpSingleton {
           },
         ),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    print(response.body);
+    // print(response.body);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
       accessToken = data['access'];
-      print('Token Refresh');
+      // print('Token Refresh');
       return true;
     } else {
       var url = Uri.https(HttpSingleton().getBaseUrl(),
@@ -67,10 +67,10 @@ class HttpSingleton {
         final Map<String, dynamic> data = json.decode(response.body);
         accessToken = data['tokens']['access'];
         refreshToken = data['tokens']['refresh'];
-        print('Token Login');
+        // print('Token Login');
         return true;
       }
-      print('failed');
+      // print('failed');
     }
     return false;
   }

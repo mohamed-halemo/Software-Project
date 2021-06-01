@@ -1,5 +1,5 @@
 import 'package:android_flickr/providers/flickr_post.dart';
-import 'package:android_flickr/providers/flickr_posts.dart';
+// import 'package:android_flickr/providers/flickr_posts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -41,9 +41,9 @@ class FlickrProfiles with ChangeNotifier {
         getPostsWithProfileId(picPoster.profileId, currentPosts);
     if (!profilesId.contains(picPoster.profileId)) {
       profilesId.add(picPoster.profileId);
-      print(postsOfProfile.length);
-      print(picPoster.profileId);
-      print(picPoster.name);
+      // print(postsOfProfile.length);
+      // print(picPoster.profileId);
+      // print(picPoster.name);
       profiles.add(
         FlickrProfile(
           picPoster.profileId,
@@ -79,7 +79,7 @@ class FlickrProfiles with ChangeNotifier {
       postsOfProfile,
     );
     //print("check");
-    print(profile.profileID);
+    // print(profile.profileID);
     //print("/check");
     return profile;
   }

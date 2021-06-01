@@ -5,17 +5,17 @@ import '../providers/flickr_posts.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Classes/globals.dart' as globals;
+// import '../Classes/globals.dart' as globals;
 
 /// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
 class SearchScreen extends StatefulWidget {
   static const routeName = '/search-screen';
 
   @override
-  _SearchScreenState createState() => _SearchScreenState();
+  SearchScreenState createState() => SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class SearchScreenState extends State<SearchScreen> {
   ///Contains the text that the user is searching for.
   final searchTextController = TextEditingController();
 
@@ -60,6 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     ///Gets all the posts available.
     final postsToDisplay = Provider.of<Posts>(context).posts;
+
     ///Gets the profiles of available users to search among them.
     final loadedPicPosterProfiles =
         Provider.of<Posts>(context).picPosterProfilesDetails;

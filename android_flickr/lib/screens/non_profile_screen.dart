@@ -14,10 +14,10 @@ class NonProfileScreen extends StatefulWidget {
   static const routeName = '/non-profile-screen';
 
   @override
-  _NonProfileScreenState createState() => _NonProfileScreenState();
+  NonProfileScreenState createState() => NonProfileScreenState();
 }
 
-class _NonProfileScreenState extends State<NonProfileScreen> {
+class NonProfileScreenState extends State<NonProfileScreen> {
   ///Recieves the profile details and list of all posts to update the ones he posted when the follow button is pressed.
   void toggleFollowPicPoster(
       PicPosterDetails personDetails, List<PostDetails> currentPosts) {
@@ -47,6 +47,7 @@ class _NonProfileScreenState extends State<NonProfileScreen> {
         ChangeNotifierProvider(
           create: (context) => profileData,
         ),
+
         ///To update listeners if the followed button was pressed.
         ChangeNotifierProvider(
           create: (ctx) => postInformation,

@@ -20,10 +20,10 @@ class FlickrSplashScreen extends StatefulWidget {
 
   FlickrSplashScreen(this.screenDisplayedAfterSplash, this.doneFetching);
   @override
-  _FlickrSplashScreenState createState() => _FlickrSplashScreenState();
+  FlickrSplashScreenState createState() => FlickrSplashScreenState();
 }
 
-class _FlickrSplashScreenState extends State<FlickrSplashScreen> {
+class FlickrSplashScreenState extends State<FlickrSplashScreen> {
   //var _init = true;
 
   /* @override

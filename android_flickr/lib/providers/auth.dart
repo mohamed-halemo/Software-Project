@@ -6,10 +6,6 @@ import '../Classes/globals.dart' as globals;
 
 /// Log in and sign up authentication
 class Auth with ChangeNotifier {
-  String _token;
-  DateTime _expiryDate;
-  String _userId;
-
   /// Sending user sign up info to the server
   Future<http.Response> signup(String email, String password, String firstname,
       String lastname, String age) async {
@@ -26,7 +22,7 @@ class Auth with ChangeNotifier {
           },
         ),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    print(json.decode(response.body));
+    // print(json.decode(response.body));
     //print(response.statusCode);
     return response;
   }
@@ -50,7 +46,7 @@ class Auth with ChangeNotifier {
       globals.email = email;
       globals.password = password;
     }
-    print(json.decode(response.body));
+    // print(json.decode(response.body));
     //print(response.statusCode);
     return response;
   }

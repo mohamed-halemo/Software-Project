@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+// import 'package:path/path.dart';
 
 /// Comments page
 class Comments extends StatefulWidget {
   @override
-  _CommentsState createState() => _CommentsState();
+  CommentsState createState() => CommentsState();
 }
 
-class _CommentsState extends State<Comments> {
+class CommentsState extends State<Comments> {
   List<String> comments = [];
 
   /// Adding new comments to the comments page
@@ -19,11 +19,12 @@ class _CommentsState extends State<Comments> {
 
   /// Building the comments list and return the comment in it's position
   Widget buildCommentList() {
-    return ListView.builder(itemBuilder: (Context, index) {
-      if (index < comments.length) {
+    return ListView.builder(
+      itemCount: comments.length,
+      itemBuilder: (Context, index) {
         return buildCommentItem(comments[index]);
-      }
-    });
+      },
+    );
   }
 
   /// returns the text of the comment in lists

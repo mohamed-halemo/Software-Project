@@ -1,7 +1,7 @@
 //import 'dart:js';
 //import 'dart:ui';
 //import 'package:http/http.dart' as http;
-import 'package:android_flickr/screens/explore_screen.dart';
+// import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/logIn_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -18,10 +18,10 @@ enum SlideNumber {
 class GetStartedScreen extends StatefulWidget {
   static const routeName = '/get-started-screen';
   @override
-  _GetStartedScreenState createState() => _GetStartedScreenState();
+  GetStartedScreenState createState() => GetStartedScreenState();
 }
 
-class _GetStartedScreenState extends State<GetStartedScreen> {
+class GetStartedScreenState extends State<GetStartedScreen> {
   ///The images are preloaded from the assests in this map and so they are ready to be displayed .
   Map<String, Image> swipeImageMap;
 
@@ -126,7 +126,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
       'swipeImage3': swipeImage3,
       'swipeImage4': swipeImage4,
     };
-    print(swipeImageMap.keys.first);
+    // print(swipeImageMap.keys.first);
 
     super.initState();
   }
