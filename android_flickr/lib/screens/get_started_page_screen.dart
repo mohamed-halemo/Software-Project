@@ -2,10 +2,12 @@
 //import 'dart:ui';
 //import 'package:http/http.dart' as http;
 // import 'package:android_flickr/screens/explore_screen.dart';
+import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/logIn_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import './splash_screen.dart';
+import '../Classes/globals.dart' as globals;
 
 enum SlideNumber {
   slide1,
@@ -81,8 +83,8 @@ class GetStartedScreenState extends State<GetStartedScreen> {
     Navigator.of(ctx).push(
       MaterialPageRoute(
         builder: (context) => FlickrSplashScreen(
-          LogIn(),
-          true,
+          globals.isMockService ? ExploreScreen() : LogIn(),
+          globals.isMockService ? false : true,
         ),
       ),
     );
