@@ -33,7 +33,8 @@ class _LogInState extends State<LogIn> {
   bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
   void loginScreen(BuildContext ctx) {
-    Navigator.of(ctx).push(
+    Navigator.of(ctx).pop();
+    Navigator.of(ctx).pushReplacement(
       MaterialPageRoute(
         builder: (context) => FlickrSplashScreen(
           ExploreScreen(),

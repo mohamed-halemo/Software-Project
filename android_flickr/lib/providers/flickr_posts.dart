@@ -129,7 +129,7 @@ class Posts with ChangeNotifier {
                     '${postDetails['owner']['id'] * 3}', //found
               ),
               postImageUrl:
-                  'https://picsum.photos/200/200?random=' + '$postUrl', //found
+                  'https://fotone.me' + postDetails['media_file'], //found
               postedSince: postDetails['owner']['id'].toString(),
               caption: postDetails['title'].length > 0
                   ? postDetails['title']
