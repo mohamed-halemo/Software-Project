@@ -18,8 +18,9 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   bool isFollowedBeforeRunning = true;
 
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
-      List<PostDetails> currentPosts,FlickrProfiles flickrProfiles) {
-    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(postInformation.picPoster, currentPosts);
+      List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
+        postInformation.picPoster, currentPosts);
     /* final flickrProfileDetails = FlickrProfiles().profiles.where(
         (profile) => profile.profileID == postInformation.picPoster.profileId); */
     print(flickrProfileDetails.profileID);
@@ -52,6 +53,10 @@ class PicPostedByInfoOnPost extends StatelessWidget {
 
   /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
   Widget widgetToBeDisplayedAsTrailing(double widthsize) {
+    print("/*");
+    print(postInformation.picPoster.isFollowedByUser);
+    print(postInformation.postedSince);
+    print("*/");
     if ((postInformation.picPoster.isFollowedByUser &&
             !postInformation.picPoster.followedDuringRunning) ||
         inPublicMode) {
@@ -78,7 +83,8 @@ class PicPostedByInfoOnPost extends StatelessWidget {
         ListTile(
           leading: GestureDetector(
             onTap: () {
-              _goToNonprofile(context, postInformation, currentPosts,flickrProfiles);
+              _goToNonprofile(
+                  context, postInformation, currentPosts, flickrProfiles);
             },
             child: CircleAvatar(
               radius: MediaQuery.of(context).size.width / 20,

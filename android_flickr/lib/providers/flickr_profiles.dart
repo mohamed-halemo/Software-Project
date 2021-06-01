@@ -1,6 +1,25 @@
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/providers/flickr_posts.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+class MyProfile with ChangeNotifier {
+  String profileID = "619";
+  String profileName = "Dragon Slayer";
+  //List<PostDetails> profilePosts;
+  String profilePicUrl = 'https://picsum.photos/200/200?random=' + '${619}';
+  String profileCoverPhoto =
+      'https://picsum.photos/200/200?random=' + '${619 * 3}';
+
+  //MyProfile(this.profileID, this.profileName, this.profilePosts);
+
+  Map<String, String> get getProfilePicCoverPhoto {
+    return {
+      'profilePic': profilePicUrl,
+      'profileCoverPhoto': profileCoverPhoto,
+    };
+  }
+}
 
 class FlickrProfile with ChangeNotifier {
   String profileID;
@@ -32,7 +51,7 @@ class FlickrProfiles with ChangeNotifier {
           postsOfProfile,
         ),
       );
-      
+
       //print(postsOfProfile);
 
     }

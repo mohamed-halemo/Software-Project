@@ -38,7 +38,7 @@ class NonProfileScreen extends StatelessWidget {
                       children: [
                         FlexibleSpaceBar(
                           background: Image.network(
-                            postInformation.postImageUrl,
+                            postInformation.picPoster.profileCoverPhoto,
                             fit: BoxFit.cover,
                           ),
                         ),

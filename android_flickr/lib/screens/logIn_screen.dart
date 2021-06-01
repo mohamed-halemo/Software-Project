@@ -37,6 +37,7 @@ class _LogInState extends State<LogIn> {
       MaterialPageRoute(
         builder: (context) => FlickrSplashScreen(
           ExploreScreen(),
+          false,
         ),
       ),
     );

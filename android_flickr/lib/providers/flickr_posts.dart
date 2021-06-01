@@ -1,16 +1,19 @@
 //import 'package:android_flickr/providers/flickr_profiles.dart';
 
 import 'package:intl/intl.dart';
-
+import 'dart:io';
 import './flickr_post.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../Classes/globals_moaz.dart' as globals;
+import '../Classes/globals.dart' as globals;
 
 ///Class Posts is used to obtain lists of class post in order to display these posts on our explore screen.
 class Posts with ChangeNotifier {
+  ///List of other users profiles posts.
   List<PostDetails> _posts = [];
+
+  ///List of user profile posts.
   List<PostDetails> _myPosts = [];
 
   /* Future<void> _addPostsToDatabase() async {
@@ -49,7 +52,121 @@ class Posts with ChangeNotifier {
     /* final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
     //const url = 'https://flutter-update.firebaseio.com.json';
-    fetchAndSetMyPosts();
+    try {
+      if (globals.isMockService) {
+        await fetchAndSetMyPosts();
+        await mockServiceExplorePosts();
+      } else {
+        await mainServerExplorePosts();
+      }
+    } catch (error) {
+      throw (error);
+    }
+    print("done fetching");
+  }
+
+  Future<void> mainServerExplorePosts() async {
+    /* final url = Uri.https(
+        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
+    //const url = 'https://flutter-update.firebaseio.com.json';
+    //fetchAndSetMyPosts();
+    final url =
+        Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/home');
+    //print(url);
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      );
+      //print(response.body);
+      /* final extractedData =
+          json.decode(response.body) as List<Map<String, dynamic>>; */
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final extactedposts =
+          extractedData['results']['public_photos'] as List<dynamic>;
+      //print("start");
+      //print(extactedposts);
+      final List<PostDetails> loadedPosts = [];
+      //final List<String> loadedProfilesId = [];
+      extactedposts.forEach(
+        (postDetails) {
+          //print(postDetails);
+          int postUrl = postDetails['id'] * 2;
+          //print(postDetails['title']);
+          //print(postDetails['title'].length);
+          loadedPosts.add(
+            PostDetails(
+              id: postDetails['id'].toString(), //found
+              commentsTotalNumber: postDetails['count_comments'], //found
+              favesDetails: FavedPostDetails(
+                favedUsersNames: postDetails['is_faved'] //found
+                    ? [
+                        'You',
+                        'postDetails[favourites][1]', //found
+                        'postDetails[favourites][2]', //found
+                      ]
+                    : [
+                        'postDetails[favourites][1]', //found
+                        'postDetails[favourites][2]', //found
+                      ],
+                isFaved: postDetails['is_faved'], //found
+                favesTotalNumber: postDetails['count_favourites'], //found
+              ),
+              picPoster: PicPosterDetails(
+                postDetails['owner']['id'].toString(), //found
+                (postDetails['owner']['first_name'] +
+                    " " +
+                    postDetails['owner']['last_name']), //found
+                postDetails['owner']['is_pro'], //found
+                postDetails['owner'][
+                    'is_staff'], //not found, using placeholder for is_followed_by_user
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['owner']['id']}', //found
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['owner']['id'] * 3}', //found
+              ),
+              postImageUrl:
+                  'https://picsum.photos/200/200?random=' + '$postUrl', //found
+              postedSince: postDetails['owner']['id'].toString(),
+              caption: postDetails['title'].length > 0
+                  ? postDetails['title']
+                  : " ", //found
+              lastComment: {
+                "postDetails['lastCommentUser']":
+                    " postDetails['photo_comments'][postDetails['photo_comments']]", //found
+              },
+              tags: "postDetails['photo_tags']", //found
+              //dateTaken: postDetails['date_taken'],
+              description: postDetails['description'], //found
+              privacy: postDetails['is_public'], //found
+              dateTaken: DateFormat('dd-MM-yyyy')
+                  .parse(postDetails['date_posted']), //found
+            ),
+          );
+        },
+      );
+      //print(loadedProfilesId.length);
+      _posts = loadedPosts;
+      //FlickrProfiles.profilesId = loadedProfilesId;
+      //print(loadedProfiles[1].profileName);
+      //print(loadedProfiles[51].profileID);
+      notifyListeners();
+    } catch (error) {
+      print("error");
+      //print('https://picsum.photos/200/200?random=' + '$postUrl');
+      throw (error);
+    }
+  }
+
+  /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts.
+  Future<void> mockServiceExplorePosts() async {
+    /* final url = Uri.https(
+        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
+    //const url = 'https://flutter-update.firebaseio.com.json';
+    //fetchAndSetMyPosts();
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts');
     //print(url);
@@ -62,15 +179,15 @@ class Posts with ChangeNotifier {
       final extractedData = json.decode(response.body) as List<dynamic>;
       //print(extractedData);
       final List<PostDetails> loadedPosts = [];
-      final List<String> loadedProfilesId = [];
+      //final List<String> loadedProfilesId = [];
       extractedData.forEach(
         (postDetails) {
-          if (!loadedProfilesId.contains(
+          /* if (!loadedProfilesId.contains(
             postDetails['ProfileId'].toString(),
           )) {
             loadedProfilesId.add(postDetails['ProfileId'].toString());
           }
-
+ */
           int postUrl = postDetails['id'] * 2;
           //print(postUrl);
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
@@ -101,6 +218,8 @@ class Posts with ChangeNotifier {
                 postDetails['isFollowedByUser'],
                 'https://picsum.photos/200/200?random=' +
                     '${postDetails['ProfileId']}',
+                'https://picsum.photos/200/200?random=' +
+                    '${postDetails['ProfileId'] * 3}', //found
               ),
               postImageUrl:
                   'https://picsum.photos/200/200?random=' + '$postUrl',
@@ -132,14 +251,13 @@ class Posts with ChangeNotifier {
     }
   }
 
-  ///Used to fetch data from the firebase database and set them in the List of posts.
+  ///Used to fetch user posts and data from JSON server and set them in the List of _myPosts.
   Future<void> fetchAndSetMyPosts() async {
     /* final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
     //const url = 'https://flutter-update.firebaseio.com.json';
     final url = Uri.http(globals.HttpSingleton().getBaseUrl(), '/MyPosts');
     //print(url);
-
     try {
       final response = await http.get(url);
       //print(response.body);
@@ -185,8 +303,8 @@ class Posts with ChangeNotifier {
                 "Dragon Slayer",
                 false,
                 true,
-                'https://picsum.photos/200/200?random=' +
-                    '${619}',
+                'https://picsum.photos/200/200?random=' + '${619}',
+                'https://picsum.photos/200/200?random=' + '${619 * 3}', //found
               ),
               postImageUrl:
                   'https://picsum.photos/200/200?random=' + '$postUrl',
@@ -225,6 +343,7 @@ class Posts with ChangeNotifier {
     //print(_posts);
     return [..._posts];
   }
+
   List<PostDetails> get myPosts {
     //print(_posts);
     return [..._myPosts];

@@ -2,23 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../Classes/globals_moaz.dart' as globals;
+import '../Classes/globals.dart' as globals;
 
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
 ///he is a pro or not and if he is followed by the current user(the person using the application) as well as his profile picture url.
 class PicPosterDetails {
+  
   String profileId;
   String name;
   bool isPro;
   bool isFollowedByUser;
   bool followedDuringRunning = false;
   String profilePicUrl;
+  String profileCoverPhoto;
   PicPosterDetails(
     this.profileId,
     this.name,
     this.isPro,
     this.isFollowedByUser,
     this.profilePicUrl,
+    this.profileCoverPhoto,
   );
 }
 

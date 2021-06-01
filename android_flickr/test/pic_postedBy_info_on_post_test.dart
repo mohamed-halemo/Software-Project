@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 void main() {
   final postInformation = PostDetails(
     id: "1",
-    picPoster: PicPosterDetails("1","moaz", true, false, ""),
+    picPoster: PicPosterDetails("1", "moaz", true, false, "",""),
     commentsTotalNumber: 20,
     postImageUrl: "postImageUrl",
     postedSince: "6w",
@@ -132,39 +132,39 @@ void main() {
     });
   });
   test("Followed during running from explore", () {
-      //Arrange
-      //BuildContext context;
-      postInformation.picPoster.isFollowedByUser = true;
-      postInformation.picPoster.followedDuringRunning = true;
-      picPostedByInfoOnPostInstance.inPublicMode = false;
-      postInformation.caption = "";
+    //Arrange
+    //BuildContext context;
+    postInformation.picPoster.isFollowedByUser = true;
+    postInformation.picPoster.followedDuringRunning = true;
+    picPostedByInfoOnPostInstance.inPublicMode = false;
+    postInformation.caption = "";
 
-      Text textWidget =
-          picPostedByInfoOnPostInstance.widgetToBeDisplayedAsSubtitle();
-      String matcher = textWidget.data;
+    Text textWidget =
+        picPostedByInfoOnPostInstance.widgetToBeDisplayedAsSubtitle();
+    String matcher = textWidget.data;
 
-      //Act
-      String actual = "Following recomended";
-      //Assert
+    //Act
+    String actual = "Following recomended";
+    //Assert
 
-      expect(actual, matcher);
-    });
-    test("Recommended on explore", () {
-      //Arrange
-      //BuildContext context;
-      postInformation.picPoster.isFollowedByUser = false;
-      postInformation.picPoster.followedDuringRunning = false;
-      picPostedByInfoOnPostInstance.inPublicMode = false;
-      postInformation.caption = "";
+    expect(actual, matcher);
+  });
+  test("Recommended on explore", () {
+    //Arrange
+    //BuildContext context;
+    postInformation.picPoster.isFollowedByUser = false;
+    postInformation.picPoster.followedDuringRunning = false;
+    picPostedByInfoOnPostInstance.inPublicMode = false;
+    postInformation.caption = "";
 
-      Text textWidget =
-          picPostedByInfoOnPostInstance.widgetToBeDisplayedAsSubtitle();
-      String matcher = textWidget.data;
+    Text textWidget =
+        picPostedByInfoOnPostInstance.widgetToBeDisplayedAsSubtitle();
+    String matcher = textWidget.data;
 
-      //Act
-      String actual = "Recomended";
-      //Assert
+    //Act
+    String actual = "Recomended";
+    //Assert
 
-      expect(actual, matcher);
-    });
+    expect(actual, matcher);
+  });
 }

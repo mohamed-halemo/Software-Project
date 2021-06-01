@@ -81,7 +81,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     Navigator.of(ctx).push(
       MaterialPageRoute(
         builder: (context) => FlickrSplashScreen(
-          LogIn(),
+          ExploreScreen(),
+          false,
         ),
       ),
     );
