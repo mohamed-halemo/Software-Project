@@ -1,10 +1,9 @@
-from .models import sets
+from .models import *
 from .models import commentss
-from .serializer import sets_serializer
-from .serializer import comments_serializer
+from .serializer import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from django.http import Http404
+from django.http import Http404, response
 from rest_framework import status
 from django.core.paginator import Paginator
 from rest_framework.pagination import PageNumberPagination
@@ -15,28 +14,146 @@ from django.db.models import Count
 from rest_framework.permissions import IsAuthenticated
 from project.permissions import IsOwner
 from django.contrib.auth.decorators import permission_required
-
-
+from django.core.exceptions import ObjectDoesNotExist
+from photo.models import *
+from photo.serializers import *
 
 class RespondPagination(PageNumberPagination):
     page_size = 1
     page_size_query_param = 'page_size'
     max_page_size = 1
 
+def set_primary(serializer, photo_id, get_photo,sets_obj):
+    serializer.save(primary=photo_id)         # to set the primary photo of a given photoset
+    get_photo.sets_photos.add(sets_obj)
+
+def photos (photo_id):   # to get a photo from the database
+    
+    bool = True #to check the existance of a given set
+    try:
+        get_photo = Photo.objects.get(id=photo_id)
+        response=status.HTTP_200_OK
+        return get_photo, response, bool
+        
+    except ObjectDoesNotExist:
+        get_photo=None
+        response=status.HTTP_404_NOT_FOUND
+        bool = False
+        return get_photo, response, bool
+        
+        
+    
+def check_set(id):
+    bool = True #to check the existance of a given set
+    try:
+        get_list = sets.objects.get(id=id)
+        response=status.HTTP_200_OK
+        return get_list, response, bool
+        
+    except ObjectDoesNotExist:
+        get_list=None
+        response=status.HTTP_404_NOT_FOUND
+        bool = False
+        return get_list, response, bool
+
+def check_comm(get_list, comment_id):
+    bool = True #to check the existance of a given comment
+    try:
+       
+        get_comment=get_list.comment.get(id=comment_id)  
+        response=status.HTTP_200_OK
+        return get_comment, response, bool
+        
+    except :
+        get_comment=None
+        response=status.HTTP_404_NOT_FOUND
+        bool = False
+        return get_comment, response, bool
+
+def check_user(get_list, request):
+    Response=''
+    statuss=''
+    if (get_list.owner != request.user):
+        Response=(
+                {'stat': 'fail',
+                'message': 'User does not have permission '})
+           
+        statuss=status.HTTP_403_FORBIDDEN
+    return Response, statuss
+
+def exist_photo(get_list, get_photo):
+    Response=''
+    statuss=''
+    photoos= get_list.photos.all()
+    if get_photo in photoos: #check whether the photo exists in the set 
+        Response=(
+                {'stat': 'fail',
+                'message': 'photo already exists'})
+        statuss=status.HTTP_403_FORBIDDEN
+    return Response, statuss
+
+def photo_exists(get_list, photo_id):
+    Response=''
+    statuss=''
+    try:
+        deleted_photo=get_list.photos.get(id=photo_id)
+        return deleted_photo ,Response, statuss
+    except ObjectDoesNotExist: #check whether the photo exists in the set 
+        Response=(
+                {'stat': 'fail',
+                'message': 'photo does not exist'})
+        statuss=status.HTTP_403_FORBIDDEN
+        deleted_photo=None
+        return deleted_photo ,Response, statuss
+
+
+def comm_increment(serializer, get_list, request ): # incrementing the comment count
+                                                    # when creating a new comment to a given set
+    serializer.save(sets=get_list, owner=request.user)
+    get_list.count_comments += 1
+    get_list.save()
+
+def comm_decrement(get_list):
+    get_list.count_comments -= 1
+    get_list.save()  
+
+def photo_increment(get_list):
+    get_list.count_photos += 1
+    get_list.save()
+
+def photo_decrement(get_list):
+    get_list.count_photos -= 1    
+    get_list.save()           
+
+def sets_increment(request):
+    user=request.user
+    user.photosets_count +=1
+    user.save()
+   
+def sets_decrement(request):
+    user=request.user
+    user.photosets_count -=1
+    user.save()
 
 @api_view(['GET'])
 def set_lists(request):
-    all_sets = sets.objects.all()
+    try:
+   
+        all_sets = sets.objects.all()
+    except ObjectDoesNotExist:
+        
+        return Response(status=status.HTTP_404_NOT_FOUND)
     photosets = sets_serializer(all_sets, many=True).data 
     return Response({'photosets': photosets})
 
 @api_view(['GET'])
+#   getting the list of photosets of a given user
 def get_lists(request, id):
     try:
 
-        get_list = sets.objects.all().filter(owner_id=id)
+        get_list = sets.objects.all().filter(owner_id=id).order_by('-date_create')
         
-    except:
+    except ObjectDoesNotExist:
         
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -47,141 +164,240 @@ def get_lists(request, id):
     return Paginator.get_paginated_response({'photosets': photosets})
 
 
+@api_view(['GET'])  
+#     get information about a given photoset
+def get_information(request, id):
+    get_list, response, bool = check_set(id)
+    if bool:
+        set = sets_serializer(get_list).data
+        return Response({'photoset': set}, status=response)
+    else:
+        return Response(status=response)
+    
+    
+      
+    
+
+
 @api_view(['POST'])   
 @permission_classes((IsAuthenticated,))
-def create_set(request):
-    if request.method == 'POST':
-        serializer = sets_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#adding a photoset by a user and setting its primary photo
+def create_set(request, photo_id):
+    get_photo, responses, boool = photos(photo_id)
+    if boool:
+            try:
+        
+                sets_obj=sets.objects.create(title=request.data['title'],
+                                        owner=request.user)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = sets_serializer_post(sets_obj, data=request.data)
+            
+            if serializer.is_valid():
+                set_primary(serializer, photo_id, get_photo,sets_obj)
+                sets_increment(request)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    else:
+        return Response(status=responses)
+    
+    
+        
+    
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
+# deleting a given photoset
 def delete_set(request, id):
-    try:
-        get_list = sets.objects.get(id=id)
-        if (get_list.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             '  this photoset'},
-                 status=status.HTTP_403_FORBIDDEN)
+    get_list, response, bool = check_set(id)
+    if bool:
+        
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)
         get_list.delete()
+        
+        sets_decrement(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    else:
+        return Response(status=response)
+    
+        
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
+#     edit metadata of a given photoset
 def edit_meta(request, id):
-    try:
-        get_list = sets.objects.get(id=id)
-        if (get_list.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             '  this photoset'},
-                 status=status.HTTP_403_FORBIDDEN)
-        if request.method == 'PUT':
-            serializer = sets_serializer(get_list, data=request.data)
-            if serializer.is_valid():
-                
-                serializer.save()
+    get_list, response, bool = check_set(id)
+    if bool:
+        
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)   
+        
+        serializer = sets_serializer_post(get_list, data=request.data)
+        if serializer.is_valid():
             
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer.save()
+        
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status=response)
+
+
+
+        
+    
+    
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
+#   adding a comment to a given photoset
 def create_comment(request, id):
-    try:
-        get_list = sets.objects.get(id=id)
-        if (get_list.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             '  this photoset'},
-                 status=status.HTTP_403_FORBIDDEN)
-        if request.method == 'POST':
-            serializer = comments_serializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(sets=get_list)
-                get_list.count_comments += 1
-                get_list.save()
-                return Response(serializer.data,
-                                status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, 
-                            status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+     # getting the photoset from database
+    get_list, response, bool = check_set(id)
+    if bool:
+        
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)# check for the user
+    
+        serializer = comments_serializer_post(data=request.data)
+        if serializer.is_valid():
+            comm_increment(serializer, get_list, request )
+            return Response(serializer.data,
+                        status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, 
+                    status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=response)
+   
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
-def delete_comment(request, id):
-    try:
-        get_list = commentss.objects.get(id=id)
-        if (get_list.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             '  this photoset'},
-                 status=status.HTTP_403_FORBIDDEN)
-        get_list.delete()
+#   deleting a given comment
+def delete_comment(request, comment_id, set_id):
+    # getting the photoset from database
+    get_list, response, bool = check_set(set_id)
+    if bool:
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)# check for the user
+    get_comment, responses, boool= check_comm(get_list, comment_id)
+    if boool:
+        get_comment.delete()
+        comm_decrement(get_list)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=responses)
+
+
 
 @api_view(['PUT'])
+#    editing a given comment
 @permission_classes((IsAuthenticated,))
-def edit_comment(request, id):
-    try:
-        get_list = commentss.objects.get(id=id)
-        if (get_list.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             '  this photoset'},
-                 status=status.HTTP_403_FORBIDDEN)
-        if request.method == 'PUT':
-            
-            serializer = comments_serializer(get_list, data=request.data)            
-            
-            if serializer.is_valid():
-               
-                serializer.save()
-                
-                return Response(serializer.data, status=status.HTTP_200_OK)
-                
-            return Response(serializer.errors, 
-                            status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def edit_comment(request, set_id, comment_id):
+    # getting the photoset from database
+    get_list, response, bool = check_set(set_id)
+    if bool:
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)# check for the user
+    get_comment, responses, boool= check_comm(get_list, comment_id)
+    if boool:
+        serializer = comments_serializer_post(get_comment, data=request.data)            
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, 
+                        status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=responses)
     
 
 @api_view(['GET'])
-def get_comments_list(request, id):
+#    get comments list on a given photoset
+def get_comments_list(request,id):
+    get_list, response, bool = check_set(id)
+    if bool:    
+        set_list = get_list.comment.all() # getting all the comments from database
+    
+        comments = comments_serializer(set_list, many=True).data
+        return Response({'comments': comments}, status=status.HTTP_200_OK)  
+    else:
+        return Response(status=response)
+
+
+@api_view(['POST','DELETE'])  
+#     add and delete a given photo to a given photoset
+@permission_classes((IsAuthenticated,))
+def photo(request, set_id, photo_id):
+    get_list, response, bool = check_set(set_id)
+    if bool:
+        responsee, statuss=check_user(get_list, request)
+        if responsee!='':
+            return Response(responsee, status=statuss)# check for the user  
+    else:
+        return Response(status=response)
+    if request.method == 'POST':
+        get_photo, responses, boool = photos(photo_id)
+        if boool:
+            res, stat= exist_photo(get_list, get_photo)
+            if res !='':
+                return Response(res, status=stat) 
+            else:
+                get_photo.sets_photos.add(get_list)
+                photo_increment(get_list)
+                return Response( status=status.HTTP_200_OK)
+        else:
+            return Response(status=responses)
+    if request.method == 'DELETE':
+        deleted_photo ,Responser, statuss=photo_exists(get_list, photo_id)
+        if Responser !='':
+            return Response(Responser, status=statuss) 
+        get_list.photos.remove(deleted_photo)
+        photo_decrement(get_list)
+        return Response( status=status.HTTP_200_OK)
+        
+
+@api_view(['GET'])  
+#     get photos in a given photoset
+def get_photos(request, set_id):
     try:
-        #   get_id = sets.id
-        get_list = sets.objects.get(id=id)
-        #   set_list  =  commentss.objects.all().prefetch_related('sets')
+        get_list = sets.objects.get(id=set_id)
     except:
-    
-        return Response(status=status.HTTP_404_NOT_FOUND)    
-    set_list = get_list.comment.all()
-    
-    comments = comments_serializer(set_list, many=True).data
-    # if comments == []:
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
-    #   comments = comments_serializer(get_list).data 
-    return Response({'comments': comments}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)      
+    set_list = get_list.photos.all().order_by('-date_posted')
+    photos = PhotoMetaSerializer(set_list, many=True).data
+    if photos == []:
+        return Response({'stat': 'fail',
+                    'message': 'no photos'},status=status.HTTP_400_BAD_REQUEST)
+      
+    return Response({'photos': photos}, status=status.HTTP_200_OK)
 
-    
+@api_view(['GET'])
+def photo_sets(request, photo_id):
+#     get the photosets that a given photo belongs to
+    try:
+        photo_obj = Photo.objects.get(id=photo_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    # GET
+    sets = photo_obj.sets_photos.all()
+    serializer = sets_serializer(sets, many=True)
+    return Response(serializer.data)
 
 
-
-     
+@api_view(['GET'])
+def search(request):
+# search for a set by its title ordered from the oldest
+    try:
+        value = request.query_params.get("title")
+        Sets = sets.objects.filter(title__icontains=value)\
+            .order_by('-date_create')
+    except:
+        Response(status=status.HTTP_400_BAD_REQUEST)
+    serializer = sets_serializer(Sets, many=True)
+    return Response(serializer.data)

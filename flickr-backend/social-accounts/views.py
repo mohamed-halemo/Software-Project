@@ -10,13 +10,7 @@ class FacebookLogin(GenericAPIView):
     serializer_class = FacebookLoginSerializer
 
     def post(self, request):
-        """
-
-        POST with "auth_token"
-
-        Send an access token as from facebook to get user information
-
-        """
+        
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = ((serializer.validated_data)['auth_token'])

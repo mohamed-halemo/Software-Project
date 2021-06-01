@@ -30,7 +30,7 @@ class TestGetPerms(APITestCase):
                                           photo_displaypx=300,
                                           video_duration=0)
         self.valid_url = reverse('photo:get_perms',
-                                 kwargs={'id': self.photo.media_id})
+                                 kwargs={'id': self.photo.id})
         self.invalid_url = reverse('photo:get_perms', kwargs={'id': 0})
 
     def test_normal_case(self):
@@ -61,7 +61,7 @@ class TestSetMeta(APITestCase):
                                           photo_displaypx=300,
                                           video_duration=0)
         self.valid_url = reverse('photo:set_meta',
-                                 kwargs={'id': self.photo.media_id})
+                                 kwargs={'id': self.photo.id})
         self.invalid_url = reverse('photo:set_meta', kwargs={'id': 0})
 
     def test_normal_case(self):
@@ -126,7 +126,7 @@ class TestSetDates(APITestCase):
                                           photo_displaypx=300,
                                           video_duration=0)
         self.valid_url = reverse('photo:set_dates',
-                                 kwargs={'id': self.photo.media_id})
+                                 kwargs={'id': self.photo.id})
         self.invalid_url = reverse('photo:set_dates', kwargs={'id': 0})
 
     def test_normal_case(self):
@@ -568,7 +568,7 @@ class TestDeletePhoto(APITestCase):
                                           photo_displaypx=300,
                                           video_duration=0)
         self.valid_url = reverse('photo:delete_photo',
-                                 kwargs={'id': self.photo.media_id})
+                                 kwargs={'id': self.photo.id})
         self.invalid_url = reverse('photo:delete_photo',
                                    kwargs={'id': 0})
 
@@ -581,7 +581,7 @@ class TestDeletePhoto(APITestCase):
         response = self.client.delete(self.invalid_url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
+'''
 class TestGetViews(APITestCase):
 
     def setUp(self):
@@ -603,7 +603,7 @@ class TestGetViews(APITestCase):
         self.view2 = View.objects.create(user=self.user3,
                                          photo=self.photo)
         self.valid_url = reverse('photo:get_views',
-                                 kwargs={'id': self.photo.media_id})
+                                 kwargs={'id': self.photo.id})
         self.invalid_url = reverse('photo:get_views',
                                    kwargs={'id': 0})
 
@@ -615,3 +615,4 @@ class TestGetViews(APITestCase):
     def test_invalid_photoID(self):
         response = self.client.get(self.invalid_url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+'''

@@ -1,97 +1,109 @@
-from django.http import JsonResponse
+from django.core import paginator
+from django.db.models import fields
+from django.http import response
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from .models import gallery, Comments
-#   , Photo
-from .serializers import GallerySerializer, CommentSerializer
-#   , ImageSerializer
+from .models import *
+from photo.models import *
+from accounts.models import *
+from .serializers import *
+from photo.serializers import *
+from project.permissions import check_permission
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import Paginator
 from rest_framework.permissions import IsAuthenticated
+from .functions import *
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def gallery_info(request, galpk):
-    try:
-        gallery_obj = gallery.objects.get(id=galpk)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    # get , edit and delete a specific gallery by its id
+    exists, response, gallery_obj = check_gallery_exists(galpk)
+    if not exists:
+        return Response(status=response)
     #   GET
     if request.method == 'GET':
         serializer = GallerySerializer(gallery_obj)
         return Response(serializer.data)
     #   PUT
     elif request.method == 'PUT':
-        if (gallery_obj.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to edit'
-                             ' this gallery'},
-                 status=status.HTTP_403_FORBIDDEN)
-        serializer = GallerySerializer(gallery_obj, data=request.data)
+        bool,response=check_permission(request.user,gallery_obj)        
+        if not bool :
+            return Response(status=response)
+        serializer = CreateGallerySerializer(gallery_obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     #   DELETE
     elif request.method == 'DELETE':
-        if (gallery_obj.owner != request.user):
-            return Response(
-                 {'stat': 'fail',
-                  'message': 'User does not have permission to delete'
-                             ' this gallery'},
-                 status=status.HTTP_403_FORBIDDEN)
+        bool,response=check_permission(request.user,gallery_obj)        
+        if not bool :
+            return Response(status=response)
         gallery_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        '''
-        operation = gallery_obj.delete()
-        data = {}
-        if operation:
-            data["stat"] = "OK"
-            status= status.HTTP_400_BAD_REQUEST
-        else:
-            data["stat"] = "Fail"
-            status= status.HTTP_400_BAD_REQUEST
-        return Response(data=data)
-           return Response(status= 404)
-        '''
+
+
+@api_view(['GET'])
+def user_galleries(request, userpk):
+    # get a list of galleries of a specific user given its id
+    Paginator = PageNumberPagination()
+    Paginator.page_size = 20
+    exists, response, gallery_list = get_user_galleries(userpk)
+    if not exists:
+        return Response(status=response)
+    #   GET
+    results = Paginator.paginate_queryset(gallery_list, request)
+    galleries = GallerySerializer(results, many=True)
+    return Paginator.get_paginated_response(
+        galleries.data)
 
 
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated,))
 def gallery_list(request):
+    # get list of galleries or create a new one
+    Paginator = PageNumberPagination()
+    Paginator.page_size = 20
     # GET
     if request.method == 'GET':
-        galleries = gallery.objects.all().order_by('-date_create')
-        serializer = GallerySerializer(galleries, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        gallery_list = Gallery.objects.all()
+        results = Paginator.paginate_queryset(gallery_list, request)
+        galleries = GallerySerializer(results, many=True)
+        return Paginator.get_paginated_response(
+            galleries.data)
     # POST
     elif request.method == 'POST':
-        #   serializer = CreateGallerySerializer(data= request.data)
-        serializer = GallerySerializer(data=request.data)
+        serializer = CreateGallerySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user)
+            # increment the count of galleries in the profile of the user by 1
+            increment_profile_items(request.user,'galleries_count')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 def find_gallery(request):
+    # search for a gallery by its title ordered from the oldest
     value = request.query_params.get("title")
-    galleries = gallery.objects.filter(title__icontains=value)\
-        .order_by('-date_create')
+    exists, response, galleries= search_gallery(value)
+    if not exists:
+        return Response(status=response)
     serializer = GallerySerializer(galleries, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET', 'POST'])
-def comments_list(request, galpk):
-    try:
-        gallery_obj = gallery.objects.get(id=galpk)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def gallery_comments_list(request, galpk):
+    # get list of comments or create a new one
+    #  to a specific gallery given its id
+    exists, response, gallery_obj = check_gallery_exists(galpk)
+    if not exists:
+        return Response(status=response)
     # GET
     if request.method == 'GET':
         comments = gallery_obj.comments.all()
@@ -103,45 +115,32 @@ def comments_list(request, galpk):
         if serializer.is_valid():
             serializer.save(
                 gallery=gallery_obj, owner=request.user)
-            gallery_obj.count_comments += 1
-            gallery_obj.save()
+            # increment the count of comments in that gallery by 1
+            increment_gallery_items(gallery_obj, 'count_comments')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-        '''
-        data = request.data
-        for comment in data["comments"]:
-            comment_obj = Comments.objects.get(content=data["content"])
-            gallery_obj.comments.add(comment_obj)
-        serializer = GallerySerializer(gallery_obj)
-        return Response(serializer.data)
-        '''
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
-def gallery_comments(request, galpk, compk):
-    try:
-        gallery_obj = gallery.objects.get(id=galpk)
-    except ObjectDoesNotExist:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        comment_obj = gallery_obj.comments.get(id=compk)
-    except ObjectDoesNotExist:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
+def gallery_comment(request, galpk, compk):
+    # get ,edit and delete a specific comment on a gallery given their ids
+
+    gallery_exists, gallery_response, gallery_obj = check_gallery_exists(galpk)
+    if not gallery_exists:
+        return Response(gallery_response)
+    comment_exists, comment_response, comment_obj = check_comment_exists(compk,gallery_obj)
+    if not comment_exists:
+        return Response(comment_response)
     # GET
     if request.method == 'GET':
         serializer = CommentSerializer(comment_obj)
         return Response(serializer.data)
     # PUT
     elif request.method == 'PUT':
-        if (comment_obj.owner != request.user):
-            return Response(
-                {'stat': 'fail',
-                 'message': 'User does not have permission to edit'
-                            ' this comment'},
-                status=status.HTTP_403_FORBIDDEN)
+        bool, response=check_permission(request.user ,comment_obj)        
+        if not bool:
+            return Response(status=response)
         serializer = CommentSerializer(comment_obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -149,191 +148,74 @@ def gallery_comments(request, galpk, compk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     #   DELETE
     elif request.method == 'DELETE':
-        if (comment_obj.owner != request.user):
-            return Response(
-                {'stat': 'fail',
-                 'message': 'User does not have permission to delete'
-                            ' this comment'},
-                status=status.HTTP_403_FORBIDDEN)
+        bool, response=check_permission(request.user ,comment_obj)        
+        if not bool:
+            return Response(status=response)
         comment_obj.delete()
+        # decrement the count of comments in that gallery by 1
+        decrement_gallery_items(comment_obj,'count_comments')
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-'''
 
 @api_view(['GET'])
 def gallery_photos(request, galpk):
-    try:
-        gallery_obj = gallery.objects.get(id=galpk)
-    except gallery_obj.DoesNotExists:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    # get the photos list in a specific gallery given the gallery id
+    exists, response, gallery_obj = check_gallery_exists(galpk)
+    if not exists:
+        return Response(status=response)
     # GET
     if request.method == 'GET':
-        photos = gallery_obj.gallery_photos.all()
-        serializer = CommentSerializer(photos, many=True)
+        photos = gallery_obj.photos.all()
+        serializer = PhotoMetaSerializer(photos, many=True)
         return Response(serializer.data)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-@api_view(['POST','DELETE'])
-def gallery_photo(request, galpk, phopk):
-    try:
-        gallery_obj = gallery.objects.get(id=galpk)
-    except gallery_obj.DoesNotExists:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        photo_obj = gallery_obj.gallery_photos.get(id=phopk)
-    except photo_obj.DoesNotExists:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET','POST'])
+@permission_classes((IsAuthenticated,))
+def photo_galleries(request, phopk):
+    # get the list of galleries in which
+    # a specific photo is added given the photo id
+    exists, response, photo_obj = check_photo_exists(phopk)
+    if not exists:
+        return Response(status=response)
+    # GET
+    if request.method == 'GET':
+        galleries = photo_obj.gallery_photos.all()
+        serializer = GallerySerializer(galleries, many=True)
+        return Response(serializer.data)
+    # POST    
+    # create gallery with primary photo
     if request.method == 'POST':
-        serializer = PhotoSerializer(photo_obj)
-        if serializer.is_valid():
-            if photo_obj.owner not user.request && is public==True
-                serializer.save(gallery=gallery_obj)
-                if photo_obj.media=='photo':
-                    gallery_obj.count_photos += 1
-                else:
-                    gallery_obj.count_videos += 1
-                gallery_obj.save()
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+        bool,response=check_permission(request.user,photo_obj)        
+        public_photo= check_photo_privacy(photo_obj)
+        if not bool and public_photo :
+            title=request.data['title']
+            description= request.data['description']
+            owner = request.user
+            create_gallery_with_primary_photo(title ,description, owner, phopk ,photo_obj)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes((IsAuthenticated,))
+def gallery_photo(request, galpk, phopk):
+    # add or remove a specific photo in a specific gallery given their ids
+    gallery_exists, response, gallery_obj = check_gallery_exists(galpk)
+    if not gallery_exists:
+        return Response(status=response)
+    photo_exists, photo_response, photo_obj = check_photo_exists(phopk)
+    if not photo_exists:
+        return Response(status=photo_response)
+    bool,response=check_permission(request.user,gallery_obj)        
+    if not bool :
+        return Response(status=response)
+    # put a flag to see whether the photo is already in the gallery or not
+    if request.method == 'POST':
+        response = add_photo_to_gallery(request.user,photo_obj,gallery_obj,phopk)
+        # send_gallery_notification(photo_obj, request.user, gallery_obj)
+        return Response(status=response)
     #   DELETE
     elif request.method == 'DELETE':
-        photo_obj
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-@api_view(['GET'])
-def fav_List(request):
-    #GET
-    if request.method == 'GET':
-        fav_photos = Photo.objects.get(is_faved=True/1)
-
-@api_view(['POST','DELETE'])
-def fav_photo(request, phopk):
-    try:
-        photo_obj = photo.objects.get(id=phopk)
-    except photo_obj.DoesNotExists:
-        #   raise Http404
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    #POST
-    if request.method == 'POST':
-        photo_obj.is_faved = True
-        Photo.save()
-    #   DELETE
-    if request.method == 'DELETE'
-        photo_obj.is_faved = False
-        Photo_obj.save()
-'''
-'''
-   def upload(instance,filename):
-    imagename , extension = filename.split(".")
-    photo=Photo()
-    photo.count_videos = gallery.objects.filter(media="video").count
-    photo.count_photos = gallery.objects.filter(media="photo").count
-    photo.save()
-'''
-'''
-@api_view(['POST'])
-def upload(request):
-    if request.method == 'POST':
-        form = ImageSerializer(request.POST, request.FILES)
-        if form.is_valid():
-            photo = form.save()
-            data = {
-                'is_valid': True,
-                 'name': photo.file.name, 'url': photo.file.url}
-        else:
-            data = {'is_valid': False}
-        return JsonResponse(data)
-
-@api_view(['POST'])
-def upload(request):
-    if request.method == 'POST':
-        parser_classes = (MultiPartParser, FormParser)
-        serializer = ImageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            print(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        for image in images:
-            serializer = ImageSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(image=image)
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        data = request.POST
-        images = request.FILES.getlist('image')
-        for image in images:
-            image = Images.objects.create(
-                name=data['name'],
-                image=image,
-            )
-            #if image.content_type == ("photo"):
-            #    user.count_photos+=1
-            #else:
-            #    user.count_videos +=1
-        return Response(status=status.HTTP_201_CREATED)
-#in models:     image = models.ImageField(null=False, blank=False)
-
-@api_view(['POST'])
-def addPhoto(request):
-    categories = Category.objects.all()
-
-    if request.method == 'POST':
-        data = request.POST
-        images = request.FILES.getlist('images')
-
-        if data['category'] != 'none':
-            category = Category.objects.get(id=data['category'])
-        elif data['category_new'] != '':
-            category, created = Category.objects.get_or_create(
-                name=data['category_new'])
-        else:
-            category = None
-
-        for image in images:
-            photo = Photo.objects.create(
-                category=category,
-                description=data['description'],
-                image=image,
-            )
-
-        return redirect('gallery')
-
-    context = {'categories': categories}
-    return render(request, 'photos/add.html', context)
-'''
-'''
-from django.shortcuts import render
-from .models import gallery #name of the class in models
-from django.core.paginator import Paginator
-# Create your views here.
-def add_gallery(request):
-    pass
-
-
-def gallery_list(request):
-    gallery_list= gallery.objects.all()
-    per_page=1
-    paginator=(Paginator(gallery_list, per_page))
-    page_number= request.Get.get('page')
-    page_obj = paginator.get_page(page_number)
-    context={'galleries': page_obj} #its name in the template
-    return render(request,'html',context)
-
-def gallery_info(request , id):
-    galelery_info = gallery.objects.get(id=id)
-    context={'gallery': gallery_info}
-    return render(request,'html',context)
-
-def add_gallery(request):
-    pass
-'''
+        response= remove_photo_from_gallery(photo_obj,gallery_obj,request.user) 
+    return Response(status=response)
