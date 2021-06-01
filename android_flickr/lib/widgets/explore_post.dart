@@ -1,3 +1,5 @@
+import 'package:android_flickr/providers/flickr_posts.dart';
+
 import './few_details_of_faves_comments.dart';
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
@@ -6,28 +8,42 @@ import 'pic_postedBy_info_on_post.dart';
 import '../screens/click_on_image_screen.dart';
 
 /// Explore post describes how each post will be displayed and the widgets it will use.
+///
 class ExplorePost extends StatelessWidget {
+  ///Tells whether this widget is used in Public mode or explore mode.
   final inPublicMode;
-  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
+
+  /// Tells whether this widget is used in profile mode or non profile mode.
+  final isProfile;
+
+  /// Index of the post currently displayed.
+  final exploreindex;
+  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> allPosts) {
     /// Navigator is used here when we click on the image.
 
     /// postInformation is passed as an argument so ClickOnImageScreen can know which details it will display.
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': postInformation,
-        'isFromPersonalProfile': false
+        'postDetails': allPosts,
+        'isFromPersonalProfile': false,
+        'explorePosts': allPosts,
+        'postIndex': exploreindex,
+        'ExORPup': 'explore'
       },
     );
   }
 
-  ExplorePost(this.inPublicMode);
+  ExplorePost(this.inPublicMode, this.exploreindex, this.isProfile);
   @override
   Widget build(BuildContext context) {
     /// We set up a listener here to class Posts to listen any change to the post.
     final postInformation = Provider.of<PostDetails>(context);
+    final allPosts = isProfile
+        ? Provider.of<Posts>(context).myPosts
+        : Provider.of<Posts>(context).posts;
     return ChangeNotifierProvider(
-      
       /// A container that click on image screen will listen to so it is notified with any change in post details like fave.
       create: (context) => postInformation,
       child: Container(
@@ -39,7 +55,7 @@ class ExplorePost extends StatelessWidget {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                clickOnImageScreen(context, postInformation);
+                clickOnImageScreen(context, postInformation, allPosts);
               },
               child: Container(
                 constraints: BoxConstraints(
@@ -61,7 +77,7 @@ class ExplorePost extends StatelessWidget {
             ),
 
             /// Widget that displays picPoster avatar, name, caption and since when was this post posted.
-            PicPostedByInfoOnPost(postInformation,inPublicMode),
+            PicPostedByInfoOnPost(postInformation, inPublicMode),
 
             /// Configurations and widgets choosen for the three buttons, fave , comments and share.
             Container(

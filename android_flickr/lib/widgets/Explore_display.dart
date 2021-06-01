@@ -14,6 +14,9 @@ class Explore extends StatefulWidget {
 }
 
 class _ExploreState extends State<Explore> {
+  final inPublicMode = false;
+  final isProfile = false;
+
   /// The widget returns ListView.builder that controls how the post will be displayed to the user.
 
   @override
@@ -31,7 +34,7 @@ class _ExploreState extends State<Explore> {
 
           /// False in explore post is to indicate that posts are displayed in explore mode
           /// not public mode to display the popupmenu button accordingly.
-          child: ExplorePost(false),
+          child: ExplorePost(inPublicMode, index, isProfile),
         );
       },
     );

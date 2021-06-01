@@ -354,6 +354,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         ),
       },
     );
+
     Dio dio = new Dio(
       BaseOptions(
         baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),

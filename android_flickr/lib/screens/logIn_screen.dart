@@ -4,6 +4,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
+import 'explore_screen.dart';
+import 'splash_screen.dart';
 
 /// Login page
 class LogIn extends StatefulWidget {
@@ -30,6 +32,15 @@ class _LogInState extends State<LogIn> {
   /// Checks if the email valid or not
   bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
+  void loginScreen(BuildContext ctx) {
+    Navigator.of(ctx).push(
+      MaterialPageRoute(
+        builder: (context) => FlickrSplashScreen(
+          ExploreScreen(),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +190,9 @@ class _LogInState extends State<LogIn> {
                                   _authData['password'],
                                 )
                                     .then((value) {
+                                  if (value.statusCode == 200) {
+                                    loginScreen(context);
+                                  }
                                   var errorMessage = 'Error !';
                                   if (value.body.contains('Invalid')) {
                                     errorMessage = 'Invalid email or password.';

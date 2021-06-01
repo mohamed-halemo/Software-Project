@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (ctx) => FlickrProfiles(),
-        )
+        ),
       ],
       child: MaterialApp(
         onGenerateRoute: (settings) {

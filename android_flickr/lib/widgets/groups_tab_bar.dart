@@ -30,7 +30,7 @@ class GroupsTabBar extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            PublicViewGrid(),
+            PublicViewGrid(true),
             Column(
               children: <Widget>[
                 Padding(padding: EdgeInsets.all(10)),

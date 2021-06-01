@@ -1,17 +1,19 @@
 //import 'package:android_flickr/widgets/explore_post.dart';
 
-//import '../providers/flickr_posts.dart';
+import '../providers/flickr_posts.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../providers/flickr_posts.dart';
+import '../providers/flickr_profiles.dart';
 
 /// Gridview that displays the only images of the posts in grid mode.
-class PublicViewGrid extends StatelessWidget {
+class NonProfilePublicViewGrid extends StatelessWidget {
   bool isNonProfile;
-  PublicViewGrid(this.isNonProfile);
+  NonProfilePublicViewGrid(this.isNonProfile);
+
+  var postsToDisplay;
 
   void clickOnImageScreen(
       BuildContext ctx, List<PostDetails> postInformation, int gridindex) {
@@ -21,15 +23,14 @@ class PublicViewGrid extends StatelessWidget {
         'postDetails': postInformation,
         'postIndex': gridindex,
         'isFromPersonalProfile': isNonProfile ? false : true,
-        'ExORPup': 'puplic',
-        'allPosts': postInformation,
+        'isFromNonProfile': true
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final postsToDisplay = Provider.of<Posts>(context).myPosts;
+    final postsToDisplay = Provider.of<FlickrProfile>(context).profilePosts;
     //final postsToDisplay = Provider.of<Posts>(context).posts;
     return StaggeredGridView.countBuilder(
       crossAxisCount: 4,

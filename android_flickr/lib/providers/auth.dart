@@ -47,6 +47,8 @@ class Auth with ChangeNotifier {
       final Map<String, dynamic> data = json.decode(response.body);
       globals.accessToken = data['tokens']['access'];
       globals.refreshToken = data['tokens']['refresh'];
+      globals.email = email;
+      globals.password = password;
     }
     print(json.decode(response.body));
     //print(response.statusCode);

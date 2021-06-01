@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import '../providers/flickr_post.dart';
+import '../screens/image_info_screen.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' show get;
+
+import 'package:android_flickr/screens/photoEditScreen.dart';
 
 /// This class is responsible for all the features and widgets that will be displayed when we click on the post image.
 class ClickOnImageDisplayPostDetails extends StatefulWidget {
   const ClickOnImageDisplayPostDetails({
     Key key,
     @required this.postInformation,
+    @required this.isFromPersonalProfile,
   }) : super(key: key);
 
   final PostDetails postInformation;
+  final bool isFromPersonalProfile;
 
   @override
   _ClickOnImageDisplayPostDetailsState createState() =>
@@ -109,25 +117,37 @@ class _ClickOnImageDisplayPostDetailsState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            /// Displays bottom bar which includes fave button, comment button, share button, info button and faves and comments total number
-            IconButton(
-              icon: widget.postInformation.favesDetails.isFaved
-                  ? Icon(
-                      Icons.star,
-                      color: Colors.blue,
-                    )
-                  : Icon(
-                      Icons.star_border_outlined,
+            widget.isFromPersonalProfile
+                ? IconButton(
+                    icon: Icon(
+                      Icons.edit_outlined,
                       color: Colors.white,
                     ),
-              onPressed: () {
-                setState(
-                  () {
-                    widget.postInformation.toggleFavoriteStatus();
-                  },
-                );
-              },
-            ),
+                    onPressed: () {
+                      downloadImage(widget.postInformation);
+                    },
+                  )
+                :
+
+                /// Displays bottom bar which includes fave button, comment button, share button, info button and faves and comments total number
+                IconButton(
+                    icon: widget.postInformation.favesDetails.isFaved
+                        ? Icon(
+                            Icons.star,
+                            color: Colors.blue,
+                          )
+                        : Icon(
+                            Icons.star_border_outlined,
+                            color: Colors.white,
+                          ),
+                    onPressed: () {
+                      setState(
+                        () {
+                          widget.postInformation.toggleFavoriteStatus();
+                        },
+                      );
+                    },
+                  ),
             IconButton(
               icon: Icon(
                 Icons.comment_outlined,
@@ -147,7 +167,15 @@ class _ClickOnImageDisplayPostDetailsState
                 Icons.info_outline,
                 color: Colors.white,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => ImageInfoScreen(
+                        widget.postInformation, widget.isFromPersonalProfile),
+                  ),
+                );
+              },
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -159,6 +187,44 @@ class _ClickOnImageDisplayPostDetailsState
           ],
         ),
       ],
+    );
+  }
+
+  void downloadImage(PostDetails postInformation) async {
+    var _alertDownload = AlertDialog(
+      content: Padding(
+        padding: EdgeInsets.all(20),
+        child: Text(
+          'Downloading',
+          style: TextStyle(
+            fontSize: 26,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+    showDialog(
+      context: context,
+      builder: (_) => _alertDownload,
+      barrierDismissible: false,
+    );
+    Uri uri = Uri.parse(postInformation.postImageUrl);
+    var response = await get(uri);
+    var tempDir = await getTemporaryDirectory();
+    var firstPath = tempDir.path + "/images";
+    var filePathAndName = tempDir.path + '/images/pic.jpg';
+    await Directory(firstPath).create(recursive: true).then(
+      (value) {
+        File file = new File(filePathAndName);
+        file.writeAsBytesSync(response.bodyBytes);
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => PhotoEditScreen(filePathAndName),
+          ),
+        );
+      },
     );
   }
 }
