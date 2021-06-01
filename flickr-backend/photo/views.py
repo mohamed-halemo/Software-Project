@@ -30,9 +30,9 @@ import json
 
 # Create your views here.
 class RespondPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 50
     page_size_query_param = 'page_size'
-    max_page_size = 1
+    max_page_size = 50
 
 
 # Set or Get photo permissions APIs
@@ -1220,8 +1220,11 @@ def Home(request):
         following_photos = PhotoSerializer(results, many=True).data
         public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
         public_photos= limit_photos_number(public_photos,300)
+        print(public_photos,"OOOOOOOOOOOO")
         results2 = Paginator.paginate_queryset(public_photos, request)
+        print(results2)
         public_photos = PhotoSerializer(results2, many=True).data
+        print(public_photos)
     else:
             
         user=request.user
