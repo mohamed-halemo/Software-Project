@@ -16,7 +16,7 @@ class TestModels(TestCase):
         last_name = 'last'
         age = '50'
         password = 'Kamel1234567'
-        email = 'test@gmail.com'
+        email = 'mohammed99kamel@gmail.com'
         
         #Turning to dictionary
         for variable in ["email", "first_name", "last_name","age",'password']:
