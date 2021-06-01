@@ -125,9 +125,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'yumna_hamdy2',
+        'NAME': 'caroline_magdy',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/yumna_hamdy2?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/caroline_magdy?retryWrites=true&w=majority",
                     'username': 'Fotone',
                     'password': config('DATABASE_PASSWORD')
                     },

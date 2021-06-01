@@ -1,6 +1,7 @@
 from .models import *
 from accounts.models import *
 from .serializers import *
+from accounts.views import *
 from accounts.serializers import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -854,7 +855,6 @@ def get_recent_photos(request):
 
 # Photo search API
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
 def search_photos(request):
 
     Paginator = PageNumberPagination()
@@ -876,24 +876,13 @@ def search_photos(request):
                     {'stat': 'fail',
                      'message': 'Invalid all_or_tags input. It should contain ( tags ) or ( all ) only.'},
                     status=status.HTTP_400_BAD_REQUEST)
-    
-    # If search_place is not provided, send an error message
-    if ('search_place' not in request.data):
-        return Response(
-                    {'stat': 'fail',
-                     'message': 'search_place must be provided.'},
-                    status=status.HTTP_400_BAD_REQUEST)
 
-    # Searching for photos in the search_place: user's photos,
-    # photos of people he/she follows, everyone's photos
-    required_photos = search_in_search_place(request.data['search_place'], photo_ids_list, request.user)
-
-    # In case search_place is none of (user), (following) ot (everyone), send an error mesage
-    if (required_photos == None):
-        return Response(
-                    {'stat': 'fail',
-                     'message': 'Invalid search_place input. It should contain ( user ) or ( following ) or ( everyone ) only.'},
-                    status=status.HTTP_400_BAD_REQUEST)
+    if request.user.is_anonymous:
+        user_required_photos, following_required_photos, everyone_required_photos = get_search_photos_anonymous_case()
+    else:
+        # Searching for photos in user's photos,
+        # photos of people he/she follows, everyone's photos
+        user_required_photos, following_required_photos, everyone_required_photos = search_in_search_place(photo_ids_list, request.user)
 
     # If both upload dates and taken dates are entered, return an error message
     if ('min_upload_date' in request.data and 'min_taken_date' in request.data
@@ -912,8 +901,8 @@ def search_photos(request):
 
             # Checking validatity of DateTime format entered
             try:
-                min_upload_date = datetime.datetime.strptime(request.data['min_upload_date'], '%Y-%m-%d %H:%M:%S')
-                max_upload_date = datetime.datetime.strptime(request.data['max_upload_date'], '%Y-%m-%d %H:%M:%S')
+                min_upload_date = datetime.strptime(request.data['min_upload_date'], '%Y-%m-%d %H:%M:%S')
+                max_upload_date = datetime.strptime(request.data['max_upload_date'], '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -927,7 +916,7 @@ def search_photos(request):
                      'message': 'Illogical dates entered.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
-            required_photos = required_photos.filter(date_posted__range=(min_upload_date, max_upload_date))
+            user_required_photos, following_required_photos, everyone_required_photos = filter_by_date(request.user.is_anonymous, 'upload_date', min_upload_date, max_upload_date, user_required_photos, following_required_photos, everyone_required_photos)
 
         # If only one upload date is entered, send an error message
         else:
@@ -943,8 +932,8 @@ def search_photos(request):
 
             # Checking validatity of DateTime format entered
             try:
-                min_taken_date = datetime.datetime.strptime(request.data['min_taken_date'], '%Y-%m-%d %H:%M:%S')
-                max_taken_date = datetime.datetime.strptime(request.data['max_taken_date'], '%Y-%m-%d %H:%M:%S')
+                min_taken_date = datetime.strptime(request.data['min_taken_date'], '%Y-%m-%d %H:%M:%S')
+                max_taken_date = datetime.strptime(request.data['max_taken_date'], '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -958,7 +947,7 @@ def search_photos(request):
                      'message': 'Illogical dates entered.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
-            required_photos = required_photos.filter(date_taken__range=(min_taken_date, max_taken_date))
+            user_required_photos, following_required_photos, everyone_required_photos = filter_by_date(request.user.is_anonymous, 'taken_date', min_taken_date, max_taken_date, user_required_photos, following_required_photos, everyone_required_photos)
 
         # If only one taken date is entered, send an error message
         else:
@@ -967,13 +956,23 @@ def search_photos(request):
                      'message': 'Either max_taken_date or min_taken_date is missing.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
-    # Maximum number of objects returned in the request, changed as needed
-    required_photos = limit_photos_number(required_photos, 1000)
-    results = Paginator.paginate_queryset(required_photos, request)
+    user_required_photos = limit_photos_number(user_required_photos, 300)
+    results1 = Paginator.paginate_queryset(user_required_photos, request)
 
-    search_photos = PhotoSerializer(results, many=True).data
+    following_required_photos = limit_photos_number(following_required_photos, 300)
+    results2 = Paginator.paginate_queryset(following_required_photos, request)
+
+    everyone_required_photos = limit_photos_number(everyone_required_photos, 300)
+    results3 = Paginator.paginate_queryset(everyone_required_photos, request)
+
+    user_search_photos = PhotoSerializer(results1, many=True).data
+    following_search_photos = PhotoSerializer(results2, many=True).data
+    everyone_search_photos = PhotoSerializer(results3, many=True).data
+
     return Paginator.get_paginated_response({'stat': 'ok',
-                                             'photos': search_photos})
+                                             'user_photos': user_search_photos,
+                                             'following_photos': following_search_photos,
+                                             'everyone_photos': everyone_search_photos})
 
 
 
@@ -1144,8 +1143,7 @@ def upload_media(request):
                 date_taken = None
             else:
                 raise ValidationError(_('File type is not supported'))
-            user.total_media += 1
-            user.save()
+            increment_profile_items(user,'total_media')
             serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
             # increment the count of media 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

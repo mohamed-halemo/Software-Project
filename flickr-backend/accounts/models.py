@@ -71,7 +71,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_pro = models.BooleanField(default=False)
-    # is_followed=models.BooleanField(default=False)
+    is_followed=models.BooleanField(default=False)
     total_media= models.PositiveIntegerField(default=0)
     fav_count = models.PositiveIntegerField(default=0)
     count_groups = models.PositiveIntegerField(default=0)

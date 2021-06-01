@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import *
 from photo.models import *
 from accounts.models import *
+from accounts.views import *
 
 def add_photo_to_gallery(user,photo_obj,gallery_obj,phopk):
     photo_owner,response =check_permission(user,photo_obj) 
@@ -32,10 +33,11 @@ def add_photo_to_gallery(user,photo_obj,gallery_obj,phopk):
     set_primary_photo_id(gallery_obj,phopk)
     # increment the count of items in that gallery by 1
     increment_gallery_items(gallery_obj,'count_media')
+    send_gallery_notification(photo_obj, user, gallery_obj)
     response= status.HTTP_201_CREATED
     return response 
     
-def remove_photo_from_gallery(photo_obj,gallery_obj):
+def remove_photo_from_gallery(photo_obj,gallery_obj,user):
     photos = gallery_obj.photos.all() 
     exist= check_existence_of_object_in_list(photo_obj,photos)
     if exist:
@@ -46,6 +48,7 @@ def remove_photo_from_gallery(photo_obj,gallery_obj):
         # check if the gallery turned to be empty therefore
         #  set the primary photo id with null
         set_primary_photo_id(gallery_obj, None)
+        remove_gallery_notification(photo_obj, user, gallery_obj)  
         response = status.HTTP_204_NO_CONTENT
     else:
         response= status.HTTP_400_BAD_REQUEST
@@ -68,9 +71,11 @@ def search_gallery(value):
     .order_by('-date_create')
     if galleries:
         bool= True
+        response= status.HTTP_200_OK
     else:
        response = status.HTTP_404_NOT_FOUND
     return bool, response, galleries
+
 
 def check_photo_exists(phopk):
     response=''
@@ -95,11 +100,12 @@ def check_comment_exists(compk,gallery_obj):
 def get_user_galleries(userpk):
     response=''
     bool= False
-    try:
-        gallery_list = Gallery.objects.all().filter(
-            owner_id=userpk).order_by('-date_create')
-        bool= True            
-    except ObjectDoesNotExist:
+    gallery_list = Gallery.objects.all().filter(
+        owner_id=userpk).order_by('-date_create')
+    if gallery_list:    
+        bool= True 
+        response= status.HTTP_200_OK          
+    else:
         bool=False
         response =status.HTTP_404_NOT_FOUND
     return bool, response, gallery_list  
@@ -122,22 +128,13 @@ def increment_gallery_items(obj, field):
         obj.count_media += 1 
     obj.save()
 
-def increment_profile_items(obj,field):
-    if field=='galleries_count':
-        obj.galleries_count += 1 
-    obj.save()  
 
 def decrement_gallery_items(obj,field):
     if field=='count_comments':
         obj.count_comments -= 1 
     elif field=='count_media':
         obj.count_media -= 1 
-    obj.save()
-
-def decrement_profile_items(obj,field):
-    if field=='galleries_count':
-        obj.galleries_count -= 1 
-    obj.save()   
+    obj.save()  
 
 def check_photo_privacy(obj):
     return obj.is_public

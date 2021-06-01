@@ -213,10 +213,9 @@ def gallery_photo(request, galpk, phopk):
     # put a flag to see whether the photo is already in the gallery or not
     if request.method == 'POST':
         response = add_photo_to_gallery(request.user,photo_obj,gallery_obj,phopk)
-        send_gallery_notification(photo_obj, request.user, gallery_obj)
+        # send_gallery_notification(photo_obj, request.user, gallery_obj)
         return Response(status=response)
     #   DELETE
     elif request.method == 'DELETE':
-        response= remove_photo_from_gallery(photo_obj,gallery_obj) 
-        remove_gallery_notification(photo_obj, request.user, gallery_obj)  
+        response= remove_photo_from_gallery(photo_obj,gallery_obj,request.user) 
     return Response(status=response)

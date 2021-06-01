@@ -79,6 +79,38 @@ def limit_photos_number(photos, max_limit):
     return required_photos
 
 
+def get_search_photos_anonymous_case():
+    
+    user_required_photos = []
+    following_required_photos = []
+    everyone_required_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+    everyone_required_photos = limit_photos_number(everyone_required_photos, 300)
+    return user_required_photos, following_required_photos, everyone_required_photos
+
+
+def filter_by_date(is_user_anonymous, date_type, min_date, max_date, user_required_photos, following_required_photos, everyone_required_photos):
+
+    if date_type == 'upload_date':
+
+        if is_user_anonymous:
+            everyone_required_photos = everyone_required_photos.filter(date_posted__range=(min_date, max_date))
+        else:
+            user_required_photos = user_required_photos.filter(date_posted__range=(min_date, max_date))
+            following_required_photos = following_required_photos.filter(date_posted__range=(min_date, max_date))
+            everyone_required_photos = everyone_required_photos.filter(date_posted__range=(min_date, max_date))
+
+    elif date_type == 'taken_date':
+
+        if is_user_anonymous:
+                everyone_required_photos = everyone_required_photos.filter(date_taken__range=(min_date, max_date))
+        else:
+            user_required_photos = user_required_photos.filter(date_taken__range=(min_date, max_date))
+            following_required_photos = following_required_photos.filter(date_taken__range=(min_date, max_date))
+            everyone_required_photos = everyone_required_photos.filter(date_taken__range=(min_date, max_date))
+
+    return user_required_photos, following_required_photos, everyone_required_photos
+
+
 def get_required_photo(id):
 
     required_photo = Photo.objects.get(id=id)

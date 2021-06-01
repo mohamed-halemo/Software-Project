@@ -40,6 +40,77 @@ def verifying_user(user):
         user.is_verified = True
         user.save()
 
+def increment_profile_items(obj,field):
+    if field=='galleries_count':
+        obj.galleries_count += 1
+    elif field=='following_count':
+        obj.following_count += 1
+    elif field=='followers_count':
+        obj.followers_count += 1 
+    elif field=='total_media':
+        obj.total_media += 1                   
+    obj.save()  
+
+def decrement_profile_items(obj,field):
+    if field=='galleries_count':
+        obj.galleries_count -= 1
+    elif field=='following_count':
+        obj.following_count -= 1
+    elif field=='followers_count':
+        obj.followers_count -= 1  
+    elif field=='total_media':
+        obj.total_media -= 1                      
+    obj.save()  
+
+def follow(contact,followed_user_obj,user):
+    if contact or followed_user_obj == user:
+        return status.HTTP_400_BAD_REQUEST
+    Contacts.objects.create(user=user, followed=followed_user_obj)
+    # increment the count of following for the calling user
+    # and the count of followers for the given user by 1
+    increment_profile_items(user,'following_count')
+    increment_profile_items(followed_user_obj,'followers_count')
+        # push notification
+    header = {"Content-Type": "application/json; charset=utf-8",
+                "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+
+    payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
+                "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+                "contents": {"en": str(user.first_name + " " + user.last_name + " is now following you!")}}
+
+    req = requests.post("https://app.onesignal.com/api/v1/notifications",
+                            headers=header, data=json.dumps(payload))
+    return status.HTTP_200_OK
+
+
+def unfollow(contact,user,followed_user_obj):
+    if not contact:
+        return status.HTTP_400_BAD_REQUEST
+    
+    # decrement the count of following for the calling user
+    # and the count of followers for the given user by 1
+    decrement_profile_items(user,'following_count')
+    decrement_profile_items(followed_user_obj,'followers_count')
+    contact.delete()
+    return status.HTTP_204_NO_CONTENT     
+
+
+def check_media_content_type(serializer,file_field):
+    if serializer.is_valid():
+        # get the type of the file from the extension
+        try:
+            content_type = file_field.content_type.split('/')[0]
+            # check if its type is image
+            if content_type in settings.IMAGE_TYPE:
+                serializer.save()
+                return serializer.data, status.HTTP_201_CREATED
+            else:
+                raise ValidationError(_('File type is not supported'))
+        except:
+                raise ValidationError(_('File is empty'))   
+    else:
+        return  serializer.errors, status.HTTP_400_BAD_REQUEST
+
 
 def prepare_verify_email(current_site,user,token):
     relative_link = reverse('accounts:email-verify')
@@ -500,21 +571,8 @@ def upload_profile(request):
     if request.method == 'PUT':
         parser_classes = (MultiPartParser, FormParser)
         serializer = PhotoUserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            file_field = request.FILES['media_file']
-
-            # get the type of the file from the extension
-            content_type = file_field.content_type.split('/')[0]
-            # check if its type is image
-            if content_type in settings.IMAGE_TYPE:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise ValidationError(_('File type is not supported'))
-
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        first,response= check_media_content_type(serializer,request.FILES['profile_pic'])
+        return Response(first,status=response)
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
@@ -526,21 +584,8 @@ def upload_cover(request):
     if request.method == 'PUT':
         parser_classes = (MultiPartParser, FormParser)
         serializer = CoverUserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            file_field = request.FILES['media_file']
-
-            # get the type of the file from the extension
-            content_type = file_field.content_type.split('/')[0]
-            # check if its type is image
-            if content_type in settings.IMAGE_TYPE:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise ValidationError(_('File type is not supported'))
-
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        first,response= check_media_content_type(serializer,request.FILES['cover_photo'])
+        return Response(first,status=response)
                 
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -554,42 +599,12 @@ def follow_unfollow(request, userpk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     # POST
     if request.method == 'POST':
-        if contact or followed_user_obj == request.user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        Contacts.objects.create(user=request.user, followed=followed_user_obj)
-        user=request.user
-        # increment the count of following for the calling user
-        # and the count of followers for the given user by 1
-        user.following_count += 1
-        user.save()
-        followed_user_obj.followers_count += 1
-        followed_user_obj.save()
-
-        # # push notification
-        header = {"Content-Type": "application/json; charset=utf-8",
-                  "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
-
-        payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
-                   "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
-                   "contents": {"en": str(request.user.first_name + " " + request.user.last_name + " is now following you!")}}
-
-        req = requests.post("https://app.onesignal.com/api/v1/notifications",
-                            headers=header, data=json.dumps(payload))
-
-        return Response(status=status.HTTP_200_OK)
+        response= follow(contact,followed_user_obj,request.user)
+        return Response(status=response)
     # DELETE
     if request.method == 'DELETE':
-        if not contact:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        user=request.user
-        # decrement the count of following for the calling user
-        # and the count of followers for the given user by 1
-        user.following_count -= 1
-        user.save()
-        followed_user_obj.followers_count -= 1
-        followed_user_obj.save()
-        contact.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)        
+        response= unfollow(contact,request.user,followed_user_obj)
+        return Response(status=response)
 
 
 @api_view(['GET'])
@@ -597,12 +612,26 @@ def follow_unfollow(request, userpk):
 def followers_list(request):
     try:
         user = request.user
-        followers_list = user.follow_followed.all().order_by('-date_create')
+        following_list = user.follow_follower.all().order_by('-date_create')
+    except ObjectDoesNotExist:
+        following_list=[]
+    try:
+
+        user = request.user
+        followers_list = user.follow_follower.all().order_by('-date_create')
     except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND) 
+
+    for one in following_list:
+        account2=Account.objects.get(id=one.user.id)
+        for two in followers_list:
+            account=Account.objects.get(id=two.user.id)
+            account.is_followed= False
+            if account == account2:
+                account.is_followed=True
     serializer = FollowerSerializer(
         followers_list, many=True)
-        
+    
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -627,10 +656,24 @@ def user_following(request, userpk):
         following_list = user.follow_follower.all().order_by('-date_create')
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+
+        user = request.user
+        following_list_user = user.follow_follower.all().order_by('-date_create')
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)     
+
+    for one in following_list:
+        account2=Account.objects.get(id=one.user.id)
+    for two in following_list_user:
+        account=Account.objects.get(id=two.user.id)
+        account.is_followed= False
+        if account == account2:
+            account.is_followed=True
 
     serializer = FollowingSerializer(
         following_list, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)          
+    return Response(serializer.data, status=status.HTTP_200_OK)                    
 
 
 @api_view(['GET'])

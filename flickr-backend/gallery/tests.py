@@ -7,6 +7,7 @@ from .models import *
 from django.urls import reverse
 from rest_framework.views import status
 from .functions import *
+from accounts.views import *
 
 
 # Create your tests here.
@@ -291,11 +292,12 @@ class GalleryFunctionsTests(TestCase):
         response= remove_photo_from_gallery(photo_obj,gallery_obj)
         self.assertEqual(response,400)               
 
+    
     def test_search_gallery_with_title_found(self):
         user=create_test_user('test@gmail.com')
         Gallery.objects.create(title='title',description='description',owner=user)
         bool,response,_=search_gallery('t')
-        self.assertEqual(response,'')    
+        self.assertEqual(response,200)    
         self.assertEqual(bool,True)
     
     def test_search_gallery_with_title_no_found(self):
@@ -312,12 +314,15 @@ class GalleryFunctionsTests(TestCase):
         owner=create_test_user('test2@gmail.com')
         Gallery.objects.create(title='title',description='description',owner=owner)
         bool,response,list=get_user_galleries(1)
-        self.assertEqual(response,'')    
+        self.assertEqual(response,200)    
         self.assertEqual(bool,True)
 
-    def test_get_user_galleries_failure(self):
-        Gallery.objects.create(title='title',description='description')
-        bool,response,list=get_user_galleries(1)
+    def test_get_user_galleries_succeded(self):
+
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        owner=create_test_user('test2@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=owner)
+        bool,response,list=get_user_galleries(2)
         self.assertEqual(response,404)    
         self.assertEqual(bool,False)
-
