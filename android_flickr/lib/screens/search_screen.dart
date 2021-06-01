@@ -23,24 +23,32 @@ class _SearchScreenState extends State<SearchScreen> {
   void submitData(List<PostDetails> postsToDisplay) {
     setState(
       () {
-        photosSearchResult = [
-          ...postsToDisplay.where(
-            (post) => post.tags.contains(
-              searchTextController.text,
-            ),
-          )
-        ];
-        var duplicatePeopleResult = [
-          ...postsToDisplay.where(
-            (post) => post.picPoster.name.contains(
-              searchTextController.text,
-            ),
-          )
-        ];
-        print(duplicatePeopleResult.length);
-        List<String> ids = [];
-        peopleSearchResult = duplicatePeopleResult.toSet().toList();
-        print("a7a");
+        if (searchTextController.text.length > 0) {
+          photosSearchResult = [
+            ...postsToDisplay.where(
+              (post) => post.tags.contains(
+                searchTextController.text,
+              ),
+            )
+          ];
+          peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
+          print(peopleSearchResult[49].picPoster.profileId);
+          peopleSearchResult = [
+            ...peopleSearchResult.where(
+              (post) => post.picPoster.name.contains(
+                searchTextController.text,
+              ),
+            )
+          ];
+        } else {
+          photosSearchResult = [];
+          peopleSearchResult = [];
+        }
+
+        //print(duplicatePeopleResult.length);
+        //List<String> ids = [];
+        //peopleSearchResult = duplicatePeopleResult.toSet().toList();
+        //print("a7a");
         /* duplicatePeopleResult.where(
           (post) {
             print(ids.contains(post.picPoster.profileId));
