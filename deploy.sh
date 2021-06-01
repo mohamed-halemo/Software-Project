@@ -12,7 +12,7 @@ docker-compose push
 #Remove dockerfiles
 rm flickr-backend/Dockerfile*
 
-ssh ubuntu@$EC2_INSTANCE "sudo rm -r  fotone/flickr-backend/*/migrations"
+ssh -o StrictHostKeyChecking=no ubuntu@$EC2_INSTANCE "sudo rm -r  fotone/flickr-backend/*/migrations"
 
 #Sending of project files to be used as volumes,
 #allowing static files to be changed without reloading containers
