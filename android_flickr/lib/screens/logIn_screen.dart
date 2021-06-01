@@ -192,6 +192,7 @@ class _LogInState extends State<LogIn> {
                                     .then((value) {
                                   if (value.statusCode == 200) {
                                     loginScreen(context);
+                                    return;
                                   }
                                   var errorMessage = 'Error !';
                                   if (value.body.contains('Invalid')) {
