@@ -4,6 +4,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
+import 'explore_screen.dart';
+import 'splash_screen.dart';
 
 class LogIn extends StatefulWidget {
   @override
@@ -25,6 +27,15 @@ class _LogInState extends State<LogIn> {
   // Checks if the email valid or not
   bool _isEmailValidated = false;
   final _formKey = GlobalKey<FormState>();
+  void loginScreen(BuildContext ctx) {
+    Navigator.of(ctx).push(
+      MaterialPageRoute(
+        builder: (context) => FlickrSplashScreen(
+          ExploreScreen(),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +157,16 @@ class _LogInState extends State<LogIn> {
                               });
                               if (_buttonText == 'Sign in') {
                                 print(_authData);
-                                Provider.of<Auth>(context, listen: false).login(
+                                Provider.of<Auth>(context, listen: false)
+                                    .login(
                                   _authData['email'],
                                   _authData['password'],
-                                );
+                                )
+                                    .then((value) {
+                                  if (value.statusCode == 200) {
+                                    loginScreen(context);
+                                  }
+                                });
                               }
                             },
                             child: Container(
