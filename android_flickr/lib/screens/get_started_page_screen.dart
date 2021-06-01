@@ -90,7 +90,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
 
   @override
   void initState() {
-    /// To preload the 4 images on started screen from assets.
+    /// To preload the 4 images on started screen from assets and avoid white background.
     swipeImage1 = Image.asset(
       'assets/images/GetStartedScreens/GetStartedScreenSlide1.png',
       alignment: Alignment.center,

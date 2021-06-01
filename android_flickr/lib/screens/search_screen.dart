@@ -16,16 +16,22 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  ///Contains the text that the user is searching for.
   final searchTextController = TextEditingController();
 
+  /// Contains the List of photos that will be displayed on photo tab.
   List<PostDetails> photosSearchResult = [];
+
+  /// Contains the List of people that will be displayed on people tab.
   List<PicPosterDetails> peopleSearchResult = [];
 
+  /// When the user searches for anything this function is called and it applies the search criteria on the available data to extract the data the user needs.
   void submitData(List<PostDetails> postsToDisplay,
       List<PicPosterDetails> loadedPicPosterProfiles) {
     setState(
       () {
         if (searchTextController.text.length > 0) {
+          ///Searches for the word(s) in the tags section of the posts.
           photosSearchResult = [
             ...postsToDisplay.where(
               (post) => post.tags.contains(
@@ -33,70 +39,28 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             )
           ];
-          //peopleSearchResult = loadedPicPosterProfiles;
-           peopleSearchResult = loadedPicPosterProfiles
+
+          /// Searches for the word(s) in the name of the users.
+          peopleSearchResult = loadedPicPosterProfiles
               .where(
                 (profile) => profile.name.contains(
                   searchTextController.text,
                 ),
               )
-              .toList(); 
-
-          //peopleSearchResult = postsToDisplay.getRange(0, 50).toList();
-          //print(peopleSearchResult[49].picPoster.profileId);
-          /* peopleSearchResult = [
-            ...peopleSearchResult.where(
-              (post) => post.picPoster.name.contains(
-                searchTextController.text,
-              ),
-            )
-          ]; */
+              .toList();
         } else {
           photosSearchResult = [];
           peopleSearchResult = [];
         }
-
-        //print(duplicatePeopleResult.length);
-        //List<String> ids = [];
-        //peopleSearchResult = duplicatePeopleResult.toSet().toList();
-        //print("a7a");
-        /* duplicatePeopleResult.where(
-          (post) {
-            print(ids.contains(post.picPoster.profileId));
-            if (!ids.contains(post.picPoster.profileId)) {
-              print("adding");
-              ids.add(post.picPoster.profileId);
-              peopleSearchResult.add(post);
-            }
-            return peopleSearchResult.contains(post);
-          },
-        ); */
-        /* print(peopleSearchResult.length);
-        peopleSearchResult.removeWhere(
-          (post) {
-            //print(peopleSearchResult.length);
-            final comparison = [
-              ...peopleSearchResult.where((postToCompare) =>
-                  postToCompare.picPoster.profileId == post.picPoster.profileId)
-            ].length;
-            print(comparison);
-            return comparison > 1;
-          },
-        );
-        print(peopleSearchResult.length); */
       },
     );
-    //print(photosSearchResult.length);
-
-    /* String trial = "Moaz";
-    if (trial.contains("a")) {
-      print("feeh a");
-    } */
   }
 
   @override
   Widget build(BuildContext context) {
+    ///Gets all the posts available.
     final postsToDisplay = Provider.of<Posts>(context).posts;
+    ///Gets the profiles of available users to search among them.
     final loadedPicPosterProfiles =
         Provider.of<Posts>(context).picPosterProfilesDetails;
     return DefaultTabController(

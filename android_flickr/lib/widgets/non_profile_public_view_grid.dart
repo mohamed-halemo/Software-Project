@@ -1,6 +1,6 @@
 //import 'package:android_flickr/widgets/explore_post.dart';
 
-import '../providers/flickr_posts.dart';
+//import '../providers/flickr_posts.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/click_on_image_screen.dart';
@@ -8,7 +8,7 @@ import '../providers/flickr_post.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../providers/flickr_profiles.dart';
 
-/// Gridview that displays the only images of the posts in grid mode.
+/// Gridview that displays only the images of the non profile posts in grid mode.
 class NonProfilePublicViewGrid extends StatelessWidget {
   bool isNonProfile;
   NonProfilePublicViewGrid(this.isNonProfile);
@@ -32,6 +32,7 @@ class NonProfilePublicViewGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final postsToDisplay = Provider.of<FlickrProfile>(context).profilePosts;
     //final postsToDisplay = Provider.of<Posts>(context).posts;
+    ///Responsible for the diffrent adjusment of images when displayed.
     return StaggeredGridView.countBuilder(
       crossAxisCount: 4,
       padding: EdgeInsets.all(7),

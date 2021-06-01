@@ -3,6 +3,7 @@ import 'package:android_flickr/widgets/pic_postedBy_info_on_post.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
+///Tests the trailing part returns the write text.
 void main() {
   final postInformation = PostDetails(
     id: "1",
@@ -37,26 +38,7 @@ void main() {
 
     expect(actual, matcher);
   });
-  /* test("Display posted since when 2", () {
-    //Arrange
-    //BuildContext context;
-    postInformation.picPoster.isFollowedByUser = true;
-    postInformation.picPoster.followedDuringRunning = true;
-
-    SizedBox postedSinceWidget =
-        picPostedByInfoOnPostInstance.widgetToBeDisplayedAsTrailing(20);
-    Text matcher = postedSinceWidget.child;
-    //String matcher = textWidget.data;
-
-    //Act
-
-    Text actual = Text("6w");
-
-    //Assert
-
-    expect(actual, matcher);
-  });
- */
+  
   group("caption available", () {
     test("Followed by user and not followed during running", () {
       //Arrange

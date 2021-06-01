@@ -14,6 +14,9 @@ class SearchPeople extends StatefulWidget {
 }
 
 class _SearchPeopleState extends State<SearchPeople> {
+
+  /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
+  /// and profiles to choose the posts and images needed and display them.
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
     final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
@@ -27,6 +30,7 @@ class _SearchPeopleState extends State<SearchPeople> {
     );
   }
 
+  ///When the follow button is pressed this function updates the data so any widgets that needs to know can notice the changes 
   void toggleFollowPicPoster(
       PicPosterDetails personDetails, List<PostDetails> currentPosts) {
     final profileFirstPostFound = currentPosts.firstWhere(

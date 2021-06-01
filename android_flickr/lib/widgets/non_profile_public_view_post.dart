@@ -8,7 +8,9 @@ import '../providers/flickr_profiles.dart';
 
 /// Public View displays the posts like the explore mode but the diffrence is there is posted since when instead of popup menu in the posts of unfollowed user.
 class NonProfilePublicViewPost extends StatelessWidget {
+  ///Means posts are displayed in public mode.
   final inPublicMode = true;
+  ///Not in the profile section other person profile is being displayed .
   final isProfile = false;
   /* FlickrProfile _goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts) {

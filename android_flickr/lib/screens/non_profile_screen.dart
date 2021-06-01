@@ -18,15 +18,16 @@ class NonProfileScreen extends StatefulWidget {
 }
 
 class _NonProfileScreenState extends State<NonProfileScreen> {
+  ///Recieves the profile details and list of all posts to update the ones he posted when the follow button is pressed.
   void toggleFollowPicPoster(
       PicPosterDetails personDetails, List<PostDetails> currentPosts) {
-    print("first");
-    print(personDetails.isFollowedByUser);
+    //print("first");
+    //print(personDetails.isFollowedByUser);
     final profileFirstPostFound = currentPosts.firstWhere(
         (post) => post.picPoster.profileId == personDetails.profileId);
     profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
-    print("second");
-    print(personDetails.isFollowedByUser);
+    //print("second");
+    //print(personDetails.isFollowedByUser);
   }
 
   @override
@@ -42,9 +43,11 @@ class _NonProfileScreenState extends State<NonProfileScreen> {
 
     return MultiProvider(
       providers: [
+        ///Helps in public to know which posts is the users posts.
         ChangeNotifierProvider(
           create: (context) => profileData,
         ),
+        ///To update listeners if the followed button was pressed.
         ChangeNotifierProvider(
           create: (ctx) => postInformation,
         ),
@@ -82,9 +85,10 @@ class _NonProfileScreenState extends State<NonProfileScreen> {
                     ),
                     expandedHeight: 200,
                     actions: [
+                      /// Follow button.
                       FlatButton(
                         shape: Border.all(
-                          color: Colors.black,
+                          color: Colors.white,
                           width: 2,
                         ),
                         color: Colors.transparent,
@@ -95,8 +99,16 @@ class _NonProfileScreenState extends State<NonProfileScreen> {
                           });
                         },
                         child: postInformation.picPoster.isFollowedByUser
-                            ? Icon(Icons.beenhere_outlined)
-                            : Text("+" + " Follow"),
+                            ? Icon(
+                                Icons.beenhere_outlined,
+                                color: Colors.white,
+                              )
+                            : Text(
+                                "+" + " Follow",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ],
                   ),

@@ -8,6 +8,7 @@ import '../providers/flickr_posts.dart';
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
 ///he is a pro or not and if he is followed by the current user(the person using the application) as well as his profile picture url.
 class PicPosterDetails with ChangeNotifier {
+  
   String profileId;
   String name;
   bool isPro;
@@ -74,7 +75,7 @@ class PostDetails with ChangeNotifier {
     @required this.tags,
   });
 
-  ///Reflects the user action when he clicks the fave button on the screen as well as updates the database.
+  ///Reflects the user action when he clicks the fave button on the screen as well as updates the mock service and main database.
   void toggleFavoriteStatus() {
     favesDetails.isFaved = !favesDetails.isFaved;
     if (favesDetails.isFaved) {
@@ -88,10 +89,9 @@ class PostDetails with ChangeNotifier {
     updateFavoriteStatus(favesDetails.isFaved, favesDetails.favesTotalNumber);
   }
 
-  ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on database.
+  ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on mock service and database.
   Future<void> updateFavoriteStatus(bool isFaved, int favesTotalNumber) async {
-    /* final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json'); */
+
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts/$id');
     print(url);
@@ -125,6 +125,8 @@ class PostDetails with ChangeNotifier {
     updateFollowPicPoster(posts);
   }
 
+  /// Used When there is a fullow button to follow/unfollow other profiles and updates the data on the mock service and database.
+  /// Listeners of Posts and PicPosterDetails are notified with the changes so the widgets can adapt to the new situation
   void toggleFollowPicPoster(
       List<PostDetails> posts, PicPosterDetails personDetails) {
     personDetails.isFollowedByUser = !personDetails.isFollowedByUser;
@@ -142,18 +144,16 @@ class PostDetails with ChangeNotifier {
     updateFollowPicPoster(posts);
   }
 
-  ///This function is called inside followPicPoster to reflect change on database.
+  ///This function is called inside followPicPoster and toggleFollowPicPoster to reflect change on database and mock service.
   Future<void> updateFollowPicPoster(List<PostDetails> posts) async {
-    /* final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts/$id.json'); */
-    //print(Posts().posts.length);
-    final loopList = posts
+   try{
+     final loopList = posts
         .where((post) => post.picPoster.profileId == picPoster.profileId)
         .toList();
 
     print(loopList.length);
 
-    for (int idcounter = 0; idcounter < loopList.length; idcounter++) {
+     for (int idcounter = 0; idcounter < loopList.length; idcounter++) {
       final url = Uri.http(globals.HttpSingleton().getBaseUrl(),
           '/Explore_posts/${loopList[idcounter].id}');
       print(url);
@@ -169,6 +169,12 @@ class PostDetails with ChangeNotifier {
         ),
       );
     }
+    
+   }
+   catch(error){
+
+    }
+     
   }
 
   ///Returns the short list of the users names who faved the post to display on screen.

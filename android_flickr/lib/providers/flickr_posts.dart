@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Classes/globals.dart' as globals;
 
+
 ///Class Posts is used to obtain lists of class post in order to display these posts on our explore screen.
 class Posts with ChangeNotifier {
   ///List of other users profiles posts.
@@ -19,38 +20,12 @@ class Posts with ChangeNotifier {
   /// List of other profiles that have posts which is used in search mode.
   List<PicPosterDetails> _picPosterProfilesDetails = [];
 
-  /* Future<void> _addPostsToDatabase() async {
-    final url = Uri.https(
-        'https://flickr-explore-default-rtdb.firebaseio.com', '/posts.json');
-    await http.post(
-      url,
-      body: json.encode(
-        {
-          'commentsTotalNumber': 80,
-          'lastComment': {
-            'Ahmed elghandoor': 'what a great picture!,lets enjoy this weather',
-          },
-          'postImageUrl':
-              'assets/images/GetStartedScreens/GetStartedScreenSlide1.png',
-          'postedSince': '6d',
-          'caption': "nice weather",
-          'favesDetails': {
-            'favesTotalNumber': [],
-            'favedUsersNames': [],
-            'bool isFaved': []
-          },
-          'PicPosterDetails': {
-            'name': [],
-            'isPro': [],
-            'isFollowedByUser': [],
-            'profilePicUrl': [],
-          }
-        },
-      ),
-    );
-  } */
+  
 
-  ///Used to fetch data from the firebase database and set them in the List of posts.
+  ///Used to fetch data from the main database or mock service based on boolean isMockService and set them in the List of posts.
+  ///
+  ///If isMockService = true, then fetch data from mock service.
+  ///If isMockService = false, then fetch data from main database.
   Future<void> fetchAndSetExplorePosts() async {
     /* final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
@@ -68,6 +43,7 @@ class Posts with ChangeNotifier {
     print("done fetching");
   }
 
+  /// If isMockService = false then, this function is called to fetch data from the main server.
   Future<void> mainServerExplorePosts() async {
     /* final url = Uri.https(
         'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
@@ -189,35 +165,28 @@ class Posts with ChangeNotifier {
     }
   }
 
-  /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts.
+  /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts if isMockService = false.
   Future<void> mockServiceExplorePosts() async {
-    /* final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
-    //const url = 'https://flutter-update.firebaseio.com.json';
-    //fetchAndSetMyPosts();
+
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), '/Explore_posts');
     //print(url);
 
     try {
+      ///Get the data from the service.
       final response = await http.get(url);
-      //print(response.body);
-      /* final extractedData =
-          json.decode(response.body) as List<Map<String, dynamic>>; */
+
       final extractedData = json.decode(response.body) as List<dynamic>;
-      //print(extractedData);
+      ///Posts from server are added to loadedPosts.
       final List<PostDetails> loadedPosts = [];
+      ///Profiles from server/service are added to this list. 
       final List<PicPosterDetails> loadedPicPosterProfiles = [];
+      ///Helps to check if we added the user to loadedPicPosterProfiles or no.
       final List<String> loadedPicPosterProfilesIds = [];
 
       extractedData.forEach(
         (postDetails) {
-          /* if (!loadedProfilesId.contains(
-            postDetails['ProfileId'].toString(),
-          )) {
-            loadedProfilesId.add(postDetails['ProfileId'].toString());
-          }
- */
+
           int postUrl = postDetails['id'] * 2;
           //print(postUrl);
           /* String postUrl = 'https://picsum.photos/200/200?random=' +
@@ -397,12 +366,12 @@ class Posts with ChangeNotifier {
     //print(_posts);
     return [..._posts];
   }
-
+  ///Returns copy of the List of the user posts.
   List<PostDetails> get myPosts {
     //print(_posts);
     return [..._myPosts];
   }
-
+  /// Returns list of all users that posted on flickr.
   List<PicPosterDetails> get picPosterProfilesDetails {
     //print(_posts);
     return [..._picPosterProfilesDetails];

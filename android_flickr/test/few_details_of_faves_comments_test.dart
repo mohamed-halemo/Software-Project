@@ -2,6 +2,7 @@ import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/widgets/few_details_of_faves_comments.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// Tests that the last comment and faves with names will be displayed in the right format.
 void main() {
   final postInformation = PostDetails(
       id: "1",
@@ -9,7 +10,7 @@ void main() {
       privacy: false,
       description: "",
       tags: "",
-      picPoster: PicPosterDetails("1","moaz", true, false, "",""),
+      picPoster: PicPosterDetails("1", "moaz", true, false, "", ""),
       commentsTotalNumber: 20,
       postImageUrl: "postImageUrl",
       postedSince: "6w",

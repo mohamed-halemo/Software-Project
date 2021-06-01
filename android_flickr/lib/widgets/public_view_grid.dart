@@ -8,7 +8,7 @@ import '../providers/flickr_post.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../providers/flickr_posts.dart';
 
-/// Gridview that displays the only images of the posts in grid mode.
+/// Gridview that displays only the images of the user(currently using the device) posts in grid mode.
 class PublicViewGrid extends StatelessWidget {
   bool isNonProfile;
   PublicViewGrid(this.isNonProfile);
@@ -50,12 +50,7 @@ class PublicViewGrid extends StatelessWidget {
           new StaggeredTile.count(2, index.isEven ? 2 : 1),
       mainAxisSpacing: 4.0,
       crossAxisSpacing: 4.0,
-      /* gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 350,
-        childAspectRatio: 3 / 2,
-        crossAxisSpacing: 5,
-        mainAxisSpacing: 5,
-      ), */
+      
     );
   }
 }

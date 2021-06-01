@@ -17,6 +17,8 @@ class PicPostedByInfoOnPost extends StatelessWidget {
   /// Helps me to diffrentiate whether I followed the user before/after running the app to select the widgets to display.
   bool isFollowedBeforeRunning = true;
 
+  /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
+  /// and profiles to choose the posts and images needed and display them.
   void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
     final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
@@ -71,7 +73,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
       return PopupMenuButtonOfPost(postInformation);
     }
   }
-
+  
   PicPostedByInfoOnPost(this.postInformation, this.inPublicMode);
   @override
   Widget build(BuildContext context) {

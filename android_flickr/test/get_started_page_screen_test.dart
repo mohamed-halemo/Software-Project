@@ -2,7 +2,10 @@
 import 'package:android_flickr/screens/get_started_page_screen.dart';
 //import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 
+///Tests the subtitle and title that will be displayed when the user swipes between images on the get started page.
+///compares the text that the getter returns with the actual text.
 void main() {
   final getStartedScreenInstance = GetStartedScreen().createState();
 
@@ -11,6 +14,8 @@ void main() {
       //Arrange
       //BuildContext context;
       String matcher = getStartedScreenInstance.setStartedScreenTitle(0);
+      
+  
 
       //Act
 

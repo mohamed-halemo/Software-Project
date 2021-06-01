@@ -3,6 +3,7 @@ import 'package:android_flickr/widgets/click_on_image_post_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+///Tests how the text of faves and comments will be displayed based on the number of comments and faves.
 void main() {
   final postInformation = PostDetails(
     id: "1",
