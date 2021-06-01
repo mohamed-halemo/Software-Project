@@ -199,13 +199,13 @@ class _LogInState extends State<LogIn> {
                                 )
                                     .then((value) async {
                                   if (value.statusCode == 200) {
-                                    if (rememberMe) {
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
-                                      prefs?.setBool('remember', true);
-                                      prefs?.setString('email', email);
-                                      prefs?.setString('password', password);
-                                    }
+                                    // if (rememberMe) {
+                                    //   SharedPreferences prefs =
+                                    //       await SharedPreferences.getInstance();
+                                    //   prefs?.setBool('remember', true);
+                                    //   prefs?.setString('email', email);
+                                    //   prefs?.setString('password', password);
+                                    // }
                                     loginScreen(context);
                                     return;
                                   }

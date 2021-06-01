@@ -187,11 +187,11 @@ class _SignUpState extends State<SignUp> {
                                   _showError(errorMessage);
                                 });
 
-                                /// Moving to the log in page if the data entred is all good
-                                // Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (context) => LogIn()));
+                                ///Moving to the log in page if the data entred is all good
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LogIn()));
                               }
                             }
                           },
