@@ -51,12 +51,12 @@ class UserManager(BaseUserManager):
 
 class Account(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
-    username = models.CharField( max_length=16,unique=True, db_index=True)
+    username = models.CharField( max_length=16,db_index=True)
     first_name = models.CharField(verbose_name='first-name', max_length=60)
     last_name = models.CharField(verbose_name='last-name', max_length=60)
     age = models.PositiveIntegerField( validators=[
             MaxValueValidator(110),
-            MinValueValidator(0)
+            MinValueValidator(10)
         ],default=0)
     date_joined = models.DateTimeField(verbose_name='date joined',
                                        auto_now_add=True)

@@ -118,15 +118,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'djongo',
-#         'NAME': 'demo3',
+#         'NAME': 'demo6',
 #     }
 # }
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'flickr_database_final',
+        'NAME': 'kamel',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database_final?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/kamel?retryWrites=true&w=majority",
                     'username': 'Fotone',
                     'password': config('DATABASE_PASSWORD')
                     },
@@ -201,3 +201,4 @@ EMAIL_HOST_USER=config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PASSWORD')
 IMAGE_TYPE = ['image']
 MAX_IMAGE_SIZE = 209715200
+VALIDATE_MAIL_API_KEY=config('VALIDATE_MAIL_API_KEY')

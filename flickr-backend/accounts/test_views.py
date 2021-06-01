@@ -558,22 +558,7 @@ class TestModels(TestCase):
         #testing validate password function
         result,error = validate_username(username)
         self.assertEqual(error, 'username must contain at least one number')
-        
-    def test_validating_username_uppercase(self):
-        #test username
-        username = 'kamel123'
-        
-        #testing validate password function
-        result,error = validate_username(username)
-        self.assertEqual(error, 'username must contain at least one uppercase character')
-        
-    def test_validating_username_lowercase(self):
-        #test username
-        username = 'KAMEL123'
-        
-        #testing validate password function
-        result,error = validate_username(username)
-        self.assertEqual(error, 'username must contain at least one lowercase character')
+       
     
     def test_validating_username_short(self):
         #test username

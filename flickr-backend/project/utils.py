@@ -7,18 +7,10 @@ def validate_username(username):
         if c.isupper():
             numupper = numupper + 1
 
-    if numupper <= 0:
-        reason=('username must contain at least one uppercase character')
-        return '',reason
-
     numlower =0
     for c in username:
         if c.islower():
             numlower = numlower + 1
-
-    if numlower <= 0:
-        reason=('username must contain at least one lowercase character')
-        return '', reason
 
     if len(username)<6:
         reason = ('username must be greater than or equal to 6 characters')

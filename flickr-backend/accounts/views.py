@@ -39,7 +39,8 @@ def verifying_user(user):
     if not user.is_verified:
         user.is_verified = True
         user.save()
-    
+
+
 def prepare_verify_email(current_site,user,token):
     relative_link = reverse('accounts:email-verify')
     absurl = 'http://'+current_site+relative_link+"?token="+str(token)
@@ -105,17 +106,23 @@ def change_user_password(serializer,user):
         return response,statuss
 
 def change_user_name(serializer,user):
-    username,error = validate_username(serializer.data['username'])
+    username,error = validate_username(serializer.data['username'].lower())
     if len(username)==0:
         raise serializers.ValidationError(error)
     user.username = username
-    try:
-        user.save()
-    except:
-        response = {'Success': 'Username taken!'}
-        return response
-        
+    user.save()
     response = {'Success': 'Username changed'}
+    return response
+
+def change_first_last_name(serializer,user):
+    new_first = serializer.data['first_name']
+    new_last = serializer.data['first_name']
+    
+    user.first_name = new_first
+    user.last_name = new_last
+    user.save()
+        
+    response = {'Success': 'First & Last name changed'}
     return response
 
 
@@ -239,30 +246,31 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
     #POST
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        email = request.data.get('email', '')
-        bool,error = check_account_exist_email(email)        
-        if bool:
-            user = Account.objects.get(email=email)
-            
-            #encode user id
-            uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
-            
-            #create token
-            token = PasswordResetTokenGenerator().make_token(user)
+        if serializer.is_valid(raise_exception = True):
+            email = serializer.data['email'].lower()
+            bool,error = check_account_exist_email(email)        
+            if bool:
+                user = Account.objects.get(email=email)
+                
+                #encode user id
+                uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
+                
+                #create token
+                token = PasswordResetTokenGenerator().make_token(user)
 
-            #preparing mail
-            current_site = get_current_site(request=request).domain
+                #preparing mail
+                current_site = get_current_site(request=request).domain
 
-            email = prepare_reset_password_email(current_site,user,token,uidb64)
+                email = prepare_reset_password_email(current_site,user,token,uidb64)
 
-            #sending mail
-            Util.send_email(email)
+                #sending mail
+                Util.send_email(email)
 
-            return Response({'Success':
+                return Response({'Success':
                             'We have sent you a link to reset password'},
                             status=status.HTTP_200_OK)
-        else:
-            return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
 
 
 #Reset password mail
@@ -364,6 +372,20 @@ class ChangeUsername(generics.GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             response = change_user_name(serializer,user)
             return Response(response)
+
+#change first/last name
+class ChangeFirstLastName(generics.GenericAPIView):
+    serializer_class = ChangeFirstLastNameSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    #PUT
+    def put(self, request):
+        user = self.request.user
+        serializer = self.serializer_class(data=request.data)
+    
+        if serializer.is_valid(raise_exception=True):
+            response = change_first_last_name(serializer,user)
+            return Response(response)
 #get user info
 class UserInfo(generics.RetrieveAPIView):
     
@@ -425,12 +447,48 @@ def DeleteAccount(request):
         userpassword=request.data['password']
     except:
         return Response({'stat': 'Failed', "message":'Please enter your password'}, status=status.HTTP_200_OK)
+    #authenticate user
     user=auth.authenticate(email=user.email, password=userpassword)
     if not user:
         return Response(
             {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
     user.delete()
     return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
+
+#change users email
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def ChangeEmail(request):
+    user = request.user
+    try:
+        userpassword=request.data['password']
+    except:
+        return Response({'stat': 'Failed', "message":'Please enter your password'}, status=status.HTTP_200_OK)
+    
+    #authenticate user
+    user=auth.authenticate(email=user.email, password=userpassword)
+    if not user:
+        return Response(
+            {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
+    
+    #mail validation
+    serializer = ChangeEmailSerializer(data = request.data)
+    if serializer.is_valid(raise_exception = True):
+        useremail=request.data['email'].lower()
+        if useremail == user.email:
+            return Response(
+                {'stat': 'New mail cannot be equal to old mail !!'},status=status.HTTP_400_BAD_REQUEST)
+        check = Account.objects.filter(email=useremail)
+            #Checking if user is already registered
+        if check:
+            return Response(
+                {'error': 'Email already registered!!'})
+        if validate_user_mail(useremail) != 'valid':
+            return Response(
+                {'error': 'Please enter a valid mail'})
+        user.email = useremail
+        user.save()
+        return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))

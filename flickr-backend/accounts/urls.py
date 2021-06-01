@@ -15,6 +15,12 @@ path('change-password/', ChangePassword.as_view(), name='change-password'),
 #change user's username
 path('change-username/', ChangeUsername.as_view(), name='change-username'),
 
+#change user's first/lastname
+path('change-name/', ChangeFirstLastName.as_view(), name='change-name'),
+
+#change user's email
+path('change-email/', ChangeEmail, name='change-email'),
+
 #resend's verify mail 
 path('resend-verify-mail/', ResendMailView.as_view(), name='resend-verify'),
 
@@ -67,10 +73,10 @@ path('following/<int:userpk>', user_following, name='user_following'),
 path('resend-password-reset-email', ResendPasswordResetEmail.as_view(),
      name="resend-reset-password"),
 
-# # search by username
+# search by username
 path('search/', search, name='search'),
 
-# # search by email
+# search by email
 path('search/email/', search_email, name='search_email'),
 
 ]

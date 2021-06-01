@@ -1,3 +1,4 @@
+from django.http.request import RAISE_ERROR
 from rest_framework import serializers
 from accounts.models import *
 from django.contrib import auth
@@ -8,8 +9,20 @@ from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 from project.utils import *
+import requests
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.conf import settings
 
+def validate_user_mail(email_address):
+    api_key = settings.VALIDATE_MAIL_API_KEY
+    response = requests.get(
+        "https://isitarealemail.com/api/email/validate",
+        params = {'email': email_address},
+        headers = {'Authorization': "Bearer " + api_key })
+
+    status = response.json()['status']
+    print(status)
+    return status
 
 #Sign up serializer
 class SignUpSerializer(serializers.ModelSerializer):
@@ -28,9 +41,13 @@ class SignUpSerializer(serializers.ModelSerializer):
         age= attrs.get('age', '')
         email= attrs.get('email','').lower()
         user = Account.objects.filter(email=email)
+        
+        #validate mail
+        if validate_user_mail(email) != 'valid':
+            raise serializers.ValidationError({'error': 'Please enter a valid mail !'})
         #Checking if user is already registered
         if user:
-            raise serializers.ValidationError({'error': 'Email already registered!!'})
+            raise serializers.ValidationError({'error': 'Email already registered !'})
         
         #Checking if user entered valid age
         if age == 0:
@@ -44,6 +61,11 @@ class SignUpSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data): 
+        print(validated_data)
+        # try:
+        #     Account.objects.create_user(**validated_data)
+        # except:
+        #     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         return Account.objects.create_user(**validated_data)
 
 #Email verify serializer
@@ -154,7 +176,19 @@ class ChangeToPro(serializers.Serializer):
     '''Serializer for changing Account type'''
     is_pro = serializers.BooleanField(default=False)
 
-#change user info serializer
+#change user name serializer
+class ChangeFirstLastNameSerializer(serializers.Serializer):
+    '''Serializer for changing Account first/lastname'''
+    first_name = serializers.CharField(max_length=60)
+    last_name = serializers.CharField(max_length=60)
+    
+#change email serializer
+class ChangeEmailSerializer(serializers.Serializer):
+    '''Serializer for changing Account email'''
+    email = serializers.EmailField(min_length=2)
+    
+
+#change user first/last name serializer
 class ChangeUsernameSerializer(serializers.Serializer):
     '''Serializer for changing Account username'''
     username = serializers.CharField(max_length=60)
@@ -170,7 +204,6 @@ class OwnerSerializer(serializers.ModelSerializer):
 #Resend password mail serializer
 class ResendPasswordResetEmailSerializer(serializers.Serializer):
     '''Serializer for Reset Password'''
-    
     email = serializers.EmailField(min_length=2)
 
     class Meta:
