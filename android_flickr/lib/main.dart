@@ -20,10 +20,42 @@ import './colors/blackSwatch.dart' as primBlack;
 import './screens/login_screen.dart';
 import './screens/photoEditScreen.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Classes/globals.dart' as globals;
+import './providers/auth.dart' as auth;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 //import './providers/flickr_post.dart';
 
-void main() {
+/// Main function, before App runs, we check user preferences for remember email flag,
+///  if true, we call the sign up request method to get access and refresh token and start app in explore screen,
+///  if false we start app in get started screen.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  globals.rememberMe = prefs.getBool('remember') ?? false;
+  if (globals.rememberMe) {
+    var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
+        globals.isMockService ? '/login/' : 'api/accounts/login/');
+    final response = await http.post(url,
+        body: json.encode(
+          {
+            'email': prefs.getString('email'),
+            'password': prefs.getString('password'),
+          },
+        ),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      globals.accessToken = data['tokens']['access'];
+      globals.refreshToken = data['tokens']['refresh'];
+      globals.email = prefs.getString('email');
+      globals.password = prefs.getString('password');
+    }
+    print(json.decode(response.body));
+  }
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -48,15 +80,15 @@ class MyApp extends StatelessWidget {
     });
     OneSignal.shared
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
-    OneSignal.shared
-        .setNotificationReceivedHandler((OSNotification notification) {
-      /// will be called whenever a notification is received
-    });
 
+    /// will be called whenever a notification is received
     OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      /// will be called whenever a notification is opened/button pressed.
-    });
+        .setNotificationReceivedHandler((OSNotification notification) {});
+
+    /// will be called whenever a notification is opened/button pressed.
+    OneSignal.shared
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {});
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
