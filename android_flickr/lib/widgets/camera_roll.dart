@@ -43,7 +43,7 @@ class CameraRollState extends State<CameraRoll> {
   @override
   Widget build(BuildContext context) {
     //get posts from provider
-    postsToDisplay = Provider.of<Posts>(context).posts;
+    postsToDisplay = Provider.of<Posts>(context).myPosts;
     if (postsToDisplay.isEmpty) {
       setState(() {
         hasImages = false;
