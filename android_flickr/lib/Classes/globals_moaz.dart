@@ -18,7 +18,7 @@ class HttpSingleton {
   ///Returns the base url of the server APIs, returns mock url if isMockService is true.
   String getBaseUrl() {
     return isMockService == true
-        ? '192.168.1.10:3000'
+        ? '192.168.1.11:3000'
         : 'https://fotone.me/api';
   }
 }

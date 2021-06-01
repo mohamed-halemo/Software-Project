@@ -2,9 +2,9 @@
     package="com.example.android_flickr">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="android_flickr"
+        android:label="Fotone"
         android:usesCleartextTraffic="true"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         
         <activity
             android:name=".MainActivity"
