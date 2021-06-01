@@ -16,10 +16,20 @@ class _SearchDisplayState extends State<SearchDisplay> {
 
   /// To know whether to hide the grid/list view options or know based on user scrolling.
   bool closeTopContainer = false;
-  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
+  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> allPosts, int exploreindex) {
+    /// Navigator is used here when we click on the image.
+
+    /// postInformation is passed as an argument so ClickOnImageScreen can know which details it will display.
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
-      arguments: postInformation,
+      arguments: {
+        'postDetails': allPosts,
+        'isFromPersonalProfile': false,
+        'explorePosts': allPosts,
+        'postIndex': exploreindex,
+        'ExORPup': 'explore'
+      },
     );
   }
 
@@ -78,7 +88,8 @@ class _SearchDisplayState extends State<SearchDisplay> {
             itemBuilder: (ctx, index) {
               return InkWell(
                 onTap: () {
-                  clickOnImageScreen(context, postsToDisplay[index]);
+                  clickOnImageScreen(
+                      context, postsToDisplay[index], postsToDisplay, index);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

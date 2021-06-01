@@ -8,8 +8,15 @@ import 'pic_postedBy_info_on_post.dart';
 import '../screens/click_on_image_screen.dart';
 
 /// Explore post describes how each post will be displayed and the widgets it will use.
+///
 class ExplorePost extends StatelessWidget {
+  ///Tells whether this widget is used in Public mode or explore mode.
   final inPublicMode;
+
+  /// Tells whether this widget is used in profile mode or non profile mode.
+  final isProfile;
+
+  /// Index of the post currently displayed.
   final exploreindex;
   void clickOnImageScreen(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> allPosts) {
@@ -28,12 +35,14 @@ class ExplorePost extends StatelessWidget {
     );
   }
 
-  ExplorePost(this.inPublicMode, this.exploreindex);
+  ExplorePost(this.inPublicMode, this.exploreindex, this.isProfile);
   @override
   Widget build(BuildContext context) {
     /// We set up a listener here to class Posts to listen any change to the post.
     final postInformation = Provider.of<PostDetails>(context);
-    final allPosts = Provider.of<Posts>(context).posts;
+    final allPosts = isProfile
+        ? Provider.of<Posts>(context).myPosts
+        : Provider.of<Posts>(context).posts;
     return ChangeNotifierProvider(
       /// A container that click on image screen will listen to so it is notified with any change in post details like fave.
       create: (context) => postInformation,
