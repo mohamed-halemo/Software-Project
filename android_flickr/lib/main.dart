@@ -38,7 +38,8 @@ class MyApp extends StatelessWidget {
         DeviceOrientation.portraitDown,
       ],
     );
-//Remove this method to stop OneSignal Debugging
+
+    ///Remove this method to stop OneSignal Debugging
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
 
     OneSignal.shared.init("494522f0-cedd-4d54-b99b-c12ac52f66a6", iOSSettings: {
@@ -49,12 +50,12 @@ class MyApp extends StatelessWidget {
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
     OneSignal.shared
         .setNotificationReceivedHandler((OSNotification notification) {
-      // will be called whenever a notification is received
+      /// will be called whenever a notification is received
     });
 
     OneSignal.shared
         .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      // will be called whenever a notification is opened/button pressed.
+      /// will be called whenever a notification is opened/button pressed.
     });
     return MultiProvider(
       providers: [

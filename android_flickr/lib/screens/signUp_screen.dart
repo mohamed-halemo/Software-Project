@@ -4,16 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 
+/// Sign up page
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
 }
 
-// If true the text is visible e;se it is not
+///  A boolean that is true if the text is visible else it is hidden
 bool _secureText = true;
-// The text written on the button in login screen
+
+/// The text written on the button in login screen
 String _buttonText = 'Sign up';
+
 final _formKey = GlobalKey<FormState>();
+
+/// A map that takes the email and the password of the user
 Map<String, String> _authData = {
   'email': '',
   'password': '',
@@ -25,11 +30,31 @@ Map<String, String> _authData = {
 class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
+    /// Shows an error message
+    void _showError(String message) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('An Error Occurred !'),
+          content: Text(message),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            )
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: null,
         backgroundColor: Colors.grey[900],
-        // Showing the logo and the title in the appbar
+
+        /// Showing the logo and the title in the appbar
         title: Row(
           children: <Widget>[
             Image.asset(
@@ -51,7 +76,7 @@ class _SignUpState extends State<SignUp> {
         ),
         child: Container(
           child: Column(children: <Widget>[
-            // Showing the logo and the title under the appbar
+            /// Showing the logo and the title beneath the appbar
             Container(
               margin: EdgeInsets.only(top: 10),
               child: Column(
@@ -75,7 +100,8 @@ class _SignUpState extends State<SignUp> {
                 ],
               ),
             ),
-            // Text fields to collect the user login information
+
+            /// Text fields to collect the user Sing up information
             Form(
               key: _formKey,
               child: Expanded(
@@ -112,12 +138,13 @@ class _SignUpState extends State<SignUp> {
                           suffixIcon: _secureText
                               ? Icons.remove_red_eye_outlined
                               : Icons.remove_red_eye,
-                          // Changes the state of the password (Visible or not)
                           suffixIconPressed: () {
                             setState(() {
                               _secureText = !_secureText;
                             });
                           }),
+
+                      /// Sign up button that saves the user info after checking for any possible error
                       Container(
                         child: RaisedButton(
                           onPressed: () {
@@ -133,13 +160,37 @@ class _SignUpState extends State<SignUp> {
                                   _authData['age'],
                                 )
                                     .then((value) {
-                                  print('ezz' + value.body);
+                                  var errorMessage = 'Error !';
+                                  // print('ezz' + value.body);
+                                  if (value.body.contains(
+                                      'account with this email already exists.')) {
+                                    errorMessage =
+                                        'account with this email already exists.';
+                                  } else if (value.body.contains(
+                                      'password must contain at least one uppercase character')) {
+                                    errorMessage =
+                                        'Password must contain at least one uppercase character';
+                                  } else if (value.body.contains(
+                                      'password must contain at least one lowercase character')) {
+                                    errorMessage =
+                                        'Password must contain at least one lowercase character';
+                                  } else if (value.body.contains(
+                                      'password must contain at least one number')) {
+                                    errorMessage =
+                                        'Password must contain at least one number';
+                                  } else if (value.body.contains(
+                                      'Ensure this field has no more than 16 characters.')) {
+                                    errorMessage =
+                                        'Ensure this field has no more than 16 characters.';
+                                  }
+                                  _showError(errorMessage);
                                 });
-                                // Moving to the log in page
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => LogIn()));
+
+                                /// Moving to the log in page if the data entred is all good
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (context) => LogIn()));
                               }
                             }
                           },
@@ -165,7 +216,8 @@ class _SignUpState extends State<SignUp> {
                       Container(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          // Moving to the log in page
+
+                          /// Moving to the log in page
                           children: [
                             Text('Already a Flicker member ?'),
                             FlatButton(
@@ -193,6 +245,7 @@ class _SignUpState extends State<SignUp> {
   }
 }
 
+/// Text input fields for the Sign up information
 Widget _textInput({
   hint,
   label,
@@ -209,16 +262,18 @@ Widget _textInput({
     ),
     child: TextFormField(
       validator: (value) {
-        // Checks if the text field is empty or not
+        /// Checks if the text field is empty or not
         if (value.isEmpty) {
           return 'Required';
         }
-        // No white space in the begging of the password is allowed and the passwors length can't be less than 12
+
+        /// No white space in the begging of the password is allowed and the passwors length can't be less than 12
         if (hint == 'Password' &&
             ((value.length < 12) || value.startsWith(' '))) {
           return 'Invalid password';
         }
-        // No number bigger than 120 is accepted in the age field
+
+        /// No number bigger than 120 is accepted in the age field
         if (hint == 'Your age' && int.parse(value) > 120) {
           return 'Invalid age';
         }

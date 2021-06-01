@@ -3,10 +3,10 @@ import '../widgets/groups_tab_bar.dart';
 
 class GroupView extends StatefulWidget {
   @override
-  _GroupViewState createState() => _GroupViewState();
+  GroupViewState createState() => GroupViewState();
 }
 
-class _GroupViewState extends State<GroupView> {
+class GroupViewState extends State<GroupView> {
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
