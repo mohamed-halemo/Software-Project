@@ -1,5 +1,7 @@
-import 'package:android_flickr/Enums/enums.dart';
+//out of the box imports
 import 'package:flutter/material.dart';
+//personal imports
+import 'package:android_flickr/Enums/enums.dart';
 
 class SwitchCaseHelper {
   ///Returns image path of the flash button icon according to chosen Flash mode

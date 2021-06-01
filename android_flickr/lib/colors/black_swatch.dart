@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+///a custom black color for the flickr theme
 const MaterialColor primaryBlack = MaterialColor(
   _blackPrimaryValue,
   <int, Color>{

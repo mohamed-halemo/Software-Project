@@ -1,47 +1,108 @@
+// out of the box imports
 import 'package:flutter/material.dart';
 
+///A Screen Where the user is able to add tags to a photo he is uploading
 //ignore: must_be_immutable
 class AddTagsScreen extends StatefulWidget {
+  /// A list of all tags associated with the image, No tags : Empty,
+  /// this List is passed from the Screen bellow this one in the stack
   List<String> tags;
-  AddTagsScreen(this.tags);
-  @override
-  _AddTagsScreenState createState() => _AddTagsScreenState();
-}
 
-class _AddTagsScreenState extends State<AddTagsScreen> {
-  final myController = TextEditingController();
+  ///The list of tags is passed throught the constructor
+  AddTagsScreen(this.tags);
+
+  ///Index of the tag to be removed from the tags list
   int currentDeleteIndex = 0;
 
-  void deleteTag() {
-    setState(() {
-      widget.tags.removeAt(currentDeleteIndex);
-    });
+  ///Text Editing Controller used to get the text entered in the text field
+  final myController = TextEditingController();
+
+  ///Adds a tag to [tags] list, the tag is retrieved through the text editing controller,
+  /// If textfield is empty, do nothing, if tag already in list, clear textfield and return,
+  /// if tag is A,a,i,I , clear textfield, snicker bar(tag is not valid) and return.
+  /// if tag is valid, add to tag list, clear textfield and return.
+  bool addTag(BuildContext context, String controllerText) {
+    if (controllerText.isEmpty) {
+      return false;
+    }
+    if (tags.contains(controllerText)) {
+      myController.text = '';
+      return false;
+    }
+    if (controllerText == 'A' ||
+        controllerText == 'a' ||
+        controllerText == 'i' ||
+        controllerText == 'I') {
+      var snackBar = SnackBar(
+        elevation: 0,
+        width: 200,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            50,
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.grey.shade700,
+        content: Text(
+          controllerText + ' is not a valid tag.',
+          textAlign: TextAlign.center,
+        ),
+      );
+
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } catch (e) {}
+
+      myController.text = '';
+      return false;
+    }
+
+    tags.add(controllerText);
+
+    myController.text = '';
+
+    return true;
   }
 
+  ///Remove a tag from tags list that is at the [currentDeleteIndex] s
+  void deleteTag(int index) {
+    try {
+      tags.removeAt(index);
+    } catch (e) {}
+  }
+
+  @override
+  AddTagsScreenState createState() => AddTagsScreenState();
+}
+
+/// State Object that rebuilds with state update
+class AddTagsScreenState extends State<AddTagsScreen> {
+  ///After default dispose behaviour, dispose of text field controller
   @override
   void dispose() {
     super.dispose();
-    myController.dispose();
+    widget.myController.dispose();
   }
 
+  ///Build method, rebuilds with every state update.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 242, 242, 242),
+      backgroundColor: const Color.fromARGB(255, 242, 242, 242),
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 56, 56, 56),
+        backgroundColor: const Color.fromARGB(255, 56, 56, 56),
         leading: IconButton(
-          icon: Icon(Icons.keyboard_backspace_rounded),
+          icon: const Icon(Icons.keyboard_backspace_rounded),
           onPressed: () {
             Navigator.of(context).pop(widget.tags);
           },
         ),
-        title: Text('Add/remove tags'),
+        title: const Text('Add/remove tags'),
         actions: [
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 right: 10,
               ),
               child: Container(
@@ -56,7 +117,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(widget.tags);
                   },
-                  child: Text(
+                  child: const Text(
                     'Done',
                     style: TextStyle(
                       color: Colors.white,
@@ -85,12 +146,12 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                       color: Colors.grey,
                       fontSize: 20,
                     ),
-                    controller: myController,
+                    controller: widget.myController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(8.0),
+                      contentPadding: const EdgeInsets.all(8.0),
                       hintText: 'Add a tag',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Colors.grey,
                         fontSize: 20,
                       ),
@@ -101,12 +162,14 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: GestureDetector(
-                        child: Icon(
+                        child: const Icon(
                           Icons.add_box_outlined,
                           size: 35,
                         ),
                         onTap: () {
-                          addTag();
+                          setState(() {
+                            widget.addTag(context, widget.myController.text);
+                          });
                         },
                       ),
                     ),
@@ -151,7 +214,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                                       ),
                                       child: GestureDetector(
                                         onTap: () {
-                                          currentDeleteIndex = index;
+                                          widget.currentDeleteIndex = index;
                                           var alertDelete = AlertDialog(
                                             content: Container(
                                               child: Column(
@@ -166,14 +229,18 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                                                   Divider(),
                                                   TextButton(
                                                     onPressed: () {
-                                                      deleteTag();
-                                                      currentDeleteIndex = -1;
+                                                      setState(() {
+                                                        widget.deleteTag(widget
+                                                            .currentDeleteIndex);
+                                                      });
+                                                      widget.currentDeleteIndex =
+                                                          -1;
                                                       Navigator.pop(context);
                                                       return;
                                                     },
                                                     child: Text(
                                                       'Yes',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         color: Colors.black,
                                                         fontSize: 20,
                                                       ),
@@ -187,7 +254,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                                                     },
                                                     child: Text(
                                                       'No',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         color: Colors.grey,
                                                         fontSize: 20,
                                                       ),
@@ -203,7 +270,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                                             barrierDismissible: true,
                                           );
                                         },
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.close,
                                           size: 20,
                                         ),
@@ -212,7 +279,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                                   )
                                 ],
                               ),
-                              Divider(
+                              const Divider(
                                 color: Colors.black,
                                 endIndent: 10,
                                 indent: 10,
@@ -228,44 +295,5 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
         ),
       ),
     );
-  }
-
-  void addTag() {
-    if (myController.text.isEmpty) {
-      return;
-    }
-    if (widget.tags.contains(myController.text)) {
-      myController.text = '';
-      return;
-    }
-    if (myController.text == 'A' ||
-        myController.text == 'a' ||
-        myController.text == 'i' ||
-        myController.text == 'I') {
-      var snackBar = SnackBar(
-        elevation: 0,
-        width: 200,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            50,
-          ),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.grey.shade700,
-        content: Text(
-          myController.text + ' is not a valid tag.',
-          textAlign: TextAlign.center,
-        ),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      myController.text = '';
-      return;
-    }
-    setState(() {
-      widget.tags.add(myController.text);
-    });
-    myController.text = '';
-    return;
   }
 }

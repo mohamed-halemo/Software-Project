@@ -7,35 +7,34 @@ import '../providers/flickr_posts.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-//class Explore describes how the posts on explore page are build and displayed
+/// Explore describes how the posts on explore page are build and displayed.
 class Explore extends StatefulWidget {
   @override
-  _ExploreState createState() => _ExploreState();
+  ExploreState createState() => ExploreState();
 }
 
-class _ExploreState extends State<Explore> {
-  /*  var _init = true;
+class ExploreState extends State<Explore> {
+  final inPublicMode = false;
+  final isProfile = false;
 
-  @override
-  void didChangeDependencies() {
-    if (_init) {
-      Provider.of<Posts>(context).fetchAndSetExplorePosts();  
-    }
-    _init = false;
-    super.didChangeDependencies();
-  } */
+  /// The widget returns ListView.builder that controls how the post will be displayed to the user.
 
-  //The widget returns ListView builder to display the posts in listview mode and builder helps in improving the performance of the application
-  //we provide it with ChangeNotifierProvider so it creates a provider for the class Post
   @override
   Widget build(BuildContext context) {
+    ///
+    /// Setup a listener from class posts to notify me with any updates in the list of posts.
     final postsToDisplay = Provider.of<Posts>(context).posts;
+
     return ListView.builder(
       itemCount: postsToDisplay.length,
       itemBuilder: (context, index) {
+        /// We provide it with ChangeNotifierProvider so it creates a seperate provider for each Post.
         return ChangeNotifierProvider.value(
           value: postsToDisplay[index],
-          child: ExplorePost(),
+
+          /// False in explore post is to indicate that posts are displayed in explore mode
+          /// not public mode to display the popupmenu button accordingly.
+          child: ExplorePost(inPublicMode, index, isProfile),
         );
       },
     );

@@ -1,24 +1,48 @@
+import 'package:android_flickr/providers/flickr_profiles.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../providers/flickr_post.dart';
 import './pop_menu_button_of_post.dart';
+import '../screens/non_profile_screen.dart';
+import '../providers/flickr_posts.dart';
 
+/// A Widget that displays picPoster avatar, name, caption and since when was this post posted.
+// ignore: must_be_immutable
 class PicPostedByInfoOnPost extends StatelessWidget {
-  final PostDetails
-      postInformation; //instance of post details that contains info about the post to set the info about faves and comments
+  bool inPublicMode;
 
-  bool isFollowedBeforeRunning =
-      true; // helps me to display diffrentiate between the users that I am following before running
-  //and who I followed during running so I can display the subtitle widget accordingly since if the user follow during running from the
-  //popupmenu item then I should display (followed recomended)text as subtitle
+  ///
+  /// Instance of post details that contains info about the post to set the info about faves and comments.
+  final PostDetails postInformation;
 
-  // returns the widget that will be displayed as subtitle in the listtile below if it will be caption or Following recomended or recomended
-  Widget _widgetToBeDisplayedAsSubtitle() {
-    if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning &&
+  /// Helps me to diffrentiate whether I followed the user before/after running the app to select the widgets to display.
+  bool isFollowedBeforeRunning = true;
+
+  /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
+  /// and profiles to choose the posts and images needed and display them.
+  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+      List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
+    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
+        postInformation.picPoster, currentPosts);
+    /* final flickrProfileDetails = FlickrProfiles().profiles.where(
+        (profile) => profile.profileID == postInformation.picPoster.profileId); */
+    // print(flickrProfileDetails.profileID);
+    Navigator.of(ctx).pushNamed(
+      NonProfileScreen.routeName,
+      arguments: [postInformation, flickrProfileDetails],
+    );
+  }
+
+  /// Returns the widget that will be displayed as subtitle in the listtile if it will be caption or Following recomended or recomended.
+  Widget widgetToBeDisplayedAsSubtitle() {
+    if (((postInformation.picPoster.isFollowedByUser &&
+                !postInformation.picPoster.followedDuringRunning) ||
+            inPublicMode) &&
         postInformation.caption != null) {
       return Text(postInformation.caption);
-    } else if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning &&
+    } else if (((postInformation.picPoster.isFollowedByUser &&
+                !postInformation.picPoster.followedDuringRunning) ||
+            inPublicMode) &&
         postInformation.caption == null) {
       return Text("");
     } else if (postInformation.picPoster.followedDuringRunning) {
@@ -30,55 +54,59 @@ class PicPostedByInfoOnPost extends StatelessWidget {
     }
   }
 
-  // returns the widget that will be displayed as trailing in the listtile below whether it will be
-  Widget _widgetToBeDisplayedAsTrailing(BuildContext context) {
-    if (postInformation.picPoster.isFollowedByUser &&
-        !postInformation.picPoster.followedDuringRunning) {
+  /// Returns the widget that will be displayed as trailing in the listtile below whether it will be popup menu or posted since when.
+  Widget widgetToBeDisplayedAsTrailing(double widthsize) {
+    /*   print("/*");
+    print(postInformation.picPoster.isFollowedByUser);
+    print(postInformation.postedSince);
+    print("*/"); */
+    if ((postInformation.picPoster.isFollowedByUser &&
+            !postInformation.picPoster.followedDuringRunning) ||
+        inPublicMode) {
       return SizedBox(
-        width: MediaQuery.of(context).size.width / 10,
+        width: widthsize,
         child: Text(postInformation.postedSince),
       );
     } else if (postInformation.picPoster.followedDuringRunning) {
       return Text("");
     } else {
-      //returns the popupmenubutton to display as trailing in listtile if needed
+      /// Returns the popupmenubutton to display as trailing in listtile if needed.
       return PopupMenuButtonOfPost(postInformation);
     }
   }
 
-  PicPostedByInfoOnPost(this.postInformation);
+  PicPostedByInfoOnPost(this.postInformation, this.inPublicMode);
   @override
-  //the widget returns a container where we have a listtile in it which has the profile picture as leading in circular avatar
-  /*the title in the listtile is the name and the subtitle in the listtile is the caption (if available) in case 
-  isFollowedByUser = true (which means the current user is following the user who posted the picture) but if isFollowedByUser = false
-  then we display as subtitle the word(recomended) and if the user decides to follow the post owner by clicking the follow option
-  in the pop menu button then the word (recomended) is replaced with (followed recomended) and the pop menu buttonin the trailing position disappears*/
   Widget build(BuildContext context) {
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
+    final currentPosts = Provider.of<Posts>(context).posts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          leading: CircleAvatar(
-            radius: MediaQuery.of(context).size.width / 20,
-            backgroundImage: NetworkImage(
-              postInformation.picPoster.profilePicUrl,
+          leading: GestureDetector(
+            onTap: () {
+              _goToNonprofile(
+                  context, postInformation, currentPosts, flickrProfiles);
+            },
+            child: CircleAvatar(
+              radius: MediaQuery.of(context).size.width / 20,
+              backgroundImage: NetworkImage(
+                postInformation.picPoster.profilePicUrl,
+              ),
+              backgroundColor: Colors.transparent,
             ),
-            backgroundColor: Colors.transparent,
-            /* child: Image.asset(
-                postInformation.url,
-                alignment: Alignment.center,
-                fit: BoxFit.fill,
-
-                //height: double.infinity,
-              ), */
           ),
           title: Text(
             postInformation.picPoster.name,
           ),
-          subtitle: _widgetToBeDisplayedAsSubtitle(),
-          trailing: _widgetToBeDisplayedAsTrailing(context),
+          subtitle: widgetToBeDisplayedAsSubtitle(),
+          trailing: widgetToBeDisplayedAsTrailing(
+              MediaQuery.of(context).size.width / 10),
         ),
-        if (!isFollowedBeforeRunning && postInformation.caption != null)
+        if (!isFollowedBeforeRunning &&
+            postInformation.caption != null &&
+            !inPublicMode)
           Row(
             children: [
               SizedBox(width: MediaQuery.of(context).size.width / 17),

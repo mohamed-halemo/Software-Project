@@ -1,10 +1,13 @@
 //import 'dart:js';
 //import 'dart:ui';
 //import 'package:http/http.dart' as http;
+// import 'package:android_flickr/screens/explore_screen.dart';
 import 'package:android_flickr/screens/explore_screen.dart';
+import 'package:android_flickr/screens/logIn_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import './splash_screen.dart';
+import '../Classes/globals.dart' as globals;
 
 enum SlideNumber {
   slide1,
@@ -13,22 +16,31 @@ enum SlideNumber {
   slide4,
 }
 
+///The first screen that appears when the user is not logged in.
 class GetStartedScreen extends StatefulWidget {
   static const routeName = '/get-started-screen';
   @override
-  _GetStartedScreenState createState() => _GetStartedScreenState();
+  GetStartedScreenState createState() => GetStartedScreenState();
 }
 
-class _GetStartedScreenState extends State<GetStartedScreen> {
+class GetStartedScreenState extends State<GetStartedScreen> {
+  ///The images are preloaded from the assests in this map and so they are ready to be displayed .
   Map<String, Image> swipeImageMap;
-  Image moaz;
+
+  ///contains first swipe image.
   Image swipeImage1;
+
+  ///contains second swipe image.
   Image swipeImage2;
+
+  ///contains third swipe image.
   Image swipeImage3;
+
+  ///contains forth swipe image.
   Image swipeImage4;
 
-  //returns the String to be dsplayed as title based on the Swipe image we are on
-  String _setStartedScreenTitle(int index) {
+  String setStartedScreenTitle(int index) {
+    /// Returns the String to be displayed as title based on the Swipe image we are on.
     switch (index) {
       case 0:
         return 'Powerful';
@@ -47,8 +59,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
-  //returns the String to be dsplayed as subtitle based on the Swipe image we are on
-  String _setStartedScreenSubTitle(int index) {
+  String setStartedScreenSubTitle(int index) {
+    /// Returns the String to be dsplayed as subtitle based on the Swipe image we are on.
     switch (index) {
       case 0:
         return 'Save all of your photos and videos in one place.';
@@ -67,20 +79,20 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
-  //navigates to the loading screen where we give ExploreScreen as an argument to the FlickrSplashScreen
   void exploreScreen(BuildContext ctx) {
     Navigator.of(ctx).push(
       MaterialPageRoute(
         builder: (context) => FlickrSplashScreen(
-          ExploreScreen(),
+          globals.isMockService ? ExploreScreen() : LogIn(),
+          globals.isMockService ? false : true,
         ),
       ),
     );
   }
 
-  //to preload the images from assets and added them in a map
   @override
   void initState() {
+    /// To preload the 4 images on started screen from assets and avoid white background.
     swipeImage1 = Image.asset(
       'assets/images/GetStartedScreens/GetStartedScreenSlide1.png',
       alignment: Alignment.center,
@@ -116,7 +128,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
       'swipeImage3': swipeImage3,
       'swipeImage4': swipeImage4,
     };
-    print(swipeImageMap.keys.first);
+    // print(swipeImageMap.keys.first);
 
     super.initState();
   }
@@ -124,7 +136,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    //preloades the images from app to the cache so they can be displayed immediately
+
+    /// Preloades the images from app to the cache so they can be displayed immediately.
     precacheImage(swipeImage1.image, context);
     precacheImage(swipeImage2.image, context);
     precacheImage(swipeImage3.image, context);
@@ -133,9 +146,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //returns scaffold where we set the Title, subtitle, button, SwipeImages and author name on stack so we can set the positoin of
-    //each widget
-    //we also use Swiper widget so we can swipe between images and titles and subtitles
+    /// Returns scaffold where we set the Title, subtitle, button, SwipeImages and author name on stack.
+
     return Scaffold(
       body: Container(
         padding: EdgeInsets.only(
@@ -145,24 +157,18 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         child: Stack(
           children: [
             Container(
-              //to provide which swipe image and which title and subtitle to be displayed
               height: double.infinity,
               width: double.infinity,
               child: Swiper(
+                /// We also use Swiper widget so we can swipe between images and titles and subtitles.
                 containerWidth: double.infinity,
                 itemCount: 4,
                 loop: false,
                 controller: SwiperController(),
-                onTap: (index) {
-                  if (index < 3) {
-                    moaz = swipeImageMap['swipeImage' + '${index + 2}'];
-                  }
-                },
                 itemBuilder: (ctx, index) {
                   return Stack(
                     children: [
                       swipeImageMap['swipeImage' + '${index + 1}'],
-                      //so we can postion the title and subtitle in the loaction specified
                       Positioned(
                         top: MediaQuery.of(context).size.height / 1.75,
                         left: MediaQuery.of(context).size.width / 11,
@@ -174,7 +180,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                _setStartedScreenTitle(index),
+                                setStartedScreenTitle(index),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
@@ -187,7 +193,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 height: 10,
                               ),
                               Text(
-                                _setStartedScreenSubTitle(index),
+                                setStartedScreenSubTitle(index),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -208,7 +214,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
               ),
             ),
             Positioned(
-              //to postion the app name on stack
+              /// Postion the app name on stack.
               top: MediaQuery.of(context).size.height / 5,
               //left: MediaQuery.of(context).size.width / 3.5,
               child: Container(
@@ -225,7 +231,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
               ),
             ),
             Positioned(
-              //to postion the flat button on stack
+              /// Postion the flat button on stack.
               height: MediaQuery.of(context).size.height * 1.65,
               left: MediaQuery.of(context).size.width / 8,
               child: Container(
@@ -254,7 +260,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 ),
               ),
             ),
-            //to postion the author name on stack
+
+            /// Postion the author name on stack.
             Positioned(
               height: MediaQuery.of(context).size.height * 1.88,
               left: 10,

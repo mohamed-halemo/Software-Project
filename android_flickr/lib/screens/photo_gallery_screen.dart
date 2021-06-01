@@ -1,20 +1,20 @@
 //out of the box imports
 import 'dart:typed_data';
-import 'package:android_flickr/screens/photo_selection_screen.dart';
 import 'package:flutter/material.dart';
+
 //Packages and Plugins
 import 'package:photo_gallery/photo_gallery.dart';
 
 //Personal imports
-import 'package:android_flickr/screens/flickr_Camera_Screen.dart';
+import 'package:android_flickr/screens/photo_selection_screen.dart';
 
 ///A screen where the user picks an album, then chooses and image to upload to the server.
 class PhotoGalleryScreen extends StatefulWidget {
   @override
-  _PhotoGalleryScreenState createState() => _PhotoGalleryScreenState();
+  PhotoGalleryScreenState createState() => PhotoGalleryScreenState();
 }
 
-class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
+class PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
   ///List of all Albums that hold [Image] assets
   List<Album> imageAlbums;
 
