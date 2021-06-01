@@ -38,8 +38,17 @@ urlpatterns = [
           name='topic_info'),
 
      # edit or delete topic APIs
+     # edit topic subject
      path('<int:group_id>/topic/<int:topic_id>', views.edit_delete_topic,
           name='edit_delete_topic'),
+
+     # edit topic message
+     path('<int:group_id>/topic/<int:topic_id>/message',
+          views.edit_topic_message,
+          name='edit_topic_message'),
+
+     # search for a topic by its message API
+     path('<int:group_id>/search', views.find_topic,  name='topic-search'),
 
 
      # replies
@@ -114,11 +123,21 @@ urlpatterns = [
      path('<int:group_id>/photos/<int:photo_id>/respond/<int:sender_id>',
           views.group_photo_request_respond,
           name='group_photo_request_respond'),
-
-     # search for a topic by its message API
+     
+     # search for a photo in group by its title API
      path('<int:group_id>/search', views.find_topic,  name='topic-search'),
 
      # get top 5 contributers
-     path('<int:group_id>/top', views.top_contributers, name='top_contributers'),
-     
+     path('<int:group_id>/top', views.top_contributers,
+          name='top_contributers'),
+
+     # edit group profile photo APIs
+     path('<int:group_id>/photos/<int:photo_id>/profile',
+          views.group_profile_photo,
+          name='group_profile_photo'),
+
+     # edit group cover photo APIs
+     path('<int:group_id>/photos/<int:photo_id>/cover',
+          views.group_cover_photo,
+          name='group_cover_photo'),
 ]

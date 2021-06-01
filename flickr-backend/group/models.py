@@ -40,9 +40,16 @@ class group (models.Model):
         blank=True)
     pending_members_count = models.IntegerField(default=0)
 
+    profile_photo = models.OneToOneField(Photo, on_delete=models.CASCADE,
+                                         related_name='group_profile_photo',
+                                         blank=True, null=True)
+    cover_photo = models.OneToOneField(Photo, on_delete=models.CASCADE,
+                                       related_name='group_cover_photo',
+                                       blank=True, null=True)
+
     pool_count = models.PositiveIntegerField(default=0)
     topic_count = models.PositiveIntegerField(default=0)
-    date_create = models.DateTimeField(auto_now_add=True )
+    date_create = models.DateTimeField(auto_now_add=True)
     privacy = models.PositiveIntegerField(choices=PRIVACY_GROUP_CHOICES)
     eighteenplus = models.BooleanField(default=False)
     invitation_only = models.BooleanField(default=False)

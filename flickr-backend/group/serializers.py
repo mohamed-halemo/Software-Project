@@ -21,7 +21,7 @@ class GroupPendingMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = PendingMembers
         fields = ['pending_member', 'date_send_request', 'message']
-
+        
 
 class TopicSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
@@ -37,6 +37,20 @@ class TopicSerializer(serializers.ModelSerializer):
                         'owner': {'read_only': True}}
 
 
+class TopicSubjectSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = topic
+        fields = ['subject']
+
+
+class TopicMessageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = topic
+        fields = ['message']
+
+
 class GroupSerializer(serializers.ModelSerializer):
     group_topic = TopicSerializer(read_only=True, many=True)
 
@@ -45,6 +59,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'privacy',
                   'rules', 'eighteenplus', 'invitation_only',
                   'member_count', 'pool_count', 'date_create',
+                  'profile_photo', 'cover_photo',
                   'topic_count', 'group_topic']
 
 

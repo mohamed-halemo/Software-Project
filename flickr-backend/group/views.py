@@ -372,8 +372,11 @@ def find_groups(request):
     paginator.page_size = 10
 
     value = request.query_params.get("name")
-    group_list = group.objects.filter(name__icontains=value)\
+    public_groups = group.objects.all().filter(Q(privacy=3) | Q(privacy=2))
+    group_list = public_groups.filter(name__icontains=value)\
         .order_by('-date_create')
+    # group_list = group.objects.filter(name__icontains=value)\
+    #     .order_by('-date_create')
     group_list = limit_groups_number(group_list, 500)
     result_page = paginator.paginate_queryset(group_list, request)
     groups = GroupSerializer(result_page, many=True).data
@@ -553,7 +556,7 @@ def topic_info(request, group_id, topic_id):
 
 
 # edit or delete topic
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def edit_delete_topic(request, group_id, topic_id):
 
@@ -566,7 +569,7 @@ def edit_delete_topic(request, group_id, topic_id):
         group_topic = group_obj.group_topic.get(id=topic_id)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
+    # edit topic subject
     if request.method == 'PUT':
         if (group_topic.owner != request.user):
             return Response(
@@ -574,7 +577,7 @@ def edit_delete_topic(request, group_id, topic_id):
                   'message': 'User does not have permission to edit'
                              '  this topic'},
                  status=status.HTTP_403_FORBIDDEN)
-        serializer = TopicSerializer(group_topic, data=request.data)
+        serializer = TopicSubjectSerializer(group_topic, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -596,6 +599,35 @@ def edit_delete_topic(request, group_id, topic_id):
         else:
             data["stat"] = "fail"
         return Response(data=data)
+
+
+# edit topic message
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def edit_topic_message(request, group_id, topic_id):
+
+    try:
+        group_obj = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        group_topic = group_obj.group_topic.get(id=topic_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if (group_topic.owner != request.user):
+        return Response(
+            {'stat': 'fail',
+             'message': 'User does not have permission to edit'
+                             '  this topic'},
+            status=status.HTTP_403_FORBIDDEN)
+    serializer = TopicMessageSerializer(group_topic, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # replies
@@ -622,11 +654,12 @@ def create_reply(request, group_id, topic_id):
             topic=group_topic,
             owner=request.user
         )
-        group_topic.last_reply = request.user 
+        # group_topic.last_reply = request.user 
         group_topic.count_replies += 1
         group_topic.save()
 
         # # push notification
+        # if group_topic.notification:
         header = {"Content-Type": "application/json; charset=utf-8",
                   "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
 
@@ -686,6 +719,7 @@ def reply_info(request, group_id, topic_id, reply_id):
     serializer = ReplySerializer(group_topic_reply)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def find_topic(request, group_id):
     # search for a topic by its message ordered from the oldest
@@ -695,33 +729,34 @@ def find_topic(request, group_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     value = request.query_params.get("message")
-    try: 
-        topics = topic.objects.filter(message__icontains=value, group=group_detail)\
-        .order_by('-date_create')
-    except:
-       return Response(status=status.HTTP_404_NOT_FOUND)
-            
+    try:
+        topics = topic.objects.filter(message__icontains=value,
+                                      group=group_detail).order_by(
+                                          '-date_create')
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
     serializer = TopicSerializer(topics, many=True)
     return Response(serializer.data)
 
-# @api_view(['GET'])
-# def find_pools(request,group_id):
-#     # search for a topic by its message ordered from the oldest
-#     try:
-#         group_detail = group.objects.get(id=group_id)
-#     except ObjectDoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
 
-#     value = request.query_params.get("message")
-#     try: 
-#         topics = topic.objects.filter(message__icontains=value, group=group_detail)\
-#         .order_by('-date_create')
-#     except:
-#        return Response(status=status.HTTP_404_NOT_FOUND)
-            
-#     serializer = TopicSerializer(topics, many=True)
-#     return Response(serializer.data)
+@api_view(['GET'])
+def find_pools(request, group_id):
+    # search for photo by its title ordered from the oldest
+    try:
+        group_detail = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
+    value = request.query_params.get("title")
+    try:
+        photos = group_detail.photos.all().filter(
+            title__icontains=value).order_by('-date_posted')
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    serializer = PhotoMetaSerializer(photos, many=True)
+    return Response(serializer.data)
 
 
 # edit or delete reply
@@ -955,3 +990,41 @@ def group_photo_request_respond(request, group_id, photo_id, sender_id):
             {'stat': 'ok',
              'message': 'photo owner decline invite request'},
             status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def group_profile_photo(request, group_id, photo_id):
+
+    try:
+        group_obj = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        photo_obj = Photo.objects.get(id=photo_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    group_obj.profile_photo = photo_obj
+    group_obj.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
+def group_cover_photo(request, group_id, photo_id):
+
+    try:
+        group_obj = group.objects.get(id=group_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        photo_obj = Photo.objects.get(id=photo_id)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    group_obj.cover_photo = photo_obj
+    group_obj.save()
+    return Response(status=status.HTTP_200_OK)
