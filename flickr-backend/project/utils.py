@@ -67,8 +67,7 @@ def validate_password(password,username='-'):
     if numdigit <= 0:
         pwreason= ('password must contain at least one number')
         return '',pwreason
-    # print(username)
-    # print(password)
+
     
     if username in password:
         pwreason=('username cannot be used as part of your password')

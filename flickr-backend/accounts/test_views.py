@@ -507,8 +507,7 @@ class TestModels(TestCase):
         serializer.is_valid()
 
         response, status = change_user_password(serializer, user)
-        # print(response)
-        # print(status)
+
         # bool = user == None
         self.assertEqual(response['old_password'][0], 'Wrong password.')
         

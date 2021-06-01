@@ -33,7 +33,6 @@ from django.utils.translation import gettext_lazy as _
 # push notifications
 import requests
 import json
-
 #Functionality
 def verifying_user(user):
     if not user.is_verified:
@@ -72,10 +71,10 @@ def follow(contact,followed_user_obj,user):
     increment_profile_items(followed_user_obj,'followers_count')
         # push notification
     header = {"Content-Type": "application/json; charset=utf-8",
-                "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+                "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
 
-    payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
-                "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+    payload = {"app_id": str(settings.API_KEY),
+                "include_player_ids": [str(settings.PLAYER_ID)],
                 "contents": {"en": str(user.first_name + " " + user.last_name + " is now following you!")}}
 
     req = requests.post("https://app.onesignal.com/api/v1/notifications",
@@ -226,7 +225,6 @@ class SignUpView(generics.GenericAPIView):
         #Setting email message
         user = Account.objects.get(email=user_data['email'])
         token = RefreshToken.for_user(user).access_token
-        print(request.data)
         current_site = get_current_site(request).domain
 
         email = prepare_verify_email(current_site,user,token)
@@ -248,8 +246,7 @@ class ResendMailView(generics.GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-            print(e)
-        user_data = serializer.data
+=        user_data = serializer.data
         
         #Setting email message
         try:
@@ -499,7 +496,6 @@ class ResendPasswordResetEmail(generics.GenericAPIView):
 
             email = prepare_reset_password_email(current_site,user,token,uidb64)
 
-            print(email)
             #sending mail
             Util.send_email(email)
 
@@ -618,7 +614,7 @@ def followers_list(request):
     try:
 
         user = request.user
-        followers_list = user.follow_follower.all().order_by('-date_create')
+        followers_list = user.follow_followed.all().order_by('-date_create')
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
 
@@ -627,8 +623,12 @@ def followers_list(request):
         for two in followers_list:
             account=Account.objects.get(id=two.user.id)
             account.is_followed= False
+            account.save()
             if account == account2:
                 account.is_followed=True
+                account.save()
+
+                
     serializer = FollowerSerializer(
         followers_list, many=True)
     

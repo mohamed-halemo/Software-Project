@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from project.permissions import IsOwner
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Count, F, Q, Max
+from django.conf import settings
 # from notifications.models import Notification
 
 # push notifications
@@ -450,7 +451,6 @@ def group_join_request_respond(request, group_id, pending_id):
 
     try:
         pending_member_obj = Account.objects.get(id=pending_id)
-        print(pending_member_obj)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -660,15 +660,14 @@ def create_reply(request, group_id, topic_id):
         # # push notification
         # if group_topic.notification:
         header = {"Content-Type": "application/json; charset=utf-8",
-                  "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+                        "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
 
-        payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
-                   "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+        payload = {"app_id": str(settings.API_KEY),
+                    "include_player_ids": [str(settings.PLAYER_ID)],
                    "contents": {"en": str(request.user.first_name + " " + request.user.last_name + " replied to the discussion " + group_topic.subject + " in the group " + group_detail.name)}}
 
         req = requests.post("https://app.onesignal.com/api/v1/notifications",
                             headers=header, data=json.dumps(payload))
-        # print(req.status_code, req.reason)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

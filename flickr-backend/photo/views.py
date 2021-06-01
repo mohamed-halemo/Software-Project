@@ -882,7 +882,9 @@ def search_photos(request):
     else:
         # Searching for photos in user's photos,
         # photos of people he/she follows, everyone's photos
+
         user_required_photos, following_required_photos, everyone_required_photos = search_in_search_place(photo_ids_list, request.user)
+       
 
     # If both upload dates and taken dates are entered, return an error message
     if ('min_upload_date' in request.data and 'min_taken_date' in request.data
@@ -1076,10 +1078,10 @@ def fav_photo(request, id):
                 show = True
                 # # push notification
                 header = {"Content-Type": "application/json; charset=utf-8",
-                        "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+                "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
 
-                payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
-                        "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+                payload = {"app_id": str(settings.API_KEY),
+                            "include_player_ids": [str(settings.PLAYER_ID)],
                         "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
                         # "big_picture": str("https://" + photo_obj.media_file)}
                         
@@ -1106,6 +1108,7 @@ def fav_photo(request, id):
             # decrement the count of the users who faved this photo by 1
             photo_obj.count_favourites -= 1
             photo_obj.save()
+
             # remove notification when you unfaved owner's photo
             notify = Notification.objects.filter(sender=request.user,
                                                  user=photo_obj.owner,
@@ -1132,7 +1135,8 @@ def upload_media(request):
             # check if its type is image
             if content_type in settings.IMAGE_TYPE:
                 # make limitations for the free user to have less than or equal 1000 media and 200mb as a max size of the photo
-                if user.is_pro is not True:
+                bool= check_pro(request.user)
+                if not bool :
                     if user.total_media >= 1000 and file_field.size > settings.MAX_IMAGE_SIZE:
                         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -1218,11 +1222,8 @@ def Home(request):
         following_photos = PhotoSerializer(results, many=True).data
         public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
         public_photos= limit_photos_number(public_photos,300)
-        print(public_photos,"OOOOOOOOOOOO")
         results2 = Paginator.paginate_queryset(public_photos, request)
-        print(results2)
         public_photos = PhotoSerializer(results2, many=True).data
-        print(public_photos)
     else:
             
         user=request.user

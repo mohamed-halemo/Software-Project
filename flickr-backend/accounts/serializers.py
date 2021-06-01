@@ -21,7 +21,6 @@ def validate_user_mail(email_address):
         headers = {'Authorization': "Bearer " + api_key })
 
     status = response.json()['status']
-    print(status)
     return status
 
 #Sign up serializer
@@ -61,11 +60,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data): 
-        print(validated_data)
         # try:
         #     Account.objects.create_user(**validated_data)
         # except:
-        #     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         return Account.objects.create_user(**validated_data)
 
 #Email verify serializer

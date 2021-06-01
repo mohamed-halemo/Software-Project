@@ -3,32 +3,26 @@ from accounts.models import *
 import os
 
 
-def search_in_search_place(search_place, photo_ids_list, user):
-
+def search_in_search_place(photo_ids_list, user):
+    
     following_list_ids = []
     following_list = user.follow_follower.all()
     for following in following_list:
         following_list_ids.append(following.id)
 
-    if (search_place == 'user'):
+    # User's photos
+    user_required_photos = Photo.objects.filter(is_public=True, owner_id=user.id, id__in=photo_ids_list).order_by('-date_posted')
 
-        required_photos = Photo.objects.filter(is_public=True, owner_id=user.id, id__in=photo_ids_list).order_by('-date_posted')
-        return required_photos
+    # Following's photos
+    following_required_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids, id__in=photo_ids_list).order_by('-date_posted')
+    
+    # Everyone's photos
+    following_list_ids.append(user.id)
+    ids_list = following_list_ids
+    everyone_required_photos = Photo.objects.filter(is_public=True, id__in=photo_ids_list).exclude(owner_id__in=ids_list).order_by('-date_posted')
 
-    elif (search_place == 'following'):
-
-        required_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids, id__in=photo_ids_list).order_by('-date_posted')
-        return required_photos
-
-    elif (search_place == 'everyone'):
-
-        following_list_ids.append(user.id)
-        ids_list = following_list_ids
-        required_photos = Photo.objects.filter(is_public=True, id__in=photo_ids_list).exclude(owner_id__in=ids_list).order_by('-date_posted')
-        return required_photos
-
-    else:
-        return None
+    # return all
+    return user_required_photos, following_required_photos, everyone_required_photos
 
 
 def search_according_to_all_or_tags(request_data):

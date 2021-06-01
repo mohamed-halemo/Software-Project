@@ -27,7 +27,6 @@ def turn_off_notification_filter_update(noti_type, user_obj,
         Notification.objects.filter(topic=topic_obj, user=user_obj).update(
             show=False, turn_on=False)
     elif noti_type == 6:
-        print("ana henaa group")
         Notification.objects.filter(user=user_obj, group_obj=group_obj,
                                     photo=photo_obj).update(
                                         show=False, turn_on=False)
