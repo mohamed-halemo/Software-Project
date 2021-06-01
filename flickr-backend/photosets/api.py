@@ -42,8 +42,6 @@ def photos (photo_id):   # to get a photo from the database
         return get_photo, response, bool
         
         
-    except ObjectDoesNotExist:
-        return False
     
 def check_set(id):
     bool = True #to check the existance of a given set
@@ -78,8 +76,7 @@ def check_user(get_list, request):
     if (get_list.owner != request.user):
         Response=(
                 {'stat': 'fail',
-                'message': 'User does not have permission to delete'
-                            '  this photoset'})
+                'message': 'User does not have permission '})
            
         statuss=status.HTTP_403_FORBIDDEN
     return Response, statuss
@@ -89,11 +86,25 @@ def exist_photo(get_list, get_photo):
     statuss=''
     photoos= get_list.photos.all()
     if get_photo in photoos: #check whether the photo exists in the set 
-        return Response(
+        Response=(
                 {'stat': 'fail',
-                'message': 'photo already exists'},
-                status=status.HTTP_403_FORBIDDEN)
+                'message': 'photo already exists'})
+        statuss=status.HTTP_403_FORBIDDEN
+    return Response, statuss
 
+def photo_exists(get_list, photo_id):
+    Response=''
+    statuss=''
+    try:
+        deleted_photo=get_list.photos.get(id=photo_id)
+        return deleted_photo ,Response, statuss
+    except ObjectDoesNotExist: #check whether the photo exists in the set 
+        Response=(
+                {'stat': 'fail',
+                'message': 'photo does not exist'})
+        statuss=status.HTTP_403_FORBIDDEN
+        deleted_photo=None
+        return deleted_photo ,Response, statuss
 
 
 def comm_increment(serializer, get_list, request ): # incrementing the comment count
@@ -113,8 +124,17 @@ def photo_increment(get_list):
 def photo_decrement(get_list):
     get_list.count_photos -= 1    
     get_list.save()           
-            
+
+def sets_increment(request):
+    user=request.user
+    user.photosets_count +=1
+    user.save()
    
+def sets_decrement(request):
+    user=request.user
+    user.photosets_count -=1
+    user.save()
+
 @api_view(['GET'])
 def set_lists(request):
     try:
@@ -163,29 +183,28 @@ def get_information(request, id):
 @permission_classes((IsAuthenticated,))
 #adding a photoset by a user and setting its primary photo
 def create_set(request, photo_id):
-    bool = photos(photo_id)
-    if bool:
-        get_photo = Photo.objects.get(id=photo_id)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    try:
+    get_photo, responses, boool = photos(photo_id)
+    if boool:
+            try:
         
-        sets_obj=sets.objects.create(title=request.data['title'],
+                sets_obj=sets.objects.create(title=request.data['title'],
                                         owner=request.user)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = sets_serializer_post(sets_obj, data=request.data)
+            serializer = sets_serializer_post(sets_obj, data=request.data)
+            
+            if serializer.is_valid():
+                set_primary(serializer, photo_id, get_photo,sets_obj)
+                sets_increment(request)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    else:
+        return Response(status=responses)
     
-    if serializer.is_valid():
-        set_primary(serializer, photo_id, get_photo,sets_obj)
-        user=request.user
-        user.photosets_count +=1
-        user.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
         
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -198,9 +217,8 @@ def delete_set(request, id):
         if responsee!='':
             return Response(responsee, status=statuss)
         get_list.delete()
-        user=request.user
-        user.photosets_count -=1
-        user.save()
+        
+        sets_decrement(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     else:
@@ -326,41 +344,30 @@ def photo(request, set_id, photo_id):
     if request.method == 'POST':
         get_photo, responses, boool = photos(photo_id)
         if boool:
-            photoos= get_list.photos.all()
-            if get_photo in photoos: #check whether the photo exists in the set 
-                return Response(
-                        {'stat': 'fail',
-                        'message': 'photo already exists'},
-                        status=status.HTTP_403_FORBIDDEN)
-            
-            
+            res, stat= exist_photo(get_list, get_photo)
+            if res !='':
+                return Response(res, status=stat) 
             else:
                 get_photo.sets_photos.add(get_list)
-           
-            photo_increment(get_list)
-            
-        return Response( status=status.HTTP_200_OK)
+                photo_increment(get_list)
+                return Response( status=status.HTTP_200_OK)
+        else:
+            return Response(status=responses)
     if request.method == 'DELETE':
-        try:
-            deleted_photo=get_list.photos.get(id=photo_id)
-        except ObjectDoesNotExist: #check whether the photo exists in the set 
-            return Response(
-                    {'stat': 'fail',
-                    'message': 'photo does not exist'},
-                    status=status.HTTP_403_FORBIDDEN)
-        
+        deleted_photo ,Responser, statuss=photo_exists(get_list, photo_id)
+        if Responser !='':
+            return Response(Responser, status=statuss) 
         get_list.photos.remove(deleted_photo)
         photo_decrement(get_list)
-        
         return Response( status=status.HTTP_200_OK)
         
 
 @api_view(['GET'])  
 #     get photos in a given photoset
 def get_photos(request, set_id):
-    if bool:
+    try:
         get_list = sets.objects.get(id=set_id)
-    else:
+    except:
         return Response(status=status.HTTP_404_NOT_FOUND)      
     set_list = get_list.photos.all().order_by('-date_posted')
     photos = PhotoMetaSerializer(set_list, many=True).data

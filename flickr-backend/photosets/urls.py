@@ -34,6 +34,8 @@ urlpatterns = [
     path('<int:set_id>/get-photo', api.get_photos, name='get_photo'),
     #     get information about a given photoset:
     path('<int:id>/get-set', api.get_information, name='get_information'),
+    # get the photoset that a given photo belongs to:
     path('<int:photo_id>/get-set', api.photo_sets, name='get_sets'),
+    # search for a photoset by its title:
     path('search', api.search, name='search'),
 ]

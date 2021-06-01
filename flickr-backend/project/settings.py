@@ -28,6 +28,7 @@ SECRET_KEY = '(3r1br6f-viu4n-32s1+audnd)2q0+pj@hxo5lf$4evu78zae2'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'back',
     'www.fotone.me',
     'fotone.me',
     '127.0.0.1',

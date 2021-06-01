@@ -246,7 +246,7 @@ class ResendMailView(generics.GenericAPIView):
         try:
             serializer.save()
         except Exception as e:
-=        user_data = serializer.data
+            user_data = serializer.data
         
         #Setting email message
         try:
