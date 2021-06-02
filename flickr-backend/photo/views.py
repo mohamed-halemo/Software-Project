@@ -22,7 +22,7 @@ import pytz
 from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import Paginator
 from .views_functions import *
-
+from notifications.models import *
 # push notifications
 import requests
 import json
@@ -1071,20 +1071,32 @@ def fav_photo(request, id):
             photo_obj.count_favourites += 1
             photo_obj.save()
 
-             # # push notification
-            header = {"Content-Type": "application/json; charset=utf-8",
-                    "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
+             # send notification to photo owner when you faved his photo
+            if photo_obj.faved_notification:
+                turn_on = True
+                show = True
+                # # push notification
+                header = {"Content-Type": "application/json; charset=utf-8",
+                        "Authorization": "Basic MzIwM2IwZTQtN2U1MS00YzFkLWFhZGUtMjIzYzQ3NzNhMDc3"}
 
-            payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
-                    "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
-                    "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
-                    # "big_picture": str("https://" + photo_obj.media_file)}
-                    
-                    # "big_picture": "https://cdn.vox-cdn.com/thumbor/-cVT6oDpSP7kfe-0vdEKIdWlIuQ=/1400x1050/filters:format(png)/cdn.vox-cdn.com/uploads/chorus_asset/file/13370313/flickr.png"}
+                payload = {"app_id": "494522f0-cedd-4d54-b99b-c12ac52f66a6",
+                        "include_player_ids": ["dac726e1-3b56-48ce-b9a2-e6b6731c0883"],
+                        "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
+                        # "big_picture": str("https://" + photo_obj.media_file)}
+                        
+                        # "big_picture": "https://cdn.vox-cdn.com/thumbor/-cVT6oDpSP7kfe-0vdEKIdWlIuQ=/1400x1050/filters:format(png)/cdn.vox-cdn.com/uploads/chorus_asset/file/13370313/flickr.png"}
 
-            req = requests.post("https://app.onesignal.com/api/v1/notifications",
-                                headers=header, data=json.dumps(payload))
-            # print(req.status_code, req.reason)
+                req = requests.post("https://app.onesignal.com/api/v1/notifications",
+                                    headers=header, data=json.dumps(payload))
+            else:
+                turn_on = False
+                show = False
+            Notification.objects.create(sender=request.user,
+                                        user=photo_obj.owner,
+                                        photo=photo_obj,
+                                        notification_type=1,
+                                        turn_on=turn_on,
+                                        show=show)
             
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -1095,6 +1107,12 @@ def fav_photo(request, id):
             # decrement the count of the users who faved this photo by 1
             photo_obj.count_favourites -= 1
             photo_obj.save()
+            # remove notification when you unfaved owner's photo
+            notify = Notification.objects.filter(sender=request.user,
+                                                 user=photo_obj.owner,
+                                                 photo=photo_obj,
+                                                 notification_type=1)
+            notify.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

@@ -2,6 +2,9 @@ from django.db import models
 from accounts.models import *
 from django.utils import timezone
 import os
+from notifications.models import *
+from django.db.models.signals import post_save, post_delete
+
 
 # Can be removed until upload() is implemented
 
@@ -68,6 +71,13 @@ class Photo(models.Model):
     # groups
     group_count = models.PositiveIntegerField(default=0, blank=True)
 
+    # notifications
+    faved_notification = models.BooleanField(default=True)
+    comment_notification = models.BooleanField(default=True)
+    note_notification = models.BooleanField(default=True)
+    tag_notification = models.BooleanField(default=True)
+    photo_gallery_notification = models.BooleanField(default=True)
+    photo_group_notification = models.BooleanField(default=True)
 
 
 class PeopleTagging(models.Model):
@@ -79,6 +89,34 @@ class PeopleTagging(models.Model):
     # Added By
     added_by = models.ForeignKey(Account, on_delete=models.CASCADE,
                                  related_name="tagging_people_actions")
+
+    def user_tagging_post(sender, instance, *args, **kwargs):
+        tag = instance
+        photo = tag.photo
+        sender = tag.added_by
+        tagged = tag.person_tagged
+        if sender != photo.owner:
+            if photo.comment_notification:
+                turn_on = True
+                show = True
+            else:
+                turn_on = False
+                show = False
+            notify = Notification(photo=photo, sender=sender, user=tagged,
+                                  notification_type=8, show=show,
+                                  turn_on=turn_on)
+            notify.save()
+
+    def user_tagging_remove(sender, instance, *args, **kwargs):
+        tag = instance
+        photo = tag.photo
+        sender = tag.added_by
+        tagged = tag.person_tagged
+        if sender != photo.owner:
+            notify = Notification.objects.filter(photo=photo, sender=sender,
+                                                 user=tagged,
+                                                 notification_type=8)
+            notify.delete()
 
 
 
@@ -100,6 +138,36 @@ class Comment(models.Model):
     # Photo Data (relation)
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE,
                               related_name='photo_comments')
+
+    def user_comment_post(sender, instance, *args, **kwargs):
+        comment = instance
+        photo = comment.photo
+        text_preview = comment.comment_text
+        sender = comment.author
+        if sender != photo.owner:
+            if photo.tag_notification:
+                turn_on = True
+                show = True
+            else:
+                turn_on = False
+                show = False
+            notify = Notification(photo=photo, sender=sender, user=photo.owner,
+                                  text_preview=text_preview,
+                                  notification_type=2, show=show,
+                                  turn_on=turn_on)
+            notify.save()
+
+    def user_comment_remove(sender, instance, *args, **kwargs):
+        comment = instance
+        photo = comment.photo
+        text_preview = comment.comment_text
+        sender = comment.author
+        if sender != photo.owner:
+            notify = Notification.objects.filter(photo=photo, sender=sender,
+                                                 user=photo.owner,
+                                                 text_preview=text_preview,
+                                                 notification_type=2)
+            notify.delete()
 
 
 class Note(models.Model):
@@ -124,6 +192,36 @@ class Note(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE,
                               related_name='photo_notes')
 
+    def user_note_post(sender, instance, *args, **kwargs):
+        note = instance
+        photo = note.photo
+        text_preview = note.note_text
+        sender = note.author
+        if sender != photo.owner:
+            if photo.note_notification:
+                turn_on = True
+                show = True
+            else:
+                turn_on = False
+                show = False
+            notify = Notification(photo=photo, sender=sender, user=photo.owner,
+                                  text_preview=text_preview,
+                                  notification_type=5, show=show,
+                                  turn_on=turn_on)
+            notify.save()
+
+    def user_note_remove(sender, instance, *args, **kwargs):
+        note = instance
+        photo = note.photo
+        text_preview = note.note_text
+        sender = note.author
+        if sender != photo.owner:
+            notify = Notification.objects.filter(photo=photo, sender=sender,
+                                                 user=photo.owner,
+                                                 text_preview=text_preview,
+                                                 notification_type=5)
+            notify.delete()
+
 
 class Tag(models.Model):
 
@@ -140,3 +238,18 @@ class Tag(models.Model):
 
     # Body: required
     tag_text = models.CharField(max_length=200)
+
+
+# notification
+# # comment
+post_save.connect(Comment.user_comment_post, sender=Comment)
+post_delete.connect(Comment.user_comment_remove, sender=Comment)
+
+# # note
+post_save.connect(Note.user_note_post, sender=Note)
+post_delete.connect(Note.user_note_remove, sender=Note)
+
+# # tagging
+post_save.connect(PeopleTagging.user_tagging_post, sender=PeopleTagging)
+post_delete.connect(PeopleTagging.user_tagging_remove,
+                    sender=PeopleTagging)

@@ -53,6 +53,8 @@ urlpatterns = [
     path('api/photos/', include('photo.urls', namespace='photos')),
     path('api/photosets/', include('photosets.urls', namespace='photosets')),
     path('api/group/', include('group.urls', namespace='group')),
+    path('api/notifications/', include('notifications.urls',
+                                   namespace='notifications')),
     
 ]
 

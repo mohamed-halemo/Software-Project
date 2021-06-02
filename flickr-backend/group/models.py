@@ -40,13 +40,6 @@ class group (models.Model):
         blank=True)
     pending_members_count = models.IntegerField(default=0)
 
-    profile_photo = models.OneToOneField(Photo, on_delete=models.CASCADE,
-                                         related_name='group_profile_photo',
-                                         blank=True, null=True)
-    cover_photo = models.OneToOneField(Photo, on_delete=models.CASCADE,
-                                       related_name='group_cover_photo',
-                                       blank=True, null=True)
-
     pool_count = models.PositiveIntegerField(default=0)
     topic_count = models.PositiveIntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)
@@ -99,10 +92,10 @@ class topic(models.Model):
                               related_name='topic_owner')
     count_replies = models.PositiveIntegerField(default=0)
     date_create = models.DateTimeField(auto_now_add=True)
-    last_reply = models.OneToOneField(Account, on_delete=models.CASCADE,
-                                      related_name='last_replier')
     last_edit = models.DateTimeField(auto_now=True)
     is_sticky = models.BooleanField(default=False)
+
+    # check if this topic notification is turn on or off
     notification = models.BooleanField(default=True)
 
     def __str__(self):
@@ -118,37 +111,39 @@ class reply(models.Model):
     date_create = models.DateTimeField(auto_now_add=True)
     lastedit = models.DateTimeField(auto_now=True)
 
-    # def member_reply_topic_add(sender, instance, *args, **kwargs):
-    #     reply = instance
-    #     topic = reply.topic
-    #     text_preview = reply.message
-    #     sender = reply.owner
-    #     if sender != topic.owner:
-    #         if topic.notification:
-    #             turn_on = False
-    #         else:
-    #             turn_on = True
-    #         notify = Notification(topic=topic, sender=sender, user=topic.owner,
-    #                               text_preview=text_preview, turn_on=turn_on,
-    #                               notification_type=4)
-    #         notify.save()
+    def member_reply_topic_add(sender, instance, *args, **kwargs):
+        reply = instance
+        topic = reply.topic
+        text_preview = reply.message
+        sender = reply.owner
+        if sender != topic.owner:
+            if topic.notification:
+                turn_on = True
+                show = True
+            else:
+                turn_on = False
+                show = False
+            notify = Notification(topic=topic, sender=sender, user=topic.owner,
+                                  text_preview=text_preview, turn_on=turn_on,
+                                  notification_type=4, show=show)
+            notify.save()
 
-    # def member_reply_topic_remove(sender, instance, *args, **kwargs):
-    #     reply = instance
-    #     topic = reply.topic
-    #     text_preview = reply.message
-    #     sender = reply.owner
-    #     if sender != topic.owner:
-    #         notify = Notification.objects.filter(topic=topic, sender=sender,
-    #                                              user=topic.owner,
-    #                                              text_preview=text_preview,
-    #                                              notification_type=4)
-    #         notify.delete()
+    def member_reply_topic_remove(sender, instance, *args, **kwargs):
+        reply = instance
+        topic = reply.topic
+        text_preview = reply.message
+        sender = reply.owner
+        if sender != topic.owner:
+            notify = Notification.objects.filter(topic=topic, sender=sender,
+                                                 user=topic.owner,
+                                                 text_preview=text_preview,
+                                                 notification_type=4)
+            notify.delete()
 
     def __str__(self):
         return self.message
 
 
 # # Reply
-# post_save.connect(reply.member_reply_topic_add, sender=reply)
-# post_delete.connect(reply.member_reply_topic_remove, sender=reply)
+post_save.connect(reply.member_reply_topic_add, sender=reply)
+post_delete.connect(reply.member_reply_topic_remove, sender=reply)

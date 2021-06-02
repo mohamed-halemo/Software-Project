@@ -30,7 +30,7 @@ class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = topic
         fields = ['subject', 'message', 'owner', 'count_replies',
-                  'date_create', 'last_reply', 'last_edit',
+                  'date_create', 'last_edit',
                   'group_topic_reply']
         depth = 1
         extra_kwargs = {'group': {'read_only': True},
@@ -59,7 +59,6 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'privacy',
                   'rules', 'eighteenplus', 'invitation_only',
                   'member_count', 'pool_count', 'date_create',
-                  'profile_photo', 'cover_photo',
                   'topic_count', 'group_topic']
 
 

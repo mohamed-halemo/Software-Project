@@ -152,3 +152,30 @@ def set_primary_photo_id(obj , phopk):
     if obj.count_media == 0:
         obj.primary_photo_id = phopk
     obj.save() 
+
+
+def send_gallery_notification(photo_obj, user_obj, gallery_obj):
+    # notification
+    if photo_obj.photo_gallery_notification:
+        turn_on = True
+        show = True
+    else:
+        turn_on = False
+        show = False
+    Notification.objects.create(sender=user_obj,
+                                user=photo_obj.owner,
+                                        photo=photo_obj,
+                                        gallery=gallery_obj,
+                                        notification_type=7,
+                                        turn_on=turn_on,
+                                        show=show)
+
+
+def remove_gallery_notification(photo_obj, user_obj, gallery_obj):
+    # remove notification when your photo removed from gallery
+    notify = Notification.objects.filter(sender=user_obj,
+                                                    user=photo_obj.owner,
+                                                    photo=photo_obj,
+                                                    gallery=gallery_obj,
+                                                    notification_type=7)
+    notify.delete()

@@ -654,7 +654,6 @@ def create_reply(request, group_id, topic_id):
             topic=group_topic,
             owner=request.user
         )
-        # group_topic.last_reply = request.user 
         group_topic.count_replies += 1
         group_topic.save()
 
@@ -884,12 +883,19 @@ def group_photo(request,  group_id,  photo_id):
 
         # 2) add someone's photo to a group you're a member of 
         # (pending request: owner should accept first)
-        # elif ((photo_obj.owner != request.user) and (not exist) and
-        #         ((photo_obj.group_count) <= photo_group_limit)):
-        #     Notification.objects.create(sender=user_obj, user=photo_obj.owner,
-        #                                 photo=photo_obj, group=group_obj,
-        #                                 notification_type=6)
-        #     return Response(status=status.HTTP_201_CREATED)
+        elif ((photo_obj.owner != request.user) and (not exist) and
+                ((photo_obj.group_count) <= photo_group_limit)):
+            if photo_obj.photo_group_notification:
+                turn_on = True
+                show = True
+            else:
+                turn_on = False
+                show = False
+            Notification.objects.create(sender=user_obj, user=photo_obj.owner,
+                                        photo=photo_obj, group=group_obj,
+                                        turn_on=turn_on, show=show,
+                                        notification_type=6)
+            return Response(status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -968,12 +974,11 @@ def group_photo_request_respond(request, group_id, photo_id, sender_id):
             photo_obj.group_count += 1
             photo_obj.save()
 
-            # delete notification
-            # notify = Notification.objects.filter(photo=photo_obj,
-            #                                      sender=sender_obj,
-            #                                      user=photo_obj.owner,
-            #                                      notification_type=6)
-            # notify.delete()
+            notify = Notification.objects.filter(photo=photo_obj,
+                                                 sender=sender_obj,
+                                                 user=photo_obj.owner,
+                                                 notification_type=6)
+            notify.delete()
             return Response(
                  {'stat': 'ok',
                   'message': 'photo owner accept invite request and photo added to group'},
@@ -981,50 +986,12 @@ def group_photo_request_respond(request, group_id, photo_id, sender_id):
 
     elif request.method == 'DELETE':
         # delete notification
-        # notify = Notification.objects.filter(photo=photo_obj,
-        #                                      sender=sender_obj,
-        #                                      user=photo_obj.owner,
-        #                                      notification_type=6)
-        # notify.delete()
+        notify = Notification.objects.filter(photo=photo_obj,
+                                             sender=sender_obj,
+                                             user=photo_obj.owner,
+                                             notification_type=6)
+        notify.delete()
         return Response(
             {'stat': 'ok',
              'message': 'photo owner decline invite request'},
             status=status.HTTP_200_OK)
-
-
-@api_view(['PUT'])
-@permission_classes((IsAuthenticated,))
-def group_profile_photo(request, group_id, photo_id):
-
-    try:
-        group_obj = group.objects.get(id=group_id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    try:
-        photo_obj = Photo.objects.get(id=photo_id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    group_obj.profile_photo = photo_obj
-    group_obj.save()
-    return Response(status=status.HTTP_200_OK)
-
-
-@api_view(['PUT'])
-@permission_classes((IsAuthenticated,))
-def group_cover_photo(request, group_id, photo_id):
-
-    try:
-        group_obj = group.objects.get(id=group_id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    try:
-        photo_obj = Photo.objects.get(id=photo_id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    group_obj.cover_photo = photo_obj
-    group_obj.save()
-    return Response(status=status.HTTP_200_OK)

@@ -3,6 +3,9 @@ from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager)
 from django.contrib.auth.models import PermissionsMixin
 from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from notifications.models import Notification
+from django.db.models.signals import post_save, post_delete
 # Create your models here.
 
 
@@ -109,3 +112,27 @@ class Contacts(models.Model):
     user = models.ForeignKey(Account, related_name='follow_follower', on_delete=models.CASCADE, editable=False)
     followed = models.ForeignKey(Account, related_name='follow_followed', on_delete=models.CASCADE)
     date_create = models.DateTimeField(auto_now_add=True)
+
+    
+    def user_follow(sender, instance, *args, **kwargs):
+        follow = instance
+        sender = follow.user
+        followed = follow.followed
+
+        notify = Notification(sender=sender, user=followed,
+                              notification_type=3)
+        notify.save()
+
+    def user_unfollow(sender, instance, *args, **kwargs):
+        follow = instance
+        sender = follow.user
+        followed = follow.followed
+
+        notify = Notification.objects.filter(sender=sender, user=followed,
+                                             notification_type=3)
+        notify.delete()
+
+
+# follow a user
+post_save.connect(Contacts.user_follow, sender=Contacts)
+post_delete.connect(Contacts.user_unfollow, sender=Contacts)

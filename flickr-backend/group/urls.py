@@ -131,13 +131,4 @@ urlpatterns = [
      path('<int:group_id>/top', views.top_contributers,
           name='top_contributers'),
 
-     # edit group profile photo APIs
-     path('<int:group_id>/photos/<int:photo_id>/profile',
-          views.group_profile_photo,
-          name='group_profile_photo'),
-
-     # edit group cover photo APIs
-     path('<int:group_id>/photos/<int:photo_id>/cover',
-          views.group_cover_photo,
-          name='group_cover_photo'),
 ]

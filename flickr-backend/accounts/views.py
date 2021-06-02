@@ -575,7 +575,6 @@ def follow_unfollow(request, userpk):
 
         req = requests.post("https://app.onesignal.com/api/v1/notifications",
                             headers=header, data=json.dumps(payload))
-        # print(req.status_code, req.reason)
 
         return Response(status=status.HTTP_200_OK)
     # DELETE

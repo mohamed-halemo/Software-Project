@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django_google_maps',
     'photosets',
     'group',
+    'notifications',
 ]
 
 SIMPLE_JWT = {
@@ -124,9 +125,9 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'kamel',
+        'NAME': 'yomna_sabah',
         'CLIENT': {
-                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/kamel?retryWrites=true&w=majority",
+                    'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/yomna_sabah?retryWrites=true&w=majority",
                     'username': 'Fotone',
                     'password': config('DATABASE_PASSWORD')
                     },
