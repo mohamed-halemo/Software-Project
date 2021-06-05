@@ -4,6 +4,18 @@ from djongo import models
 from accounts.models import *
 from accounts.serializers import *
 
+class ReplySerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer(read_only=True)
+    class Meta:
+        model = reply
+        fields = '__all__'
+        extra_kwargs = {'topic': {'read_only': True},
+                        'owner': {'read_only': True}}
+
+class CreateReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = reply
+        fields = ['message']
 
 class GroupMemberSerializer(serializers.ModelSerializer):
 
@@ -12,7 +24,6 @@ class GroupMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Members
         fields = ['member', 'member_type', 'photos_count']
-
 
 class GroupPendingMemberSerializer(serializers.ModelSerializer):
 
@@ -25,16 +36,20 @@ class GroupPendingMemberSerializer(serializers.ModelSerializer):
 
 class TopicSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
-    last_reply = OwnerSerializer(read_only=True)
-
+    group_topic_reply= ReplySerializer(read_only=True, many=True)
     class Meta:
         model = topic
         fields = ['subject', 'message', 'owner', 'count_replies',
                   'date_create', 'last_edit',
                   'group_topic_reply']
-        depth = 1
         extra_kwargs = {'group': {'read_only': True},
                         'owner': {'read_only': True}}
+
+class CreateTopicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = topic
+        fields = ['subject', 'message']
 
 
 class TopicSubjectSerializer(serializers.ModelSerializer):
@@ -60,7 +75,13 @@ class GroupSerializer(serializers.ModelSerializer):
                   'rules', 'eighteenplus', 'invitation_only',
                   'member_count', 'pool_count', 'date_create',
                   'topic_count', 'group_topic']
+class CreateGroupSerializer(serializers.ModelSerializer):
+    # group_topic = TopicSerializer(read_only=True, many=True)
 
+    class Meta:
+        model = group
+        fields = [ 'name', 'description', 'privacy',
+                  'eighteenplus']
 
 class MemberGroupSerializer(serializers.ModelSerializer):
 
@@ -114,10 +135,4 @@ class GroupMemberListSerializer(serializers.ModelSerializer):
         fields = ['group']
 
 
-class ReplySerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = reply
-        fields = '__all__'
-        extra_kwargs = {'topic': {'read_only': True},
-                        'owner': {'read_only': True}}

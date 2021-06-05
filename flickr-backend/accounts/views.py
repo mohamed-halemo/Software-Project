@@ -33,6 +33,9 @@ from django.utils.translation import gettext_lazy as _
 # push notifications
 import requests
 import json
+from django.db.models import Count, F, Q, Max
+
+
 #Functionality
 def verifying_user(user):
     if not user.is_verified:
@@ -691,7 +694,7 @@ def search(request):
     paginator.page_size = 10
 
     value = request.query_params.get("username")
-    people = Account.objects.all().filter(username__icontains=value)
+    people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) )
     required_people = limit_people_number(people,500)
     result_page = paginator.paginate_queryset(required_people, request)
     all_people = OwnerSerializer(result_page, many=True).data
