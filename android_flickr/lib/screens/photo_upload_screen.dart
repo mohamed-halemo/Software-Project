@@ -309,8 +309,43 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
     );
   }
 
-  ///Returns a Text widget with static 'Tags' if [widget.tags] list is empty.
-  /// If it is not empty, returns a String with the widget.tags in [widget.tags] list.
+  //TODO unit test this function
+  ///Get default image title if no title was provided
+  String getDateTimetitle(DateTime dT) {
+    return dT.year.toString() +
+        '-' +
+        dT.month.toString() +
+        '-' +
+        dT.day.toString() +
+        '_' +
+        dT.hour.toString() +
+        '-' +
+        dT.minute.toString() +
+        '-' +
+        dT.second.toString();
+  }
+
+  Future<void> postTags(Dio dio, int photoID) async {
+    if (widget.tags.isEmpty) return;
+    String tagText = '';
+    for (var i = 0; i < widget.tags.length; i++) {
+      tagText += widget.tags[i] + ' ';
+    }
+    FormData formData = new FormData.fromMap(
+      {
+        'tag_text': tagText,
+      },
+    );
+
+    await dio
+        .post(
+      '/api/photos/$photoID/tags',
+      data: formData,
+    )
+        .then((value) {
+      // print(value.data);
+    });
+  }
 
   ///On Post button press, Generate file name in the format of:
   ///
@@ -321,17 +356,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
   /// available image info.
   void postAndSaveImage() async {
     var imageBytes = widget.editedBitmap.buildHeaded();
-    String imageName = DateTime.now().year.toString() +
-        '-' +
-        DateTime.now().month.toString() +
-        '-' +
-        DateTime.now().day.toString() +
-        '_' +
-        DateTime.now().hour.toString() +
-        '-' +
-        DateTime.now().minute.toString() +
-        '-' +
-        DateTime.now().second.toString();
+    String imageName = getDateTimetitle(DateTime.now());
     final _imageSaver = ImageSaver();
     await _imageSaver.saveImage(
       imageBytes: imageBytes,
@@ -350,7 +375,7 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
     FormData formData = new FormData.fromMap(
       {
-        'title': titleController.text,
+        'title': titleController.text == '' ? imageName : titleController.text,
         'description': descriptionController.text,
         'is_public': privacy == 'Public' ? true : false,
         'photo_width': decodedImage.width,
@@ -381,8 +406,9 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         onSendProgress: (int sent, int total) {
           print('$sent $total');
         },
-      ).then((value) {
+      ).then((value) async {
         // print(value);
+        await postTags(dio, value.data['id']);
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         return value;
       });
@@ -399,8 +425,9 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
                 onSendProgress: (int sent, int total) {
                   print('$sent $total');
                 },
-              ).then((value) {
+              ).then((value) async {
                 // print(value);
+                await postTags(dio, value.data['id']);
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 return value;
               });
