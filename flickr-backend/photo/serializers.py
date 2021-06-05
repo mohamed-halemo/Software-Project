@@ -98,9 +98,8 @@ class PhotoUploadSerializer(serializers.ModelSerializer):
         model = Photo
         fields = [
             'id', 'media_file', 'photo_displaypx', 'photo_height', 'photo_width',
-            'is_public', 'date_taken', 'title', 'description','date_posted','owner']
+            'is_public', 'title', 'description','date_posted','owner']
         #   add tags
         extra_kwargs = {
             'photo_displaypx': {'read_only': True},
-            'date_taken': {'read_only': True},
             'owner': {'read_only': True}}

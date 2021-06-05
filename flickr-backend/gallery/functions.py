@@ -56,6 +56,7 @@ def remove_photo_from_gallery(photo_obj,gallery_obj,user):
     return response
 
 def check_gallery_exists(galpk):
+    gallery_obj=None
     response=''
     bool= False
     try:
@@ -83,6 +84,7 @@ def search_gallery(value):
 def check_photo_exists(phopk):
     response=''
     bool= False
+    photo_obj=None
     try:
         photo_obj = Photo.objects.get(id=phopk)
         bool= True
@@ -91,6 +93,7 @@ def check_photo_exists(phopk):
     return bool, response, photo_obj  
     
 def check_comment_exists(compk,gallery_obj):
+    comment_obj=None
     response=''
     bool= False
     try:
@@ -120,6 +123,7 @@ def create_gallery_with_primary_photo(title,description,owner,phopk,photo_obj):
                 title= title,
                 description=description,owner=owner)
     set_primary_photo_id(gallery_obj,phopk)
+    print(gallery_obj,"EEEEEEE")
     photo_obj.gallery_photos.add(gallery_obj)
     # increment the count of items in that gallery by 1
     increment_gallery_items(gallery_obj,'count_media')
