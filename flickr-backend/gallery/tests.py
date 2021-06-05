@@ -138,50 +138,84 @@ class GallerySerializerTests(TestCase):
 
 
 class GalleryFunctionsTests(TestCase):   
-    def check_objects_existence_success(self):
+    def test_check_gallery_existence_success(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        gallery_obj=Gallery.objects.all().first()
+        bool,response,_=check_gallery_exists(gallery_obj.id)
+        self.assertEqual(response,'')
+        self.assertEqual(bool,True)
+
+
+    def test_check_photo_existence_success(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,
+        photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
+        bool,response,_=check_photo_exists(photo_obj.id)
+        self.assertEqual(response,'')
+        self.assertEqual(bool,True)
+
+
+    def test_check_comment_existence_success(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        gallery_obj=Gallery.objects.all().first()
+        Comments.objects.create(content='content',owner=user,gallery=gallery_obj)
+        comment_obj=Comments.objects.all().first()
+        bool,response,_=check_comment_exists(comment_obj.id,gallery_obj)
+        self.assertEqual(response,'')
+        self.assertEqual(bool,True)
+
+    def test_existence_of_object_in_list(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        gallery_obj=Gallery.objects.all().first()
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,
+        photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
+        photo_obj.gallery_photos.add(gallery_obj)
+        bool= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
+        self.assertEqual(bool,True)
+         
+    def test_check_gallery_existence_failure(self):
+        user=create_test_user('test@gmail.com')
+        Gallery.objects.create(title='title',description='description',owner=user)
+        gallery_obj=Gallery.objects.all().first()
+        gallery_obj.delete()
+        bool,response,_=check_gallery_exists(gallery_obj.id)
+        self.assertEqual(response,404)
+        self.assertEqual(bool,False)
+
+    def test_check_comment_existence_failure(self):
+            user=create_test_user('test@gmail.com')
+            Gallery.objects.create(title='title',description='description',owner=user)
+            gallery_obj=Gallery.objects.all().first()
+            Comments.objects.create(content='content',owner=user,gallery=gallery_obj)
+            comment_obj=Comments.objects.all().first()
+            comment_obj.delete()
+            bool,response,_=check_comment_exists(comment_obj.id,gallery_obj)
+            self.assertEqual(response,404)
+            self.assertEqual(bool,False)
+
+    def test_check_photo_existence_failure(self):
         user=create_test_user('test@gmail.com')
         Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         photo_obj=Photo.objects.all().first()
-
-        Gallery.objects.create(title='title',description='description',owner=user,photos=photo_obj)
-        gallery_obj=Gallery.objects.all().first()
-        Comment.objects.create(content='content',owner=user,gallery=gallery_obj)
-        comment_obj=Comment.objects.all().first()
-
-        bool,response,_=check_gallery_exists(gallery_obj.id)
-        bool1,response1,_=check_photo_exists(photo_obj.id)
-        bool2,response2,_=check_comment_exists(comment_obj.id,gallery_obj)
-        bool3= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
-        self.assertEqual(response,'')
-        self.assertEqual(response1,'')
-        self.assertEqual(response2,'')
-        self.assertEqual(bool,True)
-        self.assertEqual(bool1,True)
-        self.assertEqual(bool2,True)
-        self.assertEqual(bool3,True)
-
-    def check_objects_existence_failure(self):
+        photo_obj.delete()
+        bool,response,_=check_photo_exists(photo_obj.id)
+        self.assertEqual(response,404)
+        self.assertEqual(bool,False)
+            
+   
+    def test_check_object_existence_in_list_failure(self):
         user=create_test_user('test@gmail.com')
         Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         photo_obj=Photo.objects.all().first()
         Gallery.objects.create(title='title',description='description',owner=user)
         gallery_obj=Gallery.objects.all().first()
-        Comment.objects.create(content='content',owner=user,gallery=gallery_obj)
-        comment_obj=Comment.objects.all().first()
-        bool3= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
-        self.assertEqual(bool3, False)    
-        gallery_obj.delete()
-        comment_obj.delete()
-        photo_obj.delete()
-        bool,response,_=check_gallery_exists(gallery_obj.id)
-        bool1,response1,_=check_photo_exists(photo_obj.id)
-        bool2,response2,_=check_comment_exists(comment_obj.id,gallery_obj)
-        self.assertEqual(response,'')
-        self.assertEqual(response1,'')
-        self.assertEqual(response2,'')
-        self.assertEqual(bool,False)
-        self.assertEqual(bool1,False)
-        self.assertEqual(bool2,False)    
+        bool= check_existence_of_object_in_list(photo_obj,gallery_obj.photos.all())
+        self.assertEqual(bool, False)    
 
     def test_create_gallery_with_primary_photo_success(self):
         
@@ -273,7 +307,7 @@ class GalleryFunctionsTests(TestCase):
         self.assertEqual(gallery_obj.title,'title')
         self.assertEqual(gallery_obj.primary_photo_id,photo_obj.id)
         self.assertEqual(gallery_obj.count_media,1)
-        response= remove_photo_from_gallery(photo_obj,gallery_obj)
+        response= remove_photo_from_gallery(photo_obj,gallery_obj,user)
         self.assertEqual(gallery_obj.count_media,0)
         self.assertEqual(gallery_obj.primary_photo_id,None)               
         self.assertEqual(response,204)  
@@ -288,8 +322,8 @@ class GalleryFunctionsTests(TestCase):
         owner = create_test_user('new@gmail.com')
         create_gallery_with_primary_photo(title ,description, owner, photo_obj.id ,photo_obj)
         gallery_obj=Gallery.objects.all().first()
-        remove_photo_from_gallery(photo_obj,gallery_obj)
-        response= remove_photo_from_gallery(photo_obj,gallery_obj)
+        remove_photo_from_gallery(photo_obj,gallery_obj,user)
+        response= remove_photo_from_gallery(photo_obj,gallery_obj,user)
         self.assertEqual(response,400)               
 
     

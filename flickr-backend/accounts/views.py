@@ -559,7 +559,10 @@ def ChangeEmail(request):
         user.save()
         return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
 
-@api_view(['PUT'])
+
+#  @swagger_auto_schema(method='put', operation_description="POST /accounts/profile-pic")
+# @action(detail=True, methods=['put'], parser_classes=(MultiPartParser,))@api_view(['PUT'])
+
 @permission_classes((IsAuthenticated,))
 def upload_profile(request):
     try:
@@ -568,7 +571,7 @@ def upload_profile(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
         parser_classes = (MultiPartParser, FormParser)
-        serializer = PhotoUserSerializer(user, data=request.data)
+        serializer = ProfileUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['profile_pic'])
         return Response(first,status=response)
 
@@ -621,15 +624,15 @@ def followers_list(request):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
     # check to make the flag if he is followed or not
-    for one in following_list:
-        account2=Account.objects.get(id=one.user.id)
-        for two in followers_list:
-            account=Account.objects.get(id=two.user.id)
-            account.is_followed= False
-            account.save()
-            if account == account2:
-                account.is_followed=True
-                account.save()
+    # for one in following_list:
+    #     account2=Account.objects.get(id=one.user.id)
+    #     for two in followers_list:
+    #         account=Account.objects.get(id=two.user.id)
+    #         account.is_followed= False
+    #         account.save()
+    #         if account == account2:
+    #             account.is_followed=True
+    #             account.save()
 
                 
     serializer = FollowerSerializer(
@@ -666,19 +669,22 @@ def user_following(request, userpk):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)     
     # check to make the flag if he is followed or not
-    for one in following_list:
-        account2=Account.objects.get(id=one.user.id)
-    for two in following_list_user:
-        account=Account.objects.get(id=two.user.id)
-        account.is_followed= False
-        if account == account2:
-            account.is_followed=True
+    # for one in following_list:
+    #     account2=Account.objects.get(id=one.user.id)
+    # for two in following_list_user:
+    #     account=Account.objects.get(id=two.user.id)
+    #     account.is_followed= False
+    #     if account == account2:
+    #         account.is_followed=True
 
     serializer = FollowingSerializer(
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)                    
 
+test_param = openapi.Parameter('username', openapi.IN_QUERY, description="Search for people with username", type=openapi.TYPE_STRING)
+user_response = openapi.Response('response description', OwnerSerializer)
 
+@swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 @api_view(['GET'])
 def search(request):
     paginator = PageNumberPagination()
@@ -694,12 +700,16 @@ def search(request):
         following = []
     else:
         user = request.user
-        following_list = user.follow_follower.all().filter(user__in=people)
+        following_list = user.follow_follower.all().filter(followed__in=people)
         result_page1 = paginator.paginate_queryset(following_list, request)
         following = FollowingSerializer(result_page1, many=True).data
 
     return paginator.get_paginated_response({'following': following, 'all_people': all_people})
 
+test_param = openapi.Parameter('email', openapi.IN_QUERY, description="Search for people with email", type=openapi.TYPE_STRING)
+user_response = openapi.Response('response description', OwnerSerializer)
+
+@swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 
 @api_view(['GET'])
 def search_email(request):
@@ -707,7 +717,7 @@ def search_email(request):
     paginator.page_size = 10
 
     value = request.query_params.get("email")
-    people = Account.objects.all().filter(email=value)
+    people = Account.objects.all().filter(email=value).order_by('-date_joined')
     result_page = paginator.paginate_queryset(people, request)
     all_people = OwnerSerializer(result_page, many=True).data
 
@@ -715,8 +725,10 @@ def search_email(request):
         following = []
     else:
         user = request.user
-        following_list = user.follow_follower.all().filter(user__in=people)
+        following_list = user.follow_follower.all().filter(followed__in=people).order_by('-date_create')
         result_page1 = paginator.paginate_queryset(following_list, request)
         following = FollowingSerializer(result_page1, many=True).data
+        print(following_list)
+        print(all_people)
 
     return paginator.get_paginated_response({'following': following, 'all_people': all_people})

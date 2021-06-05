@@ -1,6 +1,10 @@
 from .models import *
 from accounts.models import *
 import os
+from accounts.views import *
+from rest_framework import status
+from django.conf import settings              
+
 
 
 def search_in_search_place(photo_ids_list, user):
@@ -174,7 +178,8 @@ def increment_photo_meta_counts(photo, meta):
         photo.count_tags += 1
     elif (meta == 'people_tags'):
         photo.count_people_tagged += 1
-    
+    elif (meta== 'count_favourites'):
+        photo.count_favourites += 1
     photo.save()
 
 
@@ -188,6 +193,8 @@ def decrement_photo_meta_counts(photo, meta):
         photo.count_tags -= 1
     elif (meta == 'people_tags'):
         photo.count_people_tagged -= 1
+    elif (meta== 'count_favourites'):
+        photo.count_favourites -= 1    
     
     photo.save()
 
@@ -240,3 +247,61 @@ def delete_object(object):
 def save_object(object):
 
     object.save()
+
+def get_photos_of_the_followed_people(user):
+    following_list_ids = []
+    following_list = user.follow_follower.all()
+    for following in following_list:
+        following_list_ids.append(following.id)
+    following_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids).order_by('-date_posted')
+    return following_photos , following_list_ids
+
+
+def get_photos_of_public_people(user):
+    _, following_list_ids= get_photos_of_the_followed_people(user)
+    following_list_ids.append(user.id)
+    ids_list = following_list_ids
+    public_photos = Photo.objects.filter(is_public=True).exclude(owner_id__in=ids_list).order_by('-date_posted')
+    return public_photos
+
+    
+def check_existence_of_media_file(data):
+    bool=False
+    message=''
+    response=''
+    if ('media_file' not in data):
+        bool=True
+        message = {'message': 'File is missing'}
+        response = status.HTTP_400_BAD_REQUEST
+    return bool,message ,response  
+
+def upload(file_field,user,width,height):
+    # get the type of the file from the extension
+    pixels=0
+    bool=False
+    message='uploaded'
+    response = status.HTTP_201_CREATED  
+    content_type = file_field.content_type.split('/')[0]
+   
+    # check if its type is image
+    if content_type in settings.IMAGE_TYPE:
+        # make limitations for the free user to have less than or equal 1000 media and 200mb as a max size of the photo
+        pro= check_pro(user)
+        if not pro :
+            if user.total_media >= 1000:
+                message= {'message': 'Exceeds media limit , Upgrade to pro'}
+                response= status.HTTP_400_BAD_REQUEST
+                return pixels, message,response,bool    
+            elif file_field.size > settings.MAX_IMAGE_SIZE:
+                message= {'message': 'Exceeds media size , Upgrade to pro'}
+                response= status.HTTP_400_BAD_REQUEST
+                return pixels, message,response,bool    
+
+
+        # calculate the display pixels
+        bool=True
+        pixels = (250*int(width))/int(height)
+    else:
+        message= {'message': 'upload image file'}
+        response = status.HTTP_400_BAD_REQUEST
+    return pixels, message ,response,bool

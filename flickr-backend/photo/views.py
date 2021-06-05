@@ -3,6 +3,8 @@ from accounts.models import *
 from .serializers import *
 from accounts.views import *
 from accounts.serializers import *
+from gallery.functions import *
+from project.permissions import *
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -27,6 +29,7 @@ from notifications.models import *
 # push notifications
 import requests
 import json
+
 
 
 # Create your views here.
@@ -1043,35 +1046,80 @@ def faves_list(request):
 @api_view(['GET'])
 def photo_faves(request, id):
     # get list of the users who faved a specific photo given the photo id
-    try:
-        photo_obj = Photo.objects.get(id=id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    exists, response, photo_obj = check_photo_exists(id)
+    if not exists:
+        return Response(status=response)
     users = photo_obj.favourites.all()
     serializer = OwnerSerializer(
         users, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# def fav_photo(user,photo_obj):
+#     owner, _ = check_permission( user, photo_obj)
+#     if owner:
+#         response =status.HTTP_403_FORBIDDEN
+#         return response
+#     exist= check_existence_of_object_in_list(user, photo_obj.favourites.all())
+
+#     # if request.user not in photo_obj.favourites.all():
+#     if not exist:
+#         photo_obj.favourites.add(request.user)
+#         # increment the count of the users who faved this photo by 1
+#         increment_photo_meta_counts(photo_obj,'count_favourites')
+#         # send notification to photo owner when you faved his photo
+#         if photo_obj.faved_notification:
+#             turn_on = True
+#             show = True
+#             # # push notification
+#             header = {"Content-Type": "application/json; charset=utf-8",
+#             "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
+
+#             payload = {"app_id": str(settings.API_KEY),
+#                         "include_player_ids": [str(settings.PLAYER_ID)],
+#                     "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
+#                     # "big_picture": str("https://" + photo_obj.media_file)}
+                    
+#                     # "big_picture": "https://cdn.vox-cdn.com/thumbor/-cVT6oDpSP7kfe-0vdEKIdWlIuQ=/1400x1050/filters:format(png)/cdn.vox-cdn.com/uploads/chorus_asset/file/13370313/flickr.png"}
+
+#             req = requests.post("https://app.onesignal.com/api/v1/notifications",
+#                                 headers=header, data=json.dumps(payload))
+#         else:
+#             turn_on = False
+#             show = False
+#         Notification.objects.create(sender=request.user,
+#                                     user=photo_obj.owner,
+#                                     photo=photo_obj,
+#                                     notification_type=1,
+#                                     turn_on=turn_on,
+#                                     show=show)
+#         response =status.HTTP_200_OK
+#         return response
+#     response = status.HTTP_400_BAD_REQUEST
+#     return  response
+
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def fav_photo(request, id):
     # add or remove a specific photo to the favourites photos
     # given the photo id
-    try:
-        photo_obj = Photo.objects.get(id=id)
-    except ObjectDoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    exists, response, photo_obj = check_photo_exists(id)
+    if not exists:
+        return Response(status=response)
 
     if request.method == 'POST':
-        if(photo_obj.owner == request.user):
+        owner, _ = check_permission( request.user, photo_obj)
+        if owner:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        if request.user not in photo_obj.favourites.all():
+            
+        exist= check_existence_of_object_in_list(request.user, photo_obj.favourites.all())
+    
+        # if request.user not in photo_obj.favourites.all():
+        if not exist:
             photo_obj.favourites.add(request.user)
             # increment the count of the users who faved this photo by 1
-            photo_obj.count_favourites += 1
-            photo_obj.save()
-
+            increment_photo_meta_counts(photo_obj,'count_favourites')
              # send notification to photo owner when you faved his photo
             if photo_obj.faved_notification:
                 turn_on = True
@@ -1106,9 +1154,7 @@ def fav_photo(request, id):
         if request.user in photo_obj.favourites.all():
             photo_obj.favourites.remove(request.user)
             # decrement the count of the users who faved this photo by 1
-            photo_obj.count_favourites -= 1
-            photo_obj.save()
-
+            decrement_photo_meta_counts(photo_obj,'count_favourites')
             # remove notification when you unfaved owner's photo
             notify = Notification.objects.filter(sender=request.user,
                                                  user=photo_obj.owner,
@@ -1126,31 +1172,22 @@ def upload_media(request):
     if request.method == 'POST':
         parser_classes = (MultiPartParser, FormParser)
         serializer = PhotoUploadSerializer(data=request.data)
-        user = request.user
+        empty,msg,response = check_existence_of_media_file(request.data)
+        if empty :
+            return Response( {'message': str(msg)}, status=response)
         if serializer.is_valid():
             file_field = request.FILES['media_file']
+            height = request.data['photo_height']
+            width = request.data['photo_width']
 
-            # get the type of the file from the extension
-            content_type = file_field.content_type.split('/')[0]
-            # check if its type is image
-            if content_type in settings.IMAGE_TYPE:
-                # make limitations for the free user to have less than or equal 1000 media and 200mb as a max size of the photo
-                bool= check_pro(request.user)
-                if not bool :
-                    if user.total_media >= 1000 and file_field.size > settings.MAX_IMAGE_SIZE:
-                        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-                # calculate the display pixels
-                height = request.data['photo_height']
-                width = request.data['photo_width']
-                pixels = (250*int(width))/int(height)
-                date_taken = None
+            pixels,message,response,success= upload(file_field,request.user,width,height)
+            if success:
+                increment_profile_items(request.user,'total_media')
+                serializer.save(photo_displaypx=pixels, owner=request.user)
+                # increment the count of media 
+                return Response({'message': str(message)},status=response,)
             else:
-                raise ValidationError(_('File type is not supported'))
-            increment_profile_items(user,'total_media')
-            serializer.save(photo_displaypx=pixels, date_taken=date_taken, owner=request.user)
-            # increment the count of media 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=response)                
         else:
             return Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1228,24 +1265,14 @@ def Home(request):
     else:
         # if he is logged in will return list of recent photos from 
         # the people he follows and list from public members
-        user=request.user
-        following_list_ids = []
-        following_list = user.follow_follower.all()
-        for following in following_list:
-            following_list_ids.append(following.id)
-        following_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids).order_by('-date_posted')
+        following_photos, following_list_ids= get_photos_of_the_followed_people(request.user)
         following_photos= limit_photos_number(following_photos,150)
         Paginator = RespondPagination()
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
-        following_list_ids.append(user.id)
-        ids_list = following_list_ids
-        public_photos = Photo.objects.filter(is_public=True).exclude(owner_id__in=ids_list).order_by('-date_posted')
+        public_photos= get_photos_of_public_people(request.user)
         public_photos= limit_photos_number(public_photos,150)
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
     return Paginator.get_paginated_response({'following_photos': following_photos,'public_photos': public_photos})
 
-
-
-        
