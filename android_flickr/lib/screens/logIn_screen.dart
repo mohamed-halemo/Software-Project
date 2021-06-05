@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../providers/auth.dart';
 import 'explore_screen.dart';
 import 'splash_screen.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:validators/validators.dart';
+import '../Classes/globals.dart' as globals;
 
 /// Login page
 class LogIn extends StatefulWidget {
@@ -170,6 +172,7 @@ class LogInState extends State<LogIn> {
                               onTap: () {
                                 setState(() {
                                   rememberMe = !rememberMe;
+                                  globals.rememberMe = rememberMe;
                                 });
                               },
                             )
@@ -198,13 +201,15 @@ class LogInState extends State<LogIn> {
                                 )
                                     .then((value) async {
                                   if (value.statusCode == 200) {
-                                    // if (rememberMe) {
-                                    //   SharedPreferences prefs =
-                                    //       await SharedPreferences.getInstance();
-                                    //   prefs?.setBool('remember', true);
-                                    //   prefs?.setString('email', email);
-                                    //   prefs?.setString('password', password);
-                                    // }
+                                    if (rememberMe) {
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
+                                      prefs?.setBool('remember', true);
+                                      prefs?.setString(
+                                          'email', authData['email']);
+                                      prefs?.setString(
+                                          'password', authData['password']);
+                                    }
                                     loginScreen(context);
                                     return;
                                   }
@@ -297,6 +302,10 @@ Widget _textInput({
     child: TextFormField(
       /// Checks if the text field is empty or not
       validator: (String value) {
+        if (hint == 'Password' &&
+            ((value.length < 12) || value.startsWith(' '))) {
+          return 'Invalid password';
+        }
         if (value.isEmpty) {
           return 'Required';
         }

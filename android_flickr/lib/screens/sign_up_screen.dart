@@ -1,14 +1,20 @@
 import 'package:android_flickr/providers/auth.dart';
 import 'package:android_flickr/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth.dart';
+import 'package:validators/validators.dart';
 
 /// Sign up page
 class SignUp extends StatefulWidget {
   @override
   SignUpState createState() => SignUpState();
 }
+
+TextFormField myfield;
+
+bool hasNoNumbers = false;
 
 ///  A boolean that is true if the text is visible else it is hidden
 bool secureText = true;
@@ -163,28 +169,20 @@ class SignUpState extends State<SignUp> {
                                     .then((value) {
                                   var errorMessage = 'Error !';
                                   // print('ezz' + value.body);
+
                                   if (value.body.contains(
                                       'account with this email already exists.')) {
                                     errorMessage =
                                         'account with this email already exists.';
-                                  } else if (value.body.contains(
-                                      'password must contain at least one uppercase character')) {
-                                    errorMessage =
-                                        'Password must contain at least one uppercase character';
-                                  } else if (value.body.contains(
-                                      'password must contain at least one lowercase character')) {
-                                    errorMessage =
-                                        'Password must contain at least one lowercase character';
+                                    _showError(errorMessage);
                                   } else if (value.body.contains(
                                       'password must contain at least one number')) {
                                     errorMessage =
                                         'Password must contain at least one number';
-                                  } else if (value.body.contains(
-                                      'Ensure this field has no more than 16 characters.')) {
-                                    errorMessage =
-                                        'Ensure this field has no more than 16 characters.';
+                                    setState(() {
+                                      hasNoNumbers = true;
+                                    });
                                   }
-                                  _showError(errorMessage);
                                 });
 
                                 ///Moving to the log in page if the data entred is all good
@@ -256,43 +254,57 @@ Widget _textInput({
   suffixIconPressed,
   String userInfo,
 }) {
+  myfield = TextFormField(
+    maxLength: hint == 'Your age' ? 3 : null,
+    validator: (value) {
+      /// Checks if the text field is empty or not
+      if (value.isEmpty) {
+        return 'Required';
+      }
+      if (hint == 'Password' && hasNoNumbers) {
+        return 'Password must contain at least one number';
+      }
+
+      /// No white space in the begging of the password is allowed and the passwors length can't be less than 12
+      if (hint == 'Password' &&
+          ((value.length < 12) ||
+              (value.length > 16) ||
+              value.startsWith(' '))) {
+        return 'Invalid password';
+      }
+      if (isLowercase(value) && hint == 'Password') {
+        return 'Password must contain at least one uppercase character';
+      }
+      if (isUppercase(value) && hint == 'Password') {
+        return 'Password must contain at least one lowercase character';
+      }
+
+      /// No number bigger than 120 is accepted in the age field
+      if (hint == 'Your age' && int.parse(value) > 120) {
+        return 'Invalid age';
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      counterText: '',
+      hintText: hint,
+      labelText: label,
+      suffixIcon:
+          IconButton(icon: Icon(suffixIcon), onPressed: suffixIconPressed),
+      border: OutlineInputBorder(),
+      contentPadding: EdgeInsets.only(top: 20, bottom: 20, left: 20),
+    ),
+    keyboardType: keyboardType,
+    obscureText: obscure,
+    onChanged: (value) {
+      authData[userInfo] = value;
+    },
+  );
   return Container(
     margin: EdgeInsets.only(top: 10),
     decoration: BoxDecoration(
       color: Colors.white,
     ),
-    child: TextFormField(
-      validator: (value) {
-        /// Checks if the text field is empty or not
-        if (value.isEmpty) {
-          return 'Required';
-        }
-
-        /// No white space in the begging of the password is allowed and the passwors length can't be less than 12
-        if (hint == 'Password' &&
-            ((value.length < 12) || value.startsWith(' '))) {
-          return 'Invalid password';
-        }
-
-        /// No number bigger than 120 is accepted in the age field
-        if (hint == 'Your age' && int.parse(value) > 120) {
-          return 'Invalid age';
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        hintText: hint,
-        labelText: label,
-        suffixIcon:
-            IconButton(icon: Icon(suffixIcon), onPressed: suffixIconPressed),
-        border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.only(top: 20, bottom: 20, left: 20),
-      ),
-      keyboardType: keyboardType,
-      obscureText: obscure,
-      onChanged: (value) {
-        authData[userInfo] = value;
-      },
-    ),
+    child: myfield,
   );
 }
