@@ -123,7 +123,6 @@ def create_gallery_with_primary_photo(title,description,owner,phopk,photo_obj):
                 title= title,
                 description=description,owner=owner)
     set_primary_photo_id(gallery_obj,phopk)
-    print(gallery_obj,"EEEEEEE")
     photo_obj.gallery_photos.add(gallery_obj)
     # increment the count of items in that gallery by 1
     increment_gallery_items(gallery_obj,'count_media')

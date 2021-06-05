@@ -17,6 +17,8 @@ from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import ObjectDoesNotExist
 from photo.models import *
 from photo.serializers import *
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class RespondPagination(PageNumberPagination):
     page_size = 1
@@ -175,10 +177,8 @@ def get_information(request, id):
         return Response(status=response)
     
     
-      
-    
 
-
+@swagger_auto_schema( methods = ['POST'] , request_body = sets_serializer_post_swagger )
 @api_view(['POST'])   
 @permission_classes((IsAuthenticated,))
 #adding a photoset by a user and setting its primary photo
@@ -225,7 +225,7 @@ def delete_set(request, id):
         return Response(status=response)
     
         
-
+@swagger_auto_schema( methods = ['PUT'] , request_body = sets_serializer_post_swagger )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 #     edit metadata of a given photoset
@@ -251,7 +251,7 @@ def edit_meta(request, id):
         
     
     
-
+@swagger_auto_schema( methods = ['POST'] , request_body = comments_serializer_post )
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 #   adding a comment to a given photoset
@@ -294,7 +294,7 @@ def delete_comment(request, comment_id, set_id):
         return Response(status=responses)
 
 
-
+@swagger_auto_schema( methods = ['PUT'] , request_body = comments_serializer_post )
 @api_view(['PUT'])
 #    editing a given comment
 @permission_classes((IsAuthenticated,))
@@ -389,7 +389,10 @@ def photo_sets(request, photo_id):
     serializer = sets_serializer(sets, many=True)
     return Response(serializer.data)
 
+test_param = openapi.Parameter('title', openapi.IN_QUERY, description="Search for set with title", type=openapi.TYPE_STRING)
+user_response = openapi.Response('response description', sets_serializer)
 
+@swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 @api_view(['GET'])
 def search(request):
 # search for a set by its title ordered from the oldest
