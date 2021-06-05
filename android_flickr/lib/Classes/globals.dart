@@ -2,8 +2,13 @@
 /// used for dependancy injection
 library my_prj.globals;
 
+import 'package:bitmap/bitmap.dart';
+import 'package:dio/dio.dart';
+import '../screens/explore_screen.dart';
+import 'package:save_in_gallery/save_in_gallery.dart';
+import 'package:flutter/material.dart';
 import 'dart:io';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -73,5 +78,123 @@ class HttpSingleton {
       // print('failed');
     }
     return false;
+  }
+
+  Future<void> postTags(Dio dio, int photoID, List<String> tags) async {
+    if (tags.isEmpty) return;
+    String tagText = '';
+    for (var i = 0; i < tags.length; i++) {
+      tagText += tags[i] + ' ';
+    }
+    FormData formData = new FormData.fromMap(
+      {
+        'tag_text': tagText,
+      },
+    );
+
+    await dio
+        .post(
+      '/api/photos/$photoID/tags',
+      data: formData,
+    )
+        .then((value) {
+      // print(value.data);
+    });
+  }
+
+  void postAndSaveImage(
+      {Bitmap editedBitmap,
+      String imageName,
+      TextEditingController titleController,
+      TextEditingController descriptionController,
+      String privacy,
+      List<String> tags,
+      BuildContext context}) async {
+    var imageBytes = editedBitmap.buildHeaded();
+
+    final _imageSaver = ImageSaver();
+    await _imageSaver.saveImage(
+      imageBytes: imageBytes,
+      directoryName: "Flickr",
+      imageName: imageName + '.jpg',
+    );
+    // print(res);
+    // print(imageName);
+
+    final directory = await getApplicationDocumentsDirectory();
+    File image = await File('${directory.path}/image.jpg').create();
+    await image.writeAsBytes(editedBitmap.buildHeaded());
+    var decodedImage = await decodeImageFromList(imageBytes);
+    // print(decodedImage.width);
+    // print(decodedImage.height);
+
+    FormData formData = new FormData.fromMap(
+      {
+        'title': titleController.text == '' ? imageName : titleController.text,
+        'description': descriptionController.text,
+        'is_public': privacy == 'Public' ? true : false,
+        'photo_width': decodedImage.width,
+        'photo_height': decodedImage.height,
+        'media_file': await MultipartFile.fromFile(
+          image.path,
+          // contentType: new MediaType("image", "jpeg"),
+        ),
+      },
+    );
+
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: 'https://' + HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.authorizationHeader: 'Bearer ' + accessToken,
+      HttpHeaders.contentTypeHeader: 'multipart/form-data'
+    };
+
+    // print(formData.fields.toString());
+
+    try {
+      await dio.post(
+        isMockService ? '/photos' : '/api/photos/upload',
+        data: formData,
+        onSendProgress: (int sent, int total) {
+          print('$sent $total');
+        },
+      ).then((value) async {
+        // print(value);
+        await postTags(dio, value.data['id'], tags);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        return value;
+      });
+    } on DioError catch (e) {
+      print(e.response.data);
+      print(e.response.statusCode);
+      if (e.response.statusCode == 401) {
+        await HttpSingleton().tokenRefresh().then(
+          (value) async {
+            try {
+              await dio.post(
+                isMockService ? '/photos' : '/api/photos/upload',
+                data: formData,
+                onSendProgress: (int sent, int total) {
+                  print('$sent $total');
+                },
+              ).then((value) async {
+                // print(value);
+                await postTags(dio, value.data['id'], tags);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                return value;
+              });
+            } on DioError catch (e) {
+              print(e.response.data);
+              print(e.response.statusCode);
+            }
+          },
+        );
+      }
+    }
+    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
+    Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
 }

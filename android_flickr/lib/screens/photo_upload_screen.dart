@@ -311,6 +311,10 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
 
   //TODO unit test this function
   ///Get default image title if no title was provided
+  //////On Post button press, Generate file name in the format of:
+  ///
+  /// YYYY-MM-DD_hh-mm-ss
+  ///
   String getDateTimetitle(DateTime dT) {
     return dT.year.toString() +
         '-' +
@@ -325,122 +329,18 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
         dT.second.toString();
   }
 
-  Future<void> postTags(Dio dio, int photoID) async {
-    if (widget.tags.isEmpty) return;
-    String tagText = '';
-    for (var i = 0; i < widget.tags.length; i++) {
-      tagText += widget.tags[i] + ' ';
-    }
-    FormData formData = new FormData.fromMap(
-      {
-        'tag_text': tagText,
-      },
-    );
-
-    await dio
-        .post(
-      '/api/photos/$photoID/tags',
-      data: formData,
-    )
-        .then((value) {
-      // print(value.data);
-    });
-  }
-
-  ///On Post button press, Generate file name in the format of:
-  ///
-  /// YYYY-MM-DD_hh-mm-ss
-  ///
   ///Then the image is saved on the local device in 'Flickr' folder, with jpg extension.
   /// After Saving to device, the image is uploaded to the server along with any
   /// available image info.
   void postAndSaveImage() async {
-    var imageBytes = widget.editedBitmap.buildHeaded();
-    String imageName = getDateTimetitle(DateTime.now());
-    final _imageSaver = ImageSaver();
-    await _imageSaver.saveImage(
-      imageBytes: imageBytes,
-      directoryName: "Flickr",
-      imageName: imageName + '.jpg',
+    globals.HttpSingleton().postAndSaveImage(
+      context: context,
+      descriptionController: descriptionController,
+      editedBitmap: widget.editedBitmap,
+      imageName: getDateTimetitle(DateTime.now()),
+      privacy: privacy,
+      tags: widget.tags,
+      titleController: titleController,
     );
-    // print(res);
-    // print(imageName);
-
-    final directory = await getApplicationDocumentsDirectory();
-    File image = await File('${directory.path}/image.jpg').create();
-    await image.writeAsBytes(widget.editedBitmap.buildHeaded());
-    var decodedImage = await decodeImageFromList(imageBytes);
-    // print(decodedImage.width);
-    // print(decodedImage.height);
-
-    FormData formData = new FormData.fromMap(
-      {
-        'title': titleController.text == '' ? imageName : titleController.text,
-        'description': descriptionController.text,
-        'is_public': privacy == 'Public' ? true : false,
-        'photo_width': decodedImage.width,
-        'photo_height': decodedImage.height,
-        'media_file': await MultipartFile.fromFile(
-          image.path,
-          // contentType: new MediaType("image", "jpeg"),
-        ),
-      },
-    );
-
-    Dio dio = new Dio(
-      BaseOptions(
-        baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
-      ),
-    );
-    dio.options.headers = {
-      HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
-      HttpHeaders.contentTypeHeader: 'multipart/form-data'
-    };
-
-    // print(formData.fields.toString());
-
-    try {
-      await dio.post(
-        globals.isMockService ? '/photos' : '/api/photos/upload',
-        data: formData,
-        onSendProgress: (int sent, int total) {
-          print('$sent $total');
-        },
-      ).then((value) async {
-        // print(value);
-        await postTags(dio, value.data['id']);
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        return value;
-      });
-    } on DioError catch (e) {
-      print(e.response.data);
-      print(e.response.statusCode);
-      if (e.response.statusCode == 401) {
-        await globals.HttpSingleton().tokenRefresh().then(
-          (value) async {
-            try {
-              await dio.post(
-                globals.isMockService ? '/photos' : '/api/photos/upload',
-                data: formData,
-                onSendProgress: (int sent, int total) {
-                  print('$sent $total');
-                },
-              ).then((value) async {
-                // print(value);
-                await postTags(dio, value.data['id']);
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                return value;
-              });
-            } on DioError catch (e) {
-              print(e.response.data);
-              print(e.response.statusCode);
-            }
-          },
-        );
-      }
-    }
-
-    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
-    Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
 }
