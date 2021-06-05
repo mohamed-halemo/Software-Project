@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'dart:io';
+import './providers/flickr_groups.dart';
 // import 'package:android_flickr/providers/flickr_post.dart';
 // import 'package:android_flickr/screens/group_view.dart';
 // import 'package:android_flickr/screens/new_discussion.dart';
@@ -100,6 +101,9 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(
+          value: YourGroups(),
+        ),
         ChangeNotifierProvider.value(
           value: Auth(),
         ),

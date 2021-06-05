@@ -1,4 +1,4 @@
-import 'package:android_flickr/screens/your_groups.dart';
+import 'package:android_flickr/screens/your_groups_screen.dart';
 import 'package:android_flickr/widgets/camera_roll.dart';
 import 'package:android_flickr/widgets/profile_public.dart';
 import 'package:flutter/material.dart';

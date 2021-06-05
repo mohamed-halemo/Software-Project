@@ -1,4 +1,10 @@
+import 'dart:ffi';
+
+import 'package:android_flickr/models/flickr_groups.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/flickr_groups.dart';
+import 'package:flutter/services.dart';
 
 class Groups extends StatefulWidget {
   @override
@@ -7,14 +13,27 @@ class Groups extends StatefulWidget {
 
 class _GroupsState extends State<Groups> {
   @override
+  var _init = true;
+
+  @override
+  void didChangeDependencies() async {
+    if (_init) {
+      await Provider.of<YourGroups>(context).mainServerMyGroups();
+    }
+    _init = false;
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //final postsToDisplay = Provider.of<Posts>(context).posts;
+    List<FlickrGroup> groupList = Provider.of<YourGroups>(context).myGroups;
+    // print(groupList[0].groupName);
     return Container(
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 242, 242, 242),
       ),
       child: ListView.builder(
-        itemCount: 20,
+        itemCount: 3,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(10.0),
@@ -51,7 +70,7 @@ class _GroupsState extends State<Groups> {
                           height: 10,
                         ),
                         Text(
-                          'data',
+                          'groupList[index].groupName',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Colors.black,
