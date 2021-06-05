@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 
 
 schema_view = get_schema_view(
+    
     openapi.Info(
         title="Flicker API",
         default_version='v1',
@@ -31,6 +32,7 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="contact@snippets.local"),
         license=openapi.License(name="BSD License"),
     ),
+    url='https://www.fotone.me/api/',
     public=True,
     permission_classes=(permissions.AllowAny,),
 )

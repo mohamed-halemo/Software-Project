@@ -207,7 +207,7 @@ class ResendPasswordResetEmailSerializer(serializers.Serializer):
         fields = ['email']
 
 #Photo user serializer
-class PhotoUserSerializer(serializers.ModelSerializer):
+class ProfileUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['profile_pic']

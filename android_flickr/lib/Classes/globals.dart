@@ -15,12 +15,12 @@ import 'dart:convert';
 ///If true, mockService Url is used, if false, Real Server is used
 bool isMockService = false;
 
-String accessToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIyNTM4NjQxLCJqdGkiOiIxMjdhMjA1YWEzNGU0ZGViODA5YTg4ZWI4Y2ZhOTQzYiIsInVzZXJfaWQiOjF9.BMgB9o1N2p6s_a8-quUXPCM-v_p5N2AChtYp53PXEbo';
+String accessToken = '';
 String refreshToken = '';
 
 String email;
 String password;
+bool rememberMe = false;
 
 ///http handler for the project. It is a singleton.
 class HttpSingleton {

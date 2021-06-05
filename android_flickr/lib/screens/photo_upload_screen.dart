@@ -140,170 +140,172 @@ class PhotoUploadScreenState extends State<PhotoUploadScreen> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 35,
-            ),
-            Container(
-              height: 100,
-              width: 100,
-              child: Image.memory(
-                widget.headedBitmap,
-                fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: 20.0,
+            right: 20.0,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 35,
               ),
-            ),
-            SizedBox(
-              height: 35,
-            ),
-            TextFormField(
-              controller: titleController,
-              maxLength: 100,
-              decoration: InputDecoration(
-                hintText: 'Title...',
+              Container(
+                height: 100,
+                width: 100,
+                child: Image.memory(
+                  widget.headedBitmap,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            TextFormField(
-              controller: descriptionController,
-              decoration: InputDecoration(
-                hintText: 'Description...',
+              SizedBox(
+                height: 35,
               ),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        AddTagsScreen(widget.tags),
+              TextFormField(
+                controller: titleController,
+                maxLength: 100,
+                decoration: InputDecoration(
+                  hintText: 'Title...',
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              TextFormField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  hintText: 'Description...',
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AddTagsScreen(widget.tags),
+                    ),
+                  ).then((value) {
+                    setState(() {});
+                  });
+                },
+                child: Stack(children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Icon(
+                        Icons.label_outlined,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      widget.getTagsText(context),
+                    ],
                   ),
-                ).then((value) {
-                  setState(() {});
-                });
-              },
-              child: Stack(children: [
-                Row(
+                  widget.tags.isEmpty
+                      ? Container()
+                      : Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.black,
+                            size: 15,
+                          ),
+                        ),
+                ]),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Divider(),
+              SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                onTap: () {
+                  var alertDelete = AlertDialog(
+                    content: Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Edit privacy',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          Divider(),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                privacy = 'Public';
+                              });
+                              Navigator.pop(context);
+                              return;
+                            },
+                            child: Text(
+                              'Public',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          Divider(),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                privacy = 'Private';
+                              });
+                              Navigator.pop(context);
+                              return;
+                            },
+                            child: Text(
+                              'Private',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                  showDialog(
+                    context: context,
+                    builder: (_) => alertDelete,
+                    barrierDismissible: true,
+                  );
+                },
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Icon(
-                      Icons.label_outlined,
+                      privacy == 'Public'
+                          ? Icons.lock_open_sharp
+                          : Icons.lock_outline_sharp,
                       color: Colors.grey,
                     ),
                     SizedBox(
                       width: 10,
                     ),
-                    widget.getTagsText(context),
+                    Text(privacy),
                   ],
                 ),
-                widget.tags.isEmpty
-                    ? Container()
-                    : Align(
-                        alignment: Alignment.centerRight,
-                        child: Icon(
-                          Icons.edit,
-                          color: Colors.black,
-                          size: 15,
-                        ),
-                      ),
-              ]),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Divider(),
-            SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              onTap: () {
-                var alertDelete = AlertDialog(
-                  content: Container(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Edit privacy',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        Divider(),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              privacy = 'Public';
-                            });
-                            Navigator.pop(context);
-                            return;
-                          },
-                          child: Text(
-                            'Public',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        Divider(),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              privacy = 'Private';
-                            });
-                            Navigator.pop(context);
-                            return;
-                          },
-                          child: Text(
-                            'Private',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-                showDialog(
-                  context: context,
-                  builder: (_) => alertDelete,
-                  barrierDismissible: true,
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    privacy == 'Public'
-                        ? Icons.lock_open_sharp
-                        : Icons.lock_outline_sharp,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(privacy),
-                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

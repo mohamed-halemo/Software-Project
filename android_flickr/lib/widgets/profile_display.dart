@@ -1,7 +1,10 @@
+import 'package:android_flickr/Classes/globals.dart';
+import 'package:android_flickr/screens/get_started_page_screen.dart';
 import 'package:flutter/material.dart';
 import './tabbar_in_profile.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_profiles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import '../providers/flickr_posts.dart';
 
 /// Profile of the user which includes their avatar, followers and following and a tabbar.
@@ -27,8 +30,18 @@ class ProfileDisplay extends StatelessWidget {
                   return [
                     PopupMenuItem(
                       child: GestureDetector(
-                        child: Text("Logout"),
-                        onTap: () {},
+                        child: Text("Sign out"),
+                        onTap: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.remove('email');
+                          prefs.setBool('remember', false);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext ctx) =>
+                                      GetStartedScreen()));
+                        },
                       ),
                     ),
                     PopupMenuItem(
