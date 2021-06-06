@@ -867,17 +867,20 @@ def get_recent_photos(request):
     return Paginator.get_paginated_response({'stat': 'ok',
                                              'photos': recent_photos})
 
-
-
 # Photo search API
 
-# test_param = openapi.Parameter('search_text', openapi.IN_QUERY, description="Search for a photo with search_text", type=openapi.TYPE_STRING)
 
-# test_param2 = openapi.Parameter('all_or_tags', openapi.IN_QUERY, description="Search for a photo with tags or all", type=openapi.TYPE_STRING)
+test_param = openapi.Parameter('search_text', openapi.IN_QUERY, description="Search for a photo with search_text", type=openapi.TYPE_STRING)
 
-# user_response = openapi.Response('response description', )
+test_param2 = openapi.Parameter('all_or_tags', openapi.IN_QUERY, description="Search for a photo with (all or tags)", type=openapi.TYPE_STRING)
 
-# @swagger_auto_schema(method='get', manual_parameters=[test_param,test_param2], responses={200: user_response})
+test_param3 = openapi.Parameter('min_upload_date', openapi.IN_QUERY, description="Search for a photo with min upload date , Valid format is: ( %Y-%m-%d %H:%M:%S )",type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME)
+
+test_param4 = openapi.Parameter('max_upload_date', openapi.IN_QUERY, description="Search for a photo with  max upload date , Valid format is: ( %Y-%m-%d %H:%M:%S )", type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME)
+
+user_response = openapi.Response('response description', )
+
+@swagger_auto_schema(method='get', manual_parameters=[test_param,test_param2,test_param3,test_param4], responses={200: user_response})
 
 @api_view(['GET'])
 def search_photos(request):
@@ -887,13 +890,13 @@ def search_photos(request):
     Paginator.page_size = 20
 
     # If search_text is missing, return an error message
-    if ('search_text' not in request.data):
+    if ('search_text' not in request.query_params):
         return Response(
                     {'stat': 'fail',
                      'message': 'search_text is missing.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
-    photo_ids_list = search_according_to_all_or_tags(request.data)
+    photo_ids_list = search_according_to_all_or_tags(request.query_params)
 
     # In case all_or_tags is neither (all) nor (tags), send an error mesage
     if (photo_ids_list == None):
@@ -912,24 +915,24 @@ def search_photos(request):
        
 
     # If both upload dates and taken dates are entered, return an error message
-    if ('min_upload_date' in request.data and 'min_taken_date' in request.data
-       ) or ('max_upload_date' in request.data and 'max_taken_date' in request.data
-       ) or ('min_upload_date' in request.data and 'max_taken_date' in request.data
-       ) or ('max_upload_date' in request.data and 'min_taken_date' in request.data):
+    if ('min_upload_date' in request.query_params and 'min_taken_date' in request.query_params
+       ) or ('max_upload_date' in request.query_params and 'max_taken_date' in request.query_params
+       ) or ('min_upload_date' in request.query_params and 'max_taken_date' in request.query_params
+       ) or ('max_upload_date' in request.query_params and 'min_taken_date' in request.query_params):
         return Response(
                     {'stat': 'fail',
                      'message': 'Enter either upload dates or taken dates, not both.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
     # Filtering by date posted
-    elif ('min_upload_date' in request.data) or ('max_upload_date' in request.data):
+    elif ('min_upload_date' in request.query_params) or ('max_upload_date' in request.query_params):
 
-        if ('min_upload_date' in request.data) and ('max_upload_date' in request.data):
+        if ('min_upload_date' in request.query_params) and ('max_upload_date' in request.query_params):
 
             # Checking validatity of DateTime format entered
             try:
-                min_upload_date = datetime.strptime(request.data['min_upload_date'], '%Y-%m-%d %H:%M:%S')
-                max_upload_date = datetime.strptime(request.data['max_upload_date'], '%Y-%m-%d %H:%M:%S')
+                min_upload_date = datetime.strptime(request.query_params.get('min_upload_date'), '%Y-%m-%d %H:%M:%S')
+                max_upload_date = datetime.strptime(request.query_params.get('max_upload_date'), '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -953,14 +956,14 @@ def search_photos(request):
                     status=status.HTTP_400_BAD_REQUEST)
 
     # Filtering by date taken
-    elif ('min_taken_date' in request.data) or ('max_taken_date' in request.data):
+    elif ('min_taken_date' in request.query_params) or ('max_taken_date' in request.query_params):
 
-        if ('min_taken_date' in request.data) and ('max_taken_date' in request.data):
+        if ('min_taken_date' in request.query_params) and ('max_taken_date' in request.query_params):
 
             # Checking validatity of DateTime format entered
             try:
-                min_taken_date = datetime.strptime(request.data['min_taken_date'], '%Y-%m-%d %H:%M:%S')
-                max_taken_date = datetime.strptime(request.data['max_taken_date'], '%Y-%m-%d %H:%M:%S')
+                min_taken_date = datetime.strptime(request.query_params.get('min_taken_date'), '%Y-%m-%d %H:%M:%S')
+                max_taken_date = datetime.strptime(request.query_params.get('max_taken_date'), '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -1000,8 +1003,6 @@ def search_photos(request):
                                              'user_photos': user_search_photos,
                                              'following_photos': following_search_photos,
                                              'everyone_photos': everyone_search_photos})
-
-
 
 # Rotate photo API
 @swagger_auto_schema( methods = ['put'] , request_body = PhotoRotationSerializer) 
