@@ -1157,10 +1157,9 @@ def fav_photo(request, id):
 @swagger_auto_schema(method='post', request_body=PhotoUploadSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_media(request):
     #upload photo one at a time
-    parser_classes = (MultiPartParser, FormParser)
     serializer = PhotoUploadSerializer(data=request.data)
     empty,msg,response = check_existence_of_media_file(request.data)
     if empty :
@@ -1170,12 +1169,12 @@ def upload_media(request):
         height = request.data['photo_height']
         width = request.data['photo_width']
 
-        pixels,message,response,success= upload(file_field,request.user,width,height)
+        pixels,_,response,success= upload(file_field,request.user,width,height)
         if success:
             increment_profile_items(request.user,'total_media')
             serializer.save(photo_displaypx=pixels, owner=request.user)
             # increment the count of media 
-            return Response({'message': str(message)},status=response,)
+            return Response(serializer.data,status=response,)
         else:
             return Response(serializer.errors, status=response)                
     else:
