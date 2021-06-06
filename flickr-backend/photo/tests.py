@@ -964,7 +964,6 @@ class TestHandlingRequestDataFunctions(TestCase):
         self.assertEqual(person_data['age'], 21)
         self.assertEqual(person_data['is_pro'], False)
         self.assertEqual(person_data['login_from'], 'email')
-# Create your tests here.
 
 
 def create_user_test(email):
@@ -982,10 +981,10 @@ def create_user_test(email):
 class PhotoFunctionsTests(TestCase):   
 
     def test_get_photos_of_the_followed_people(self):    
-        user=create_user_test('user@gmail.com')
-        owner=create_user_test('owner@gmail.com')
+        user=create_user_test('user99@gmail.com')
+        owner=create_user_test('owner99@gmail.com')
         Contacts.objects.create(user=user,followed=owner)
-        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        Photo.objects.create(media_file='api/media/1236.png',photo_height=123,photo_width=22,owner=user)
         photo_obj=Photo.objects.all().first()
         following_photos,following_list_ids =get_photos_of_the_followed_people(user)
         self.assertEqual(following_photos.first(),photo_obj )    
@@ -1015,3 +1014,4 @@ class PhotoFunctionsTests(TestCase):
         Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         public_photos = get_photos_of_public_people(user)
         self.assertEqual(public_photos.first(),None )
+
