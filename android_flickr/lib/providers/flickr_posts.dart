@@ -33,6 +33,7 @@ class Posts with ChangeNotifier {
         await mockServiceExplorePosts();
       } else {
         await mainServerExplorePosts();
+        await mianServerMyPosts();
       }
     } catch (error) {
       throw (error);
@@ -42,9 +43,6 @@ class Posts with ChangeNotifier {
 
   /// If isMockService = false then, this function is called to fetch data from the main server.
   Future<void> mainServerExplorePosts() async {
-    /* final url = Uri.https(
-        'flickr-explore-default-rtdb.firebaseio.com', '/ExplorePosts.json'); */
-    //const url = 'https://flutter-update.firebaseio.com.json';
     //fetchAndSetMyPosts();
     final url =
         Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/home');
@@ -55,26 +53,46 @@ class Posts with ChangeNotifier {
         url,
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
       //print(response.body);
       /* final extractedData =
           json.decode(response.body) as List<Map<String, dynamic>>; */
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final extactedposts =
+      final followingPosts =
+          extractedData['results']['following_photos'] as List<dynamic>;
+      final publicPosts =
           extractedData['results']['public_photos'] as List<dynamic>;
+
+      final loadedFollowPosts = setPostsFromMainserver(followingPosts);
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
+      print(loadedFollowPosts.length);
+      print(loadedPublicPosts.length);
       //print("start");
-      //print(extactedposts);
-      final List<PostDetails> loadedPosts = [];
+      //print(followingPosts.length);
+/*       final List<PostDetails> loadedPosts = [];
       final List<PicPosterDetails> loadedPicPosterProfiles = [];
       final List<String> loadedPicPosterProfilesIds = [];
       //final List<String> loadedProfilesId = [];
-      extactedposts.forEach(
+      followingPosts.forEach(
         (postDetails) {
           //print(postDetails);
           //int postUrl = postDetails['id'] * 2;
           //print(postDetails['title']);
           //print(postDetails['title'].length);
+          var dateNow = DateTime.now();
+          dateNow = DateFormat('dd-MM-yyyy')
+              .parse(DateFormat('dd-MM-yyyy').format(dateNow));
+
+          final difference = dateNow
+              .difference(
+                  DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']))
+              .inDays;
+          //print();
+          print(dateNow);
+          print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
+          print(difference);
           if (!loadedPicPosterProfilesIds.contains(
             postDetails['owner']['id'].toString(),
           )) {
@@ -88,8 +106,9 @@ class Posts with ChangeNotifier {
                     " " +
                     postDetails['owner']['last_name']), //found
                 postDetails['owner']['is_pro'], //found
-                postDetails['owner'][
-                    'is_staff'], //not found, using placeholder for is_followed_by_user
+                postDetails['owner']['is_followed']
+                    ? false
+                    : true, //not found, using placeholder for is_followed_by_user
                 'https://picsum.photos/200/200?random=' +
                     '${postDetails['owner']['id']}', //found
                 'https://picsum.photos/200/200?random=' +
@@ -97,21 +116,24 @@ class Posts with ChangeNotifier {
               ),
             );
           }
+          List<String> peopleFaved = [];
+          final getFavedNames = postDetails['favourites'] as List<dynamic>;
+          //print(getFavedNames[0]['first_name']);
+          getFavedNames.forEach((user) {
+            String addName =
+                user['first_name'] + ' ' + user['last_name'] as String;
+            peopleFaved.add(addName);
+          });
+          //print(peopleFaved.length);
+          if (postDetails['is_faved']) {
+            peopleFaved.insert(0, 'You');
+          }
           loadedPosts.add(
             PostDetails(
               id: postDetails['id'].toString(), //found
               commentsTotalNumber: postDetails['count_comments'], //found
               favesDetails: FavedPostDetails(
-                favedUsersNames: postDetails['is_faved'] //found
-                    ? [
-                        'You',
-                        'postDetails[favourites][1]', //found
-                        'postDetails[favourites][2]', //found
-                      ]
-                    : [
-                        'postDetails[favourites][1]', //found
-                        'postDetails[favourites][2]', //found
-                      ],
+                favedUsersNames: peopleFaved, //found
                 isFaved: postDetails['is_faved'], //found
                 favesTotalNumber: postDetails['count_favourites'], //found
               ),
@@ -121,8 +143,7 @@ class Posts with ChangeNotifier {
                     " " +
                     postDetails['owner']['last_name']), //found
                 postDetails['owner']['is_pro'], //found
-                postDetails['owner'][
-                    'is_staff'], //not found, using placeholder for is_followed_by_user
+                postDetails['owner']['is_followed'],
                 'https://picsum.photos/200/200?random=' +
                     '${postDetails['owner']['id']}', //found
                 'https://picsum.photos/200/200?random=' +
@@ -130,7 +151,7 @@ class Posts with ChangeNotifier {
               ),
               postImageUrl:
                   'https://fotone.me' + postDetails['media_file'], //found
-              postedSince: postDetails['owner']['id'].toString(),
+              postedSince: "DateFormat().parse(postDetails['date_posted'])",
               caption: postDetails['title'].length > 0
                   ? postDetails['title']
                   : " ", //found
@@ -138,8 +159,8 @@ class Posts with ChangeNotifier {
                 "postDetails['lastCommentUser']":
                     " postDetails['photo_comments'][postDetails['photo_comments']]", //found
               },
-              tags: "postDetails['photo_tags']", //found
-              //dateTaken: postDetails['date_taken'],
+              tags: postDetails['photo_tags'], //found
+
               description: postDetails['description'], //found
               privacy: postDetails['is_public'], //found
               dateTaken: DateFormat('dd-MM-yyyy')
@@ -147,10 +168,18 @@ class Posts with ChangeNotifier {
             ),
           );
         },
-      );
+      ); */
       //print(loadedProfilesId.length);
-      _posts = loadedPosts;
-      _picPosterProfilesDetails = loadedPicPosterProfiles;
+      _posts.clear();
+      loadedFollowPosts.forEach((post) {
+        _posts.add(post);
+      });
+      loadedPublicPosts.forEach((post) {
+        _posts.add(post);
+      });
+      print(_posts.length);
+      //_posts = loadedPosts;
+
       // print("check profile count");
       // print(_picPosterProfilesDetails.length);
 
@@ -160,6 +189,163 @@ class Posts with ChangeNotifier {
       //print('https://picsum.photos/200/200?random=' + '$postUrl');
       throw (error);
     }
+  }
+
+  Future<void> mianServerMyPosts() async {
+    final url = Uri.http(
+        globals.HttpSingleton().getBaseUrl(), 'api/photos/publiclogged');
+    //print(url);
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+      //print(response.body);
+      /* final extractedData =
+          json.decode(response.body) as List<Map<String, dynamic>>; */
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      /* final followingPosts =
+          extractedData['results']['following_photos'] as List<dynamic>; */
+      final publicPosts = extractedData['results']['photos'] as List<dynamic>;
+
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
+      //print(loadedFollowPosts.length);
+      print(loadedPublicPosts.length);
+      _myPosts.clear();
+      loadedPublicPosts.forEach((post) {
+        _myPosts.add(post);
+      });
+
+      /*  _posts.clear();
+      loadedFollowPosts.forEach((post) {
+        _posts.add(post);
+      });
+      loadedPublicPosts.forEach((post) {
+        _posts.add(post);
+      });
+      print(_posts.length); */
+      //_posts = loadedPosts;
+
+      // print("check profile count");
+      // print(_picPosterProfilesDetails.length);
+
+      notifyListeners();
+    } catch (error) {
+      // print("error");
+      //print('https://picsum.photos/200/200?random=' + '$postUrl');
+      throw (error);
+    }
+  }
+
+  List<PostDetails> setPostsFromMainserver(List<dynamic> posts) {
+    final List<PostDetails> loadedPosts = [];
+    final List<PicPosterDetails> loadedPicPosterProfiles = [];
+    final List<String> loadedPicPosterProfilesIds = [];
+    //final List<String> loadedProfilesId = [];
+    posts.forEach(
+      (postDetails) {
+        //print(postDetails);
+        //int postUrl = postDetails['id'] * 2;
+        //print(postDetails['title']);
+        //print(postDetails['title'].length);
+        var dateNow = DateTime.now();
+        dateNow = DateFormat('dd-MM-yyyy')
+            .parse(DateFormat('dd-MM-yyyy').format(dateNow));
+
+        final difference = dateNow
+            .difference(
+                DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']))
+            .inDays;
+        //print();
+        print(dateNow);
+        print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
+        print(difference);
+        if (!loadedPicPosterProfilesIds.contains(
+          postDetails['owner']['id'].toString(),
+        )) {
+          loadedPicPosterProfilesIds.add(
+            postDetails['owner']['id'].toString(),
+          );
+          loadedPicPosterProfiles.add(
+            PicPosterDetails(
+              postDetails['owner']['id'].toString(), //found
+              (postDetails['owner']['first_name'] +
+                  " " +
+                  postDetails['owner']['last_name']), //found
+              postDetails['owner']['is_pro'], //found
+              postDetails['owner']['is_followed']
+                  ? false
+                  : true, //not found, using placeholder for is_followed_by_user
+              'https://picsum.photos/200/200?random=' +
+                  '${postDetails['owner']['id']}', //found
+              'https://picsum.photos/200/200?random=' +
+                  '${postDetails['owner']['id'] * 3}', //found
+            ),
+          );
+        }
+        List<String> peopleFaved = [];
+        final getFavedNames = postDetails['favourites'] as List<dynamic>;
+        //print(getFavedNames[0]['first_name']);
+        getFavedNames.forEach((user) {
+          String addName =
+              user['first_name'] + ' ' + user['last_name'] as String;
+          peopleFaved.add(addName);
+        });
+        //print(peopleFaved.length);
+        if (postDetails['is_faved']) {
+          peopleFaved.insert(0, 'You');
+        }
+        loadedPosts.add(
+          PostDetails(
+            id: postDetails['id'].toString(), //found
+            commentsTotalNumber: postDetails['count_comments'], //found
+            favesDetails: FavedPostDetails(
+              favedUsersNames: peopleFaved, //found
+              isFaved: postDetails['is_faved'], //found
+              favesTotalNumber: postDetails['count_favourites'], //found
+            ),
+            picPoster: PicPosterDetails(
+              postDetails['owner']['id'].toString(), //found
+              (postDetails['owner']['first_name'] +
+                  " " +
+                  postDetails['owner']['last_name']), //found
+              postDetails['owner']['is_pro'], //found
+              postDetails['owner']['is_followed'],
+              'https://picsum.photos/200/200?random=' +
+                  '${postDetails['owner']['id']}', //found
+              'https://picsum.photos/200/200?random=' +
+                  '${postDetails['owner']['id'] * 3}', //found
+            ),
+            postImageUrl:
+                'https://fotone.me' + postDetails['media_file'], //found
+            postedSince: "DateFormat().parse(postDetails['date_posted'])",
+            caption: postDetails['title'].length > 0
+                ? postDetails['title']
+                : " ", //found
+            lastComment: {
+              "postDetails['lastCommentUser']":
+                  " postDetails['photo_comments'][postDetails['photo_comments']]", //found
+            },
+            tags: postDetails['photo_tags'], //found
+
+            description: postDetails['description'], //found
+            privacy: postDetails['is_public'], //found
+            dateTaken: DateFormat('dd-MM-yyyy')
+                .parse(postDetails['date_posted']), //found
+          ),
+        );
+      },
+    );
+    _picPosterProfilesDetails.clear();
+    loadedPicPosterProfiles.forEach((element) {
+      _picPosterProfilesDetails.add(element);
+    });
+    _picPosterProfilesDetails = loadedPicPosterProfiles;
+    return loadedPosts;
   }
 
   /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts if isMockService = false.
@@ -281,9 +467,6 @@ class Posts with ChangeNotifier {
     //print(url);
     try {
       final response = await http.get(url);
-      //print(response.body);
-      /* final extractedData =
-          json.decode(response.body) as List<Map<String, dynamic>>; */
       final extractedData = json.decode(response.body) as List<dynamic>;
       //print(extractedData);
       final List<PostDetails> loadedPosts = [];
@@ -377,3 +560,13 @@ class Posts with ChangeNotifier {
     return [..._picPosterProfilesDetails];
   }
 }
+
+/* String postedSince(DateTime date) {
+  if (DateFormat.y(date) != DateFormat.y(DateTime.now())) {
+    return '';
+  } else if (DateFormat.M(date) != DateFormat.M(DateTime.now())) {
+    return '';
+  } else if (DateFormat.d(date) != DateFormat.d(DateTime.now())) {
+    return '';
+  }
+} */

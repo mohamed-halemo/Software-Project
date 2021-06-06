@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../Classes/globals.dart' as globals;
+//import 'package:intl/intl.dart';
+import 'dart:io';
 // import '../providers/flickr_posts.dart';
 
 ///Class PicPosterDetails describes few information about the user who posted the picture and these info are his name and whether
@@ -56,7 +58,7 @@ class PostDetails with ChangeNotifier {
   String description;
   bool privacy;
   DateTime dateTaken;
-  String tags;
+  List<dynamic> tags;
 
   PostDetails({
     @required this.id,
@@ -85,7 +87,47 @@ class PostDetails with ChangeNotifier {
       favesDetails.favedUsersNames.remove("You");
     }
     notifyListeners();
-    updateFavoriteStatus(favesDetails.isFaved, favesDetails.favesTotalNumber);
+    if (globals.isMockService) {
+      updateFavoriteStatus(favesDetails.isFaved, favesDetails.favesTotalNumber);
+    } else {
+      updateFavoriteStatusMainServer();
+    }
+  }
+
+  Future<void> updateFavoriteStatusMainServer() async {
+    final token =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIyOTM3NjA4LCJqdGkiOiIwZmE4MWRmNjI2YzE0NGNjYjliODNiZjNmZWRkOWZhNyIsInVzZXJfaWQiOjJ9.kFxguEk7VOpS9gw5amu9NFijyGPyL8ZQKJiU_3YZH0c";
+    final url =
+        Uri.https(globals.HttpSingleton().getBaseUrl(), 'api/photos/$id/fav');
+    print(url);
+    try {
+      final responseId = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+        /* body: json.encode(
+          {
+            'id': 1,
+          },
+        ),  */
+      );
+      print(globals.accessToken);
+      print(picPoster.profileId);
+      print('done');
+      print(responseId.body);
+
+      //print(response.statusCode);
+    } catch (error) {
+      throw (error);
+      //print(error.data);
+      //print(error.response.statusCode);
+    }
+    final urlGet =
+        Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/$id/faves');
+    final response = await http.get(urlGet);
+    print(response.body);
   }
 
   ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on mock service and database.

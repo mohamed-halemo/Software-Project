@@ -10,7 +10,7 @@ void main() {
     dateTaken: DateTime.now(),
     privacy: false,
     description: "",
-    tags: "",
+    tags: [],
     picPoster: PicPosterDetails("1","moaz", true, false, "",""),
     commentsTotalNumber: 20,
     postImageUrl: "postImageUrl",
