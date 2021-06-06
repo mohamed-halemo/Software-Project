@@ -15,6 +15,7 @@ class Posts with ChangeNotifier {
 
   ///List of user profile posts.
   List<PostDetails> _myPosts = [];
+  List<PostDetails> _cameraRollPosts = [];
 
   /// List of other profiles that have posts which is used in search mode.
   List<PicPosterDetails> _picPosterProfilesDetails = [];
@@ -45,7 +46,7 @@ class Posts with ChangeNotifier {
   Future<void> mainServerExplorePosts() async {
     //fetchAndSetMyPosts();
     final url =
-        Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/home');
+        Uri.https(globals.HttpSingleton().getBaseUrl(), 'api/photos/home');
     //print(url);
 
     try {
@@ -192,7 +193,7 @@ class Posts with ChangeNotifier {
   }
 
   Future<void> mianServerMyPosts() async {
-    final url = Uri.http(
+    final url = Uri.https(
         globals.HttpSingleton().getBaseUrl(), 'api/photos/publiclogged');
     //print(url);
 
@@ -542,6 +543,56 @@ class Posts with ChangeNotifier {
     }
   }
 
+  Future<void> mianServerCameraRoll() async {
+    final url = Uri.https(
+        globals.HttpSingleton().getBaseUrl(), 'api/photos/photoslogged');
+    //print(url);
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+      //print(response.body);
+      /* final extractedData =
+          json.decode(response.body) as List<Map<String, dynamic>>; */
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      /* final followingPosts =
+          extractedData['results']['following_photos'] as List<dynamic>; */
+      final publicPosts = extractedData['results']['photos'] as List<dynamic>;
+
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
+      //print(loadedFollowPosts.length);
+      print(loadedPublicPosts.length);
+      _cameraRollPosts.clear();
+      loadedPublicPosts.forEach((post) {
+        _cameraRollPosts.add(post);
+      });
+
+      /*  _posts.clear();
+      loadedFollowPosts.forEach((post) {
+        _posts.add(post);
+      });
+      loadedPublicPosts.forEach((post) {
+        _posts.add(post);
+      });
+      print(_posts.length); */
+      //_posts = loadedPosts;
+
+      // print("check profile count");
+      // print(_picPosterProfilesDetails.length);
+
+      notifyListeners();
+    } catch (error) {
+      // print("error");
+      //print('https://picsum.photos/200/200?random=' + '$postUrl');
+      throw (error);
+    }
+  }
+
   ///Returns copy of the List of posts.
   List<PostDetails> get posts {
     //print(_posts);
@@ -552,6 +603,12 @@ class Posts with ChangeNotifier {
   List<PostDetails> get myPosts {
     //print(_posts);
     return [..._myPosts];
+  }
+
+  ///Returns copy of the List of the Camera roll posts.
+  List<PostDetails> get cameraRollPosts {
+    //print(_posts);
+    return [..._cameraRollPosts];
   }
 
   /// Returns list of all users that posted on flickr.

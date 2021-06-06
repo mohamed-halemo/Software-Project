@@ -25,6 +25,8 @@ class CameraRollState extends State<CameraRoll> {
   ///Bool used to determine if the user library has Posts or not.
   bool hasImages = false;
 
+  bool isinit = true;
+
   ///List of all user Posts.
   List<PostDetails> postsToDisplay;
 
@@ -38,29 +40,38 @@ class CameraRollState extends State<CameraRoll> {
     super.initState();
   }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    if (isinit)
+      Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
+        isinit = false;
+        gridDates.add(postsToDisplay.first.dateTaken);
+        for (var i = 0; i < postsToDisplay.length; i++) {
+          if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
+            gridDates.add(postsToDisplay[i].dateTaken);
+          }
+        }
+        for (var i = 0; i < gridDates.length; i++) {
+          var iterable = postsToDisplay
+              .where((element) => element.dateTaken == gridDates[i]);
+          sortedPosts.add(iterable.toList());
+        }
+        setState(() {
+          hasImages = true;
+        });
+      });
+  }
+
   ///Main widget tree, rebuilds with every state update.
   @override
   Widget build(BuildContext context) {
     //get posts from provider
-    postsToDisplay = Provider.of<Posts>(context).myPosts;
+    postsToDisplay = Provider.of<Posts>(context).cameraRollPosts;
     if (postsToDisplay.isEmpty) {
       setState(() {
         hasImages = false;
-      });
-    } else {
-      gridDates.add(postsToDisplay.first.dateTaken);
-      for (var i = 0; i < postsToDisplay.length; i++) {
-        if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
-          gridDates.add(postsToDisplay[i].dateTaken);
-        }
-      }
-      for (var i = 0; i < gridDates.length; i++) {
-        var iterable = postsToDisplay
-            .where((element) => element.dateTaken == gridDates[i]);
-        sortedPosts.add(iterable.toList());
-      }
-      setState(() {
-        hasImages = true;
       });
     }
     return hasImages
@@ -184,8 +195,14 @@ class CameraRollState extends State<CameraRoll> {
                         },
                         child: Stack(
                           children: [
-                            Image.network(
-                                sortedPosts[listindex][gridindex].postImageUrl),
+                            Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: Image.network(
+                                sortedPosts[listindex][gridindex].postImageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                             sortedPosts[listindex][gridindex].privacy
                                 ? Container()
                                 : Padding(
