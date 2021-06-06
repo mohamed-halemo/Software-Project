@@ -964,7 +964,6 @@ class TestHandlingRequestDataFunctions(TestCase):
         self.assertEqual(person_data['age'], 21)
         self.assertEqual(person_data['is_pro'], False)
         self.assertEqual(person_data['login_from'], 'email')
-# Create your tests here.
 
 
 def create_user_test(email):
@@ -1015,3 +1014,4 @@ class PhotoFunctionsTests(TestCase):
         Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         public_photos = get_photos_of_public_people(user)
         self.assertEqual(public_photos.first(),None )
+
