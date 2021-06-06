@@ -113,7 +113,6 @@ class LogInSerializer(serializers.ModelSerializer):
             'tokens': user.tokens
         }
 
-            
 #Reset password mail serializer
 class RequestPasswordResetEmailSerializer(serializers.Serializer):
     '''Serializer for Reset Password'''
@@ -183,7 +182,18 @@ class ChangeFirstLastNameSerializer(serializers.Serializer):
 class ChangeEmailSerializer(serializers.Serializer):
     '''Serializer for changing Account email'''
     email = serializers.EmailField(min_length=2)
-    
+    password = serializers.CharField(min_length=12)
+    class Meta:
+        model = Account
+        fields = ['email', 'password']
+
+#delete account serializer
+class DeleteAccountSerializer(serializers.Serializer):
+    '''Serializer for changing Account email'''
+    password = serializers.CharField(min_length=12)
+    class Meta:
+        model = Account
+        fields = ['password']
 
 #change user first/last name serializer
 class ChangeUsernameSerializer(serializers.Serializer):

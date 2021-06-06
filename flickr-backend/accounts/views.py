@@ -34,7 +34,8 @@ from django.utils.translation import gettext_lazy as _
 import requests
 import json
 from django.db.models import Count, F, Q, Max
-
+from rest_framework.parsers import FormParser
+from rest_framework.decorators import parser_classes
 
 #Functionality
 def verifying_user(user):
@@ -85,7 +86,6 @@ def follow(contact,followed_user_obj,user):
                             headers=header, data=json.dumps(payload))
     return status.HTTP_200_OK
 
-
 def unfollow(contact,user,followed_user_obj):
     # can't unfoolow someone not in my contacts
     if not contact:
@@ -97,7 +97,6 @@ def unfollow(contact,user,followed_user_obj):
     decrement_profile_items(followed_user_obj,'followers_count')
     contact.delete()
     return status.HTTP_204_NO_CONTENT     
-
 
 def check_media_content_type(serializer,file_field):
     if serializer.is_valid():
@@ -114,7 +113,6 @@ def check_media_content_type(serializer,file_field):
                 raise ValidationError(_('File is empty'))   
     else:
         return  serializer.errors, status.HTTP_400_BAD_REQUEST
-
 
 def prepare_verify_email(current_site,user,token):
     relative_link = reverse('accounts:email-verify')
@@ -189,9 +187,30 @@ def change_user_name(serializer,user):
     response = {'Success': 'Username changed'}
     return response
 
+def change_user_email(useremail,user):
+        if useremail == user.email:
+            response = {'stat': 'New mail cannot be equal to old mail !!'}
+            statuss=status.HTTP_400_BAD_REQUEST
+            return response,statuss
+        check = Account.objects.filter(email=useremail)
+            #Checking if user is already registered
+        if check:
+            response = {'error': 'Email already registered!!'}
+            statuss=status.HTTP_400_BAD_REQUEST
+            return response,statuss
+        if validate_user_mail(useremail) != 'valid':
+            response = {'error': 'Please enter a valid mail'}
+            statuss=status.HTTP_400_BAD_REQUEST
+            return response, statuss
+        user.email = useremail
+        user.save()
+        response = {'stat': 'Email changed !'}
+        statuss=status.HTTP_200_OK
+        return response, statuss
+    
 def change_first_last_name(serializer,user):
     new_first = serializer.data['first_name']
-    new_last = serializer.data['first_name']
+    new_last = serializer.data['last_name']
     
     user.first_name = new_first
     user.last_name = new_last
@@ -199,7 +218,6 @@ def change_first_last_name(serializer,user):
         
     response = {'Success': 'First & Last name changed'}
     return response
-
 
 def limit_people_number(people, max_limit):
 
@@ -213,7 +231,6 @@ def limit_people_number(people, max_limit):
     required_people = Account.objects.filter(
         id__in=required_people_ids_list).order_by('-date_joined')
     return required_people
-
 
 #sign up user
 class SignUpView(generics.GenericAPIView):
@@ -268,9 +285,6 @@ class ResendMailView(generics.GenericAPIView):
         
         return Response({'Success' : 'Email resend !'}, status=status.HTTP_201_CREATED)
 
-
-
-
 #Verify email
 class VerifyEmail(views.APIView):
     serializer_class = EmailVerificationSerializer
@@ -300,7 +314,6 @@ class VerifyEmail(views.APIView):
             return Response({'error': 'Invalid Token'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-
 #User login
 class LoginView(generics.GenericAPIView):
     serializer_class = LogInSerializer
@@ -310,7 +323,6 @@ class LoginView(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 #Reset password mail
 class RequestPasswordResetEmail(generics.GenericAPIView):
@@ -344,7 +356,6 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
                             status=status.HTTP_200_OK)
             else:
                 return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
-
 
 #Reset password mail
 class PasswordTokenCheck(generics.GenericAPIView):
@@ -393,8 +404,6 @@ class ChangePassword(generics.GenericAPIView):
             response,statuss = change_user_password(serializer,user)
             return Response(response, status=statuss)
             
-            
-
 #change user type
 class ChangeToPro(generics.GenericAPIView):
     serializer_class = ChangeToPro
@@ -459,6 +468,7 @@ class ChangeFirstLastName(generics.GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             response = change_first_last_name(serializer,user)
             return Response(response)
+
 #get user info
 class UserInfo(generics.RetrieveAPIView):
     
@@ -472,6 +482,7 @@ class UserInfo(generics.RetrieveAPIView):
         obj = queryset.get(id=self.request.user.id)
         return obj
 
+#get specific user info
 class UserDetailList(generics.RetrieveAPIView):
     serializer_class = OwnerSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -511,62 +522,55 @@ class ResendPasswordResetEmail(generics.GenericAPIView):
             return Response({'error': error}, status=status.HTTP_404_NOT_FOUND)
 
 #Delete users account
+@swagger_auto_schema( methods = ['DELETE'] , request_body = DeleteAccountSerializer )
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
 def DeleteAccount(request):
-    user = request.user
-    try:
-        userpassword=request.data['password']
-    except:
-        return Response({'stat': 'Failed', "message":'Please enter your password'}, status=status.HTTP_200_OK)
-    #authenticate user
-    user=auth.authenticate(email=user.email, password=userpassword)
-    if not user:
-        return Response(
-            {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
+    user=request.user
+    serializer = DeleteAccountSerializer(data = request.data) 
+    if serializer.is_valid(raise_exception = True):
+        userpassword=serializer.data['password']
+        password,error=validate_password(userpassword,user.username)
+        if len(password)==0:
+            raise serializers.ValidationError(error)
+        #authenticate user
+        user=auth.authenticate(email=user.email, password=password)
+        if not user:
+            return Response(
+                {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
     user.delete()
     return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
 
 #change users email
+@swagger_auto_schema( methods = ['PUT'] , request_body = ChangeEmailSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def ChangeEmail(request):
     user = request.user
-    try:
-        userpassword=request.data['password']
-    except:
-        return Response({'stat': 'Failed', "message":'Please enter your password'}, status=status.HTTP_200_OK)
-    
-    #authenticate user
-    user=auth.authenticate(email=user.email, password=userpassword)
-    if not user:
-        return Response(
-            {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
     
     #mail validation
-    serializer = ChangeEmailSerializer(data = request.data)
+    serializer = ChangeEmailSerializer(data = request.data)    
     if serializer.is_valid(raise_exception = True):
-        useremail=request.data['email'].lower()
-        if useremail == user.email:
+        userpassword=serializer.data['password']
+        password,error=validate_password(userpassword,user.username)
+        if len(password)==0:
+            raise serializers.ValidationError(error)
+        #authenticate user
+        user=auth.authenticate(email=user.email, password=password)
+        if not user:
             return Response(
-                {'stat': 'New mail cannot be equal to old mail !!'},status=status.HTTP_400_BAD_REQUEST)
-        check = Account.objects.filter(email=useremail)
-            #Checking if user is already registered
-        if check:
-            return Response(
-                {'error': 'Email already registered!!'})
-        if validate_user_mail(useremail) != 'valid':
-            return Response(
-                {'error': 'Please enter a valid mail'})
-        user.email = useremail
-        user.save()
-        return Response({'stat': 'ok'}, status=status.HTTP_200_OK)
+                {'stat': 'incorrect password'},status=status.HTTP_400_BAD_REQUEST)
+        useremail=serializer.data['email'].lower()
+        response,statuss = change_user_email(useremail,user)
+        return Response(response, statuss)
 
 
-#  @swagger_auto_schema(method='put', operation_description="POST /accounts/profile-pic")
-# @action(detail=True, methods=['put'], parser_classes=(MultiPartParser,))@api_view(['PUT'])
 
+#upload profile
+@swagger_auto_schema(method='put', request_body=ProfileUserSerializer)
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((FormParser,))
 def upload_profile(request):
     try:
         user=request.user
@@ -578,8 +582,11 @@ def upload_profile(request):
         first,response= check_media_content_type(serializer,request.FILES['profile_pic'])
         return Response(first,status=response)
 
+#upload cover
+@swagger_auto_schema( methods = ['PUT'] , request_body = CoverUserSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((FormParser,))
 def upload_cover(request):
     try:
         user=request.user
@@ -590,7 +597,8 @@ def upload_cover(request):
         serializer = CoverUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['cover_photo'])
         return Response(first,status=response)
-                
+
+#following/unfollowing
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def follow_unfollow(request, userpk):
@@ -611,7 +619,7 @@ def follow_unfollow(request, userpk):
         response= unfollow(contact,request.user,followed_user_obj)
         return Response(status=response)
 
-
+#get followers list
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def followers_list(request):
@@ -643,7 +651,7 @@ def followers_list(request):
     
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+#get following list
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def following_list(request):
@@ -656,7 +664,7 @@ def following_list(request):
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+#get user following list
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def user_following(request, userpk):
@@ -687,6 +695,7 @@ def user_following(request, userpk):
 test_param = openapi.Parameter('username', openapi.IN_QUERY, description="Search for people with username", type=openapi.TYPE_STRING)
 user_response = openapi.Response('response description', OwnerSerializer)
 
+#search for user with username
 @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
 @api_view(['GET'])
 def search(request):
@@ -712,8 +721,8 @@ def search(request):
 test_param = openapi.Parameter('email', openapi.IN_QUERY, description="Search for people with email", type=openapi.TYPE_STRING)
 user_response = openapi.Response('response description', OwnerSerializer)
 
+#search for user with mail
 @swagger_auto_schema(method='get', manual_parameters=[test_param], responses={200: user_response})
-
 @api_view(['GET'])
 def search_email(request):
     paginator = PageNumberPagination()
@@ -731,7 +740,5 @@ def search_email(request):
         following_list = user.follow_follower.all().filter(followed__in=people).order_by('-date_create')
         result_page1 = paginator.paginate_queryset(following_list, request)
         following = FollowingSerializer(result_page1, many=True).data
-        print(following_list)
-        print(all_people)
 
     return paginator.get_paginated_response({'following': following, 'all_people': all_people})

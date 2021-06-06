@@ -44,4 +44,11 @@ class sets_serializer_post(serializers.ModelSerializer):
         model = sets
         fields = [ 'title', 'description', 'primary']
         extra_kwargs = {'owner': {'read_only': True}}
+
+class sets_serializer_post_swagger(serializers.ModelSerializer):
+    
+    class Meta:
+        model = sets
+        fields = [ 'title', 'description']
+        extra_kwargs = {'owner': {'read_only': True}}
         
