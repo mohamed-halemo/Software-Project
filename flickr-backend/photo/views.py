@@ -1079,48 +1079,6 @@ def photo_faves(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# def fav_photo(user,photo_obj):
-#     owner, _ = check_permission( user, photo_obj)
-#     if owner:
-#         response =status.HTTP_403_FORBIDDEN
-#         return response
-#     exist= check_existence_of_object_in_list(user, photo_obj.favourites.all())
-
-#     # if request.user not in photo_obj.favourites.all():
-#     if not exist:
-#         photo_obj.favourites.add(request.user)
-#         # increment the count of the users who faved this photo by 1
-#         increment_photo_meta_counts(photo_obj,'count_favourites')
-#         # send notification to photo owner when you faved his photo
-#         if photo_obj.faved_notification:
-#             turn_on = True
-#             show = True
-#             # # push notification
-#             header = {"Content-Type": "application/json; charset=utf-8",
-#             "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
-
-#             payload = {"app_id": str(settings.API_KEY),
-#                         "include_player_ids": [str(settings.PLAYER_ID)],
-#                     "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
-#                     # "big_picture": str("https://" + photo_obj.media_file)}
-                    
-#                     # "big_picture": "https://cdn.vox-cdn.com/thumbor/-cVT6oDpSP7kfe-0vdEKIdWlIuQ=/1400x1050/filters:format(png)/cdn.vox-cdn.com/uploads/chorus_asset/file/13370313/flickr.png"}
-
-#             req = requests.post("https://app.onesignal.com/api/v1/notifications",
-#                                 headers=header, data=json.dumps(payload))
-#         else:
-#             turn_on = False
-#             show = False
-#         Notification.objects.create(sender=request.user,
-#                                     user=photo_obj.owner,
-#                                     photo=photo_obj,
-#                                     notification_type=1,
-#                                     turn_on=turn_on,
-#                                     show=show)
-#         response =status.HTTP_200_OK
-#         return response
-#     response = status.HTTP_400_BAD_REQUEST
-#     return  response
 
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))

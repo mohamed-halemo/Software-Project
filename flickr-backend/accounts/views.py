@@ -635,16 +635,38 @@ def followers_list(request):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
     # check to make the flag if he is followed or not
-    # for one in following_list:
+    # for one in followers_list:
     #     account2=Account.objects.get(id=one.user.id)
-    #     for two in followers_list:
+    #     for two in following_list:
     #         account=Account.objects.get(id=two.user.id)
     #         account.is_followed= False
     #         account.save()
     #         if account == account2:
     #             account.is_followed=True
     #             account.save()
+    # for one in followers_list:
+    #     account=Account.objects.get(id=one.user.id)
+    #     account.is_followed=False
+    #     account.save()
+    #     print(account,account.is_followed,"LLLll")
+    #     for two in following_list:
+    #         account2=Account.objects.get(id=two.followed.id)
+    #         print(account2,account2.is_followed,"KKKKKKKKK")
+    #         print(two,"HHHHHHH")
+    #         if account == account2:
+    #             account.is_followed=True
+    #             account.save()
+    #             print(account,account.is_followed,"PPPPPPPPPPP")
 
+    # for one in followers_list:
+    #     account2=Contacts.objects.get(user=one, followed=user)
+    #     for two in following_list:
+    #         account=Contacts.objects.get(user=user, followed=two)
+    #         account.is_followed= False
+    #         account.save()
+    #         if account == account2:
+    #             account.is_followed=True
+    #             account.save()
                 
     serializer = FollowerSerializer(
         followers_list, many=True)
