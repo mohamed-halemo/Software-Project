@@ -1,6 +1,6 @@
 import 'package:android_flickr/Classes/globals.dart';
 import 'package:android_flickr/screens/get_started_page_screen.dart';
-import 'package:android_flickr/screens/upadte_profile_photos_screen.dart';
+import 'package:android_flickr/screens/update_profile_photos_screen.dart';
 import 'package:flutter/material.dart';
 import './tabbar_in_profile.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +120,15 @@ class _ProfileDisplayState extends State<ProfileDisplay> {
                                 case 1:
                                   break;
                                 case 3:
+                                  Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder:
+                                          (context, animation1, animation2) =>
+                                              UploadProfilePicScreen(3),
+                                      transitionDuration: Duration(seconds: 0),
+                                    ),
+                                  );
                                   break;
                                 case 4:
                                   Navigator.push(
@@ -127,7 +136,7 @@ class _ProfileDisplayState extends State<ProfileDisplay> {
                                     PageRouteBuilder(
                                       pageBuilder:
                                           (context, animation1, animation2) =>
-                                              UploadProfilePicScreen(3),
+                                              UploadProfilePicScreen(4),
                                       transitionDuration: Duration(seconds: 0),
                                     ),
                                   );
@@ -239,8 +248,6 @@ class _ProfileDisplayState extends State<ProfileDisplay> {
                                               'Edit profile photo',
                                               style: TextStyle(
                                                 color: Colors.black,
-                                                decoration:
-                                                    TextDecoration.lineThrough,
                                               ),
                                               textAlign: TextAlign.center,
                                             ),

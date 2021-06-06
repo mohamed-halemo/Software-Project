@@ -12,6 +12,7 @@ import 'package:circle_wheel_scroll/circle_wheel_scroll_view.dart';
 import 'package:android_flickr/screens/photo_upload_screen.dart';
 import 'package:android_flickr/Enums/enums.dart';
 import '../Classes/switch_Case_Helper.dart';
+import '../Classes/globals.dart' as globals;
 
 ///Photo Editing Screen, Can be Opened after taking a picture using the Camera Screen
 ///or can be opened from the Photo Screen using the Edit photo button.
@@ -19,6 +20,8 @@ import '../Classes/switch_Case_Helper.dart';
 class PhotoEditScreen extends StatefulWidget {
   ///Path and name of the image
   final imagePath;
+  final isFromClickOnImageScreen;
+  final profileEditMode;
 
   ///The Editing mode state variable
   BrushMode brushMode;
@@ -49,7 +52,8 @@ class PhotoEditScreen extends StatefulWidget {
   }
 
   ///Constructs the photo edit screen settting the imagePath variable.
-  PhotoEditScreen(this.imagePath);
+  PhotoEditScreen(
+      this.imagePath, this.isFromClickOnImageScreen, this.profileEditMode);
   @override
   PhotoEditScreenState createState() => PhotoEditScreenState();
 }
@@ -145,7 +149,7 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
             ),
             Align(
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (editedBitMap == null) {
                     editedBitMap = imageBitMap;
                   }
@@ -155,18 +159,21 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
                       DeviceOrientation.portraitDown,
                     ],
                   );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => PhotoUploadScreen(
-                        headedBitMap,
-                        editedBitMap,
-                      ),
-                    ),
-                  );
+                  widget.isFromClickOnImageScreen
+                      ? await saveAndPop()
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                PhotoUploadScreen(
+                              headedBitMap,
+                              editedBitMap,
+                            ),
+                          ),
+                        );
                 },
                 child: Text(
-                  'Next',
+                  widget.isFromClickOnImageScreen ? 'Save' : 'Next',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -525,5 +532,48 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
     setState(() {
       headedBitMap = editedBitMap.buildHeaded();
     });
+  }
+
+  //TODO unit test this function
+  ///Get default image title if no title was provided
+  //////On Post button press, Generate file name in the format of:
+  ///
+  /// YYYY-MM-DD_hh-mm-ss
+  ///
+  String getDateTimetitle(DateTime dT) {
+    return dT.year.toString() +
+        '-' +
+        dT.month.toString() +
+        '-' +
+        dT.day.toString() +
+        '_' +
+        dT.hour.toString() +
+        '-' +
+        dT.minute.toString() +
+        '-' +
+        dT.second.toString();
+  }
+
+  ///Then the image is saved on the local device in 'Flickr' folder, with jpg extension.
+  /// After Saving to device, the image is uploaded to the server along with any
+  /// available image info.
+  Future<void> postAndSaveImage(String imagePath) async {
+    await globals.HttpSingleton().postProfileCoverOrPic(
+      context: context,
+      imageName: getDateTimetitle(DateTime.now()),
+      imagePath: imagePath,
+      updateMode: widget.profileEditMode,
+    );
+  }
+
+  Future<void> saveAndPop() async {
+    widget.profileEditMode == 0
+        ? putRequest()
+        : await postAndSaveImage(widget.imagePath);
+  }
+
+  Future<void> putRequest() async {
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 }

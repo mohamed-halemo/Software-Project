@@ -221,7 +221,8 @@ class ClickOnImageDisplayPostDetailsState
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => PhotoEditScreen(filePathAndName),
+            builder: (BuildContext context) =>
+                PhotoEditScreen(filePathAndName, true, 0),
           ),
         );
       },

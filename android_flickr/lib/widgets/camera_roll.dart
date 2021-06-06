@@ -41,11 +41,11 @@ class CameraRollState extends State<CameraRoll> {
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     if (isinit)
-      Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
+      await Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
         isinit = false;
         gridDates.add(postsToDisplay.first.dateTaken);
         for (var i = 0; i < postsToDisplay.length; i++) {

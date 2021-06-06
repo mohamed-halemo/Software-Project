@@ -86,20 +86,39 @@ class HttpSingleton {
     for (var i = 0; i < tags.length; i++) {
       tagText += tags[i] + ' ';
     }
-    FormData formData = new FormData.fromMap(
-      {
-        'tag_text': tagText,
-      },
-    );
+    var url = Uri.https(HttpSingleton().getBaseUrl(),
+        isMockService ? '/login/' : 'api/photos/$photoID/tags');
+    print(url);
+    final response = await http.post(url,
+        body: json.encode(
+          {
+            'tag_text': tagText,
+          },
+        ),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer ' + accessToken,
+          HttpHeaders.contentTypeHeader: 'application/json'
+        });
 
-    await dio
-        .post(
-      '/api/photos/$photoID/tags',
-      data: formData,
-    )
-        .then((value) {
-      // print(value.data);
-    });
+    // dio.options.headers = {
+    //   HttpHeaders.authorizationHeader: 'Bearer ' + accessToken,
+    //   HttpHeaders.contentTypeHeader: 'application/json'
+    // };
+
+    // try {
+    //   await dio.post(
+    //     '/api/photos/$photoID/tags',
+    //     queryParameters:
+    //   ).then((value) {
+    //     print(value.data);
+    //   });
+    // } on DioError catch (e) {
+    //   print(e.requestOptions);
+    //   print(e.error);
+    //   print(e.response.data);
+    //   print(e.response.statusMessage);
+    //   print(e.response.statusCode);
+    // }
   }
 
   void postAndSaveImage(
@@ -202,7 +221,10 @@ class HttpSingleton {
     String imageName,
     String imagePath,
     BuildContext context,
+    int updateMode,
   }) async {
+    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
+    Navigator.of(context).pushNamed(ExploreScreen.routeName);
     File image = File(imagePath);
     var decodedImage = await decodeImageFromList(
       await FileImage(image).file.readAsBytes(),
@@ -210,18 +232,30 @@ class HttpSingleton {
     // print(decodedImage.width);
     // print(decodedImage.height);
 
-    FormData formData = new FormData.fromMap(
-      {
-        'title': imageName,
-        'is_public': false,
-        'photo_width': decodedImage.width,
-        'photo_height': decodedImage.height,
-        'cover_photo': await MultipartFile.fromFile(
-          image.path,
-          // contentType: new MediaType("image", "jpeg"),
-        ),
-      },
-    );
+    FormData formData;
+    updateMode == 4
+        ? formData = new FormData.fromMap(
+            {
+              'title': imageName,
+              'is_public': false,
+              'photo_width': decodedImage.width,
+              'photo_height': decodedImage.height,
+              'cover_photo': await MultipartFile.fromFile(
+                image.path,
+              ),
+            },
+          )
+        : formData = new FormData.fromMap(
+            {
+              'title': imageName,
+              'is_public': false,
+              'photo_width': decodedImage.width,
+              'photo_height': decodedImage.height,
+              'profile_pic': await MultipartFile.fromFile(
+                image.path,
+              ),
+            },
+          );
 
     Dio dio = new Dio(
       BaseOptions(
@@ -237,7 +271,11 @@ class HttpSingleton {
 
     try {
       await dio.put(
-        isMockService ? '/photos' : '/api/accounts/cover-photo',
+        isMockService
+            ? '/photos'
+            : updateMode == 4
+                ? '/api/accounts/cover-photo'
+                : '/api/accounts/profile-pic',
         data: formData,
         onSendProgress: (int sent, int total) {
           print('$sent $total');
@@ -250,8 +288,12 @@ class HttpSingleton {
         await HttpSingleton().tokenRefresh().then(
           (value) async {
             try {
-              await dio.post(
-                isMockService ? '/photos' : '/api/accounts/cover-photo',
+              await dio.put(
+                isMockService
+                    ? '/photos'
+                    : updateMode == 4
+                        ? '/api/accounts/cover-photo'
+                        : '/api/accounts/profile-pic',
                 data: formData,
                 onSendProgress: (int sent, int total) {
                   print('$sent $total');
@@ -265,7 +307,7 @@ class HttpSingleton {
         );
       }
     }
-    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
-    Navigator.of(context).pushNamed(ExploreScreen.routeName);
+    // Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
+    // Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
 }

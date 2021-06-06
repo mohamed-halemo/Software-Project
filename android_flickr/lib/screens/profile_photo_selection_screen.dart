@@ -1,3 +1,4 @@
+import 'package:android_flickr/screens/photo_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 import 'dart:io';
@@ -8,8 +9,10 @@ class ProfilePhotoSelectionScreen extends StatefulWidget {
   ///and the user should choose an image to upload.
   final Album _album;
 
+  final updateMode;
+
   ///Constructor, takes an album.
-  ProfilePhotoSelectionScreen(this._album);
+  ProfilePhotoSelectionScreen(this._album, this.updateMode);
   @override
   _ProfilePhotoSelectionScreenState createState() =>
       _ProfilePhotoSelectionScreenState();
@@ -155,48 +158,26 @@ class _ProfilePhotoSelectionScreenState
     return Container();
   }
 
-  //TODO unit test this function
-  ///Get default image title if no title was provided
-  //////On Post button press, Generate file name in the format of:
-  ///
-  /// YYYY-MM-DD_hh-mm-ss
-  ///
-  String getDateTimetitle(DateTime dT) {
-    return dT.year.toString() +
-        '-' +
-        dT.month.toString() +
-        '-' +
-        dT.day.toString() +
-        '_' +
-        dT.hour.toString() +
-        '-' +
-        dT.minute.toString() +
-        '-' +
-        dT.second.toString();
-  }
-
-  ///Then the image is saved on the local device in 'Flickr' folder, with jpg extension.
-  /// After Saving to device, the image is uploaded to the server along with any
-  /// available image info.
-  Future<void> postAndSaveImage(String imagePath) async {
-    await globals.HttpSingleton().postProfileCoverOrPic(
-      context: context,
-      imageName: getDateTimetitle(DateTime.now()),
-      imagePath: imagePath,
-    );
-  }
-
   ///For the Image of the passed index, Get the image file, get the image path, and pass it
   ///to the PhotoEditScreen and oush it to start editing the image.
   void pushEditScreen(int index) async {
     String imagePath;
-    await widget._album.listMedia().then((value) {
-      value.items[value.items.length - index - 1].getFile().then(
-        (value) async {
+    await widget._album.listMedia().then(
+      (value) {
+        value.items[value.items.length - index - 1]
+            .getFile()
+            .then((value) async {
           imagePath = value.path;
-          await postAndSaveImage(imagePath);
-        },
-      );
-    });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  PhotoEditScreen(imagePath, true, widget.updateMode),
+            ),
+          );
+        });
+        // await postAndSaveImage(imagePath);
+      },
+    );
   }
 }

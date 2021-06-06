@@ -403,7 +403,8 @@ class FlickrCameraScreenState extends State<FlickrCameraScreen>
           (value) => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => PhotoEditScreen(filePath),
+              builder: (BuildContext context) =>
+                  PhotoEditScreen(filePath, false, 0),
             ),
           ),
         );

@@ -171,7 +171,8 @@ class PhotoSelectionScreenState extends State<PhotoSelectionScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => PhotoEditScreen(imagePath),
+              builder: (BuildContext context) =>
+                  PhotoEditScreen(imagePath, false, 0),
             ),
           );
         });

@@ -32,7 +32,7 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
   var photoViewController = PhotoViewController();
 
   ///Scale of the Zoom of the photo.
-  var photoscale = 1.0;
+  var photoscale = 0.0;
 
   /// explore or puplic
   String isExOrPuplic = '';

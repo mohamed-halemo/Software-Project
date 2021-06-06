@@ -156,7 +156,8 @@ class _UploadProfilePicScreenState extends State<UploadProfilePicScreen> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                            ProfilePhotoSelectionScreen(gallery[index]),
+                            ProfilePhotoSelectionScreen(
+                                gallery[index], widget.uploadMode),
                         transitionDuration: Duration(seconds: 0),
                       ),
                     );
