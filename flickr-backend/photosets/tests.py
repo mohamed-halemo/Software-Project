@@ -1,6 +1,4 @@
 from django.test import TestCase
-from .models import sets
-from .models import commentss
 from .serializer import sets_serializer
 from .serializer import comments_serializer
 from rest_framework.response import Response
@@ -11,137 +9,236 @@ from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from . import urls
-from . import api
+from .api import *
+from project.permissions import check_permission
+from accounts.views import verifying_user
+from .models import *
 
 
-class SetsTestCase(APITestCase):
-    def test_create(self):
-        data = {"title": "testcase", "description": "test"}
-        self.post_set_url = reverse('create_lists')
-        response = self.client.post(self.post_set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+# Create your tests here.
+def create_test_user(email):
+#prepare user
+    first_name = 'test2'
+    last_name = 'name'
+    age = '50'
+    password = 'Kamel1234567'
+    email = email
+    Account.objects.create_user(email,first_name,last_name,age,password)
+    user=Account.objects.get(email = email)
+    verifying_user(user)
+    return user
 
-    def test_create_missing_parameter(self):
-        data = {"title": "testcase"}
-        self.post_set_url = reverse('create_lists')
-        response = self.client.post(self.post_set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class TestModels(TestCase):
+    def test_model(self):
     
-    def test_createcomment(self):
-        comment_test = sets.objects.create(title="set_test",
-                                           description="test")
-        data_id = comment_test.id
-        set_url = reverse('create_comment', kwargs={'id': data_id})
-        self.assertEqual(commentss.objects.count(), 0)
-        data = {"contents": "testcase"}
-        response = self.client.post(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(commentss.objects.count(), 1)
-
-    def test_createcomment_missing_parameter(self):
-        comment_test = sets.objects.create(title="set_test", 
-                                           description="test")
-        data_id = comment_test.id
-        set_url = reverse('create_comment', kwargs={'id': data_id})
-        self.assertEqual(commentss.objects.count(), 0)
-        data = {""}
-        response = self.client.post(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        set_obj = sets.objects.create(title="New set")
+        self.assertEqual(str(set_obj), "New set")
         
-    def test_editecomment(self):
-        comment = commentss.objects.create(contents="testcase")
-        data_1 = comment.id
-        set_url = reverse('edit_comment', kwargs={'id': data_1})
-        data = {"contents": "testcase"}
-        response = self.client.put(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+  
+    def test_objects_existence(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
 
-    def test_editecomment_missing_parameter(self):
-        comment = commentss.objects.create(contents="testcase")
-        data_1 = comment.id
-        set_url = reverse('edit_comment', kwargs={'id': data_1})
-        data = {""}
-        response = self.client.put(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        sets.objects.create(title='title',description='description',owner=user)
+        set_obj=sets.objects.all().first()
+        commentss.objects.create(contents='content',owner=user,sets=set_obj)
+        comment_obj=commentss.objects.all().first()
+        _, response, bool = check_set(set_obj.id)
+        _, response1, bool1=check_comm(set_obj,comment_obj.id)
+        _, response2, bool2=photos(photo_obj.id)
+        self.assertEqual(response,200)
+        self.assertEqual(bool, True)
+        self.assertEqual(response1,200)
+        self.assertEqual(bool1, True)
+        self.assertEqual(response2,200)
+        self.assertEqual(bool2, True)
+        
+    def test_objects_failure(self):
+        user=create_test_user('test@gmail.com')
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
+        photo_obj=Photo.objects.all().first()
 
-    def test_editemeta(self):
-        set = sets.objects.create(title="set_test", description="test")
-        data_1 = set.id
-        set_url = reverse('edit_meta', kwargs={'id': data_1})
-        data = {"title": "testcase", "description": "test"}
-        response = self.client.put(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        sets.objects.create(title='title',description='description',owner=user)
+        set_obj=sets.objects.all().first()
+        commentss.objects.create(contents='content',owner=user,sets=set_obj)
+        comment_obj=commentss.objects.all().first()
+        set_obj.delete()
+        photo_obj.delete()
+        comment_obj.delete()
+        _, response, bool = check_set(set_obj.id)
+        _, response1, bool1=check_comm(set_obj,comment_obj.id)
+        _, response2, bool2=photos(photo_obj.id)
+        self.assertEqual(response,404)
+        self.assertEqual(bool, False)
+        self.assertEqual(response1,404)
+        self.assertEqual(bool1, False)
+        self.assertEqual(response2,404)
+        self.assertEqual(bool2, False)
 
-    def test_editemeta_missing_parameter(self):
-        set = sets.objects.create(title="set_test", description="test")
-        data_1 = set.id
-        set_url = reverse('edit_meta', kwargs={'id': data_1})
-        data = {"title": "testcase"}
-        response = self.client.put(set_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_set_creation(self):
+        # prepare set data
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = sets_serializer_post(data = data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors,{})
+
+    def test_create_set_missing_title(self):
+        # prepare set data
+        data={}
+        description='description'
+        for variable in ["description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = sets_serializer_post(data = data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['title'][0],'This field is required.')
+
+    def test_change_set_title(self):
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = sets_serializer_post(data = data)
+        serializer.is_valid()
+        serializer.save()
+        obj=sets.objects.get(title=title)
+        title='new'
+        data={}
+        title='new'
+        for variable in ["title"]:
+            data[variable] = eval(variable)
+        changed_serializer= sets_serializer_post(obj,data=data) 
+        changed_serializer.is_valid()
+        changed_serializer.save()
+        set_obj=sets.objects.get(title=title)
+        self.assertEqual(set_obj.title,'new')
+
+
+    def test_change_set_description(self):
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+
+        #Sending data to serializer to test serializer
+        serializer = sets_serializer_post(data = data)
+        serializer.is_valid()
+        serializer.save()
+        obj=sets.objects.get(title=title)
+        data={}
+        title='title'
+        description='new'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
+        changed_serializer= sets_serializer_post(obj,data=data) 
+        changed_serializer.is_valid()
+        changed_serializer.save()
+        set_obj=sets.objects.get(title=title)
+        self.assertEqual(set_obj.description,'new')
 
     def test_delete_set(self):
-        set = sets.objects.create(title="set_test", description="test")
-        data_1 = set.id
-        set_url = reverse('delete_lists', kwargs={'id': data_1})
-        response = self.client.delete(set_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        data={}
+        title='title'
+        description='description'
+        for variable in ["title", "description"]:
+            data[variable] = eval(variable)
 
-    def test_delete_set_invalid(self):
-        set = sets.objects.create(title="set_test", description="test")
-        data_1 = set.id
-        set_url = reverse('delete_lists', kwargs={'id': 0})
-        response = self.client.delete(set_url,  format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        #Sending data to serializer to test serializer
+        serializer = sets_serializer_post(data = data)
+        serializer.is_valid()
+        serializer.save()
+        set_obj=sets.objects.get(title=title)
+        set_obj.delete()   
+        deleted_obj=sets.objects.filter(title=title)
+        self.assertEqual(deleted_obj.exists(),False)
 
-    def test_delete_comment(self):
-        comment = commentss.objects.create(contents="testcase")
-        data_1 = comment.id
-        set_url = reverse('delete_comment', kwargs={'id': data_1})
-        response = self.client.delete(set_url,  format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_delete_comment_invalid(self):
-        comment = commentss.objects.create(contents="testcase")
-        data_1 = comment.id
-        set_url = reverse('delete_comment', kwargs={'id': 0})
-        response = self.client.delete(set_url,  format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_getecomment(self):
-        comment_test = sets.objects.create(title="set_test",
-                                           description="test")
-        data_id = comment_test.id
-        self.assertEqual(commentss.objects.count(), 0)
-        comment = commentss.objects.create(contents="testcase")
-        comment.contents = "testcase"
-        data_1 = comment.id
-        set_url = reverse('get_comment', kwargs={'id': data_id})
-        response = self.client.get(set_url,  format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_getecomment_invalid(self):
-        comment_test = sets.objects.create(title="set_test", 
-                                           description="test")
-        data_id = comment_test.id
-        self.assertEqual(commentss.objects.count(), 0)
-        comment = commentss.objects.create(contents="testcase")
-        comment.contents = "testcase"
-        data_1 = comment.id
-        set_url = reverse('get_comment', kwargs={'id': 0})
-        response = self.client.get(set_url,  format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_add_existed_photo_in_set_failure(self):
+        owner=create_test_user('test@gmail.com') # trying to add an existing photo
+        title='title2'
+        description= 'description2'
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=owner)
+        photo_obj= Photo.objects.all().first()
+        sets.objects.create(owner=owner, title=title,description=description)
+        set_obj=sets.objects.all().first()
+        self.assertEqual(set_obj.title,'title2')
+        add_photo(photo_obj,set_obj)
+        response, statuss= exist_photo(set_obj, photo_obj)
+        self.assertEqual(statuss,403)  
+        self.assertEqual(response['stat'],'fail')
 
-    # def test_getset(self):
-    #     set_test = sets.objects.create(title="set_test", description="test")
-    #     data_id = set_test.owner
-    #     set_url = reverse('get_lists', kwargs={'owner':" "})
-    #     response = self.client.get(set_url,  format= 'json')
-    #     self.assertEqual(response.status_code, response.data)
 
-    # def test_getset_invalid(self):
-    #     set_test = sets.objects.create(title="set_test", description="test")
-    #     data_id = set_test.id
-    #     set_url = reverse('get_lists', kwargs={'owner':" "})
-    #     response = self.client.get(set_url,  format= 'json')
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_delete_existed_photo_in_set_success(self):
+        owner=create_test_user('test@gmail.com') # deleting an existing photo
+        title='title2'
+        description= 'description2'
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=owner)
+        photo_obj= Photo.objects.all().first()
+        sets.objects.create(owner=owner, title=title,description=description)
+        set_obj=sets.objects.all().first()
+        self.assertEqual(set_obj.title,'title2')
+        add_photo(photo_obj,set_obj)
+        delete_photo(set_obj, photo_obj)
+        response, statuss= exist_photo(set_obj, photo_obj)
+        self.assertEqual(statuss,'')  
+        self.assertEqual(response,'')
+
+
+    def test_delete_existed_photo_in_set_failure(self):
+        owner=create_test_user('test@gmail.com') # trying to delete non existing photo in a set
+        title='title2'
+        description= 'description2'
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=owner)
+        photo_obj= Photo.objects.all().first()
+        Photo.objects.create(
+            media_file='api/media/123.png',photo_height=123,photo_width=22,
+            owner=owner)
+        photo_obj2= Photo.objects.all().last()
+        sets.objects.create(owner=owner, title=title,description=description)
+        set_obj=sets.objects.all().first()
+        self.assertEqual(set_obj.title,'title2')
+        add_photo(photo_obj,set_obj)
+        delete_photo(set_obj, photo_obj2)
+        response, statuss= exist_photo(set_obj, photo_obj)
+        self.assertEqual(statuss,403)  
+        self.assertEqual(response['stat'],'fail')
+        
+    def test_search_set_with_title_found(self):
+        user=create_test_user('test@gmail.com')
+        sets.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_set('t')
+        self.assertEqual(response,'')    
+        self.assertEqual(bool,True)      
+
+
+    def test_search_set_with_title_no_found(self):
+        user=create_test_user('test@gmail.com')
+        sets.objects.create(title='title',description='description',owner=user)
+        bool,response,_=search_set('a')
+        self.assertEqual(response,404)    
+        self.assertEqual(bool,False)
+
+    

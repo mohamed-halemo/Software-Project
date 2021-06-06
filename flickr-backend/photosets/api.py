@@ -20,6 +20,8 @@ from photo.serializers import *
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+
+
 class RespondPagination(PageNumberPagination):
     page_size = 1
     page_size_query_param = 'page_size'
@@ -43,6 +45,22 @@ def photos (photo_id):   # to get a photo from the database
         bool = False
         return get_photo, response, bool
         
+def add_photo(get_photo,get_list):
+    get_photo.sets_photos.add(get_list)
+
+def delete_photo(get_list, deleted_photo):
+    get_list.photos.remove(deleted_photo)
+
+def search_set(value):
+    response=''
+    bool= False
+    set = sets.objects.filter(title__icontains=value)\
+    .order_by('-date_create')
+    if set:
+        bool= True
+    else:
+       response = status.HTTP_404_NOT_FOUND
+    return bool, response, set
         
     
 def check_set(id):

@@ -34,7 +34,8 @@ from django.utils.translation import gettext_lazy as _
 import requests
 import json
 from django.db.models import Count, F, Q, Max
-
+from rest_framework.parsers import FormParser
+from rest_framework.decorators import parser_classes
 
 #Functionality
 def verifying_user(user):
@@ -563,8 +564,13 @@ def ChangeEmail(request):
         response,statuss = change_user_email(useremail,user)
         return Response(response, statuss)
 
+
+
 #upload profile
+@swagger_auto_schema(method='put', request_body=ProfileUserSerializer)
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((FormParser,))
 def upload_profile(request):
     try:
         user=request.user
@@ -580,6 +586,7 @@ def upload_profile(request):
 @swagger_auto_schema( methods = ['PUT'] , request_body = CoverUserSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((FormParser,))
 def upload_cover(request):
     try:
         user=request.user

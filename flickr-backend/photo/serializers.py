@@ -32,6 +32,10 @@ class PhotoCommentSerializer(serializers.ModelSerializer):
         fields = ['comment_id', 'author', 'date_created', 'comment_text']
         extra_kwargs={'author': {'read_only':True}, 'photo':{'read_only':True}}
 
+class CreatePhotoCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['comment_text']
 
 class PhotoNoteSerializer(serializers.ModelSerializer):
     author = OwnerSerializer(read_only=True)
@@ -42,6 +46,12 @@ class PhotoNoteSerializer(serializers.ModelSerializer):
             'note_width', 'note_height', 'note_text']
         extra_kwargs={'author': {'read_only':True}, 'photo':{'read_only':True}}
 
+class CreatePhotoNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = [
+            'left_coord', 'top_coord',
+            'note_width', 'note_height', 'note_text']
 
 class PhotoTagSerializer(serializers.ModelSerializer):
     author = OwnerSerializer(read_only=True)
@@ -49,6 +59,11 @@ class PhotoTagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['tag_id', 'author', 'tag_text']
         extra_kwargs={'author': {'read_only':True}, 'photo':{'read_only':True}}
+
+class CreatePhotoTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = [ 'tag_text']
 
 
 class PeopleTaggingSerializer(serializers.ModelSerializer):
@@ -103,3 +118,4 @@ class PhotoUploadSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'photo_displaypx': {'read_only': True},
             'owner': {'read_only': True}}
+

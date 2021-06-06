@@ -1,3 +1,4 @@
+from typing import Type
 from .models import *
 from accounts.models import *
 from .serializers import *
@@ -29,7 +30,9 @@ from notifications.models import *
 # push notifications
 import requests
 import json
-
+from django.core.files import File
+from rest_framework.parsers import FormParser
+from rest_framework.decorators import parser_classes
 
 
 # Create your views here.
@@ -40,6 +43,7 @@ class RespondPagination(PageNumberPagination):
 
 
 # Set or Get photo permissions APIs
+@swagger_auto_schema( methods = ['PUT'] , request_body = PhotoPermSerializer )
 @api_view(['PUT','GET'])
 @permission_classes((IsAuthenticated,))
 def set_or_get_perms(request, id):
@@ -89,6 +93,7 @@ def set_or_get_perms(request, id):
 
 
 # Set photo meta API
+@swagger_auto_schema( methods = ['PUT'] , request_body = PhotoMetaSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def set_meta(request, id):
@@ -136,6 +141,7 @@ def set_meta(request, id):
 
 
 # Set photo dates API
+@swagger_auto_schema( methods = ['PUT'] , request_body = PhotoDatesSerializer)
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def set_dates(request, id):
@@ -227,6 +233,7 @@ def set_dates(request, id):
 
 
 # Edit or delete photo comment APIs
+@swagger_auto_schema( methods = ['PUT'] , request_body = CreatePhotoCommentSerializer) 
 @api_view(['PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def edit_or_delete_comment(request, id):
@@ -292,6 +299,7 @@ def edit_or_delete_comment(request, id):
 
 
 # Edit or delete photo note APIs
+@swagger_auto_schema( methods = ['PUT'] , request_body = CreatePhotoNoteSerializer) 
 @api_view(['PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def edit_or_delete_note(request, id):
@@ -430,6 +438,7 @@ def delete_photo_or_get_photo_info(request, id):
 
 
 # Add a photo note or get photo notes APIs
+@swagger_auto_schema( methods = ['post'] , request_body = CreatePhotoNoteSerializer) 
 @api_view(['POST', 'GET'])
 @permission_classes((IsAuthenticated,))
 def add_note_or_get_photo_notes(request, id):
@@ -527,6 +536,7 @@ def add_note_or_get_photo_notes(request, id):
 
 
 # Add a photo comment or get photo comments APIs
+@swagger_auto_schema( methods = ['post'] , request_body = CreatePhotoCommentSerializer) 
 @api_view(['POST', 'GET'])
 @permission_classes((IsAuthenticated,))
 def add_comment_or_get_photo_comments(request, id):
@@ -600,6 +610,7 @@ def add_comment_or_get_photo_comments(request, id):
 
 
 # Add or get photo tags APIs
+@swagger_auto_schema( methods = ['post'] , request_body = CreatePhotoTagSerializer) 
 @api_view(['POST', 'GET'])
 @permission_classes((IsAuthenticated,))
 def add_or_get_tags(request, id):
@@ -721,6 +732,7 @@ def remove_tag(request, id):
 
 
 # Tag or untag person in photo API
+@swagger_auto_schema( methods = ['post'] , request_body = PeopleTaggingSerializer) 
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def tag_or_untag_person(request, photo_id, person_id):
@@ -735,6 +747,7 @@ def tag_or_untag_person(request, photo_id, person_id):
             permission = get_photo_permission(photo, 'meta')
             # Only owner is allowed
             if (permission == 'Only The Owner') and (request.user != photo.owner):
+
                 return Response(
                     {'stat': 'fail',
                      'message': 'User does not have permission to tag'
@@ -857,6 +870,15 @@ def get_recent_photos(request):
 
 
 # Photo search API
+
+# test_param = openapi.Parameter('search_text', openapi.IN_QUERY, description="Search for a photo with search_text", type=openapi.TYPE_STRING)
+
+# test_param2 = openapi.Parameter('all_or_tags', openapi.IN_QUERY, description="Search for a photo with tags or all", type=openapi.TYPE_STRING)
+
+# user_response = openapi.Response('response description', )
+
+# @swagger_auto_schema(method='get', manual_parameters=[test_param,test_param2], responses={200: user_response})
+
 @api_view(['GET'])
 def search_photos(request):
 
@@ -982,6 +1004,7 @@ def search_photos(request):
 
 
 # Rotate photo API
+@swagger_auto_schema( methods = ['put'] , request_body = PhotoRotationSerializer) 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def rotate_photo(request, id):
@@ -1165,32 +1188,35 @@ def fav_photo(request, id):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+@swagger_auto_schema(method='post', request_body=PhotoUploadSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
+@parser_classes((FormParser,))
 def upload_media(request):
     #upload photo one at a time
-    if request.method == 'POST':
-        parser_classes = (MultiPartParser, FormParser)
-        serializer = PhotoUploadSerializer(data=request.data)
-        empty,msg,response = check_existence_of_media_file(request.data)
-        if empty :
-            return Response( {'message': str(msg)}, status=response)
-        if serializer.is_valid():
-            file_field = request.FILES['media_file']
-            height = request.data['photo_height']
-            width = request.data['photo_width']
+    parser_classes = (MultiPartParser, FormParser)
+    serializer = PhotoUploadSerializer(data=request.data)
+    empty,msg,response = check_existence_of_media_file(request.data)
+    if empty :
+        return Response( {'message': str(msg)}, status=response)
+    if serializer.is_valid():
+        file_field = request.FILES['media_file']
+        height = request.data['photo_height']
+        width = request.data['photo_width']
 
-            pixels,message,response,success= upload(file_field,request.user,width,height)
-            if success:
-                increment_profile_items(request.user,'total_media')
-                serializer.save(photo_displaypx=pixels, owner=request.user)
-                # increment the count of media 
-                return Response({'message': str(message)},status=response,)
-            else:
-                return Response(serializer.errors, status=response)                
+        pixels,message,response,success= upload(file_field,request.user,width,height)
+        if success:
+            increment_profile_items(request.user,'total_media')
+            serializer.save(photo_displaypx=pixels, owner=request.user)
+            # increment the count of media 
+            return Response({'message': str(message)},status=response,)
         else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=response)                
+    else:
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
