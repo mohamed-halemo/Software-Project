@@ -11,20 +11,29 @@ class YourGroups with ChangeNotifier {
   List<Map<String, dynamic>> adminSerializer;
   List<FlickrGroup> _myGroups = [];
   Future<void> mainServerMyGroups() async {
+    _myGroups = [];
     var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
         globals.isMockService ? '/group/' : 'api/group/');
-    final response = await http
-        .get(url, headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+    final response = await http.get(
+      url,
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+        HttpHeaders.authorizationHeader: 'Bearer ${globals.accessToken}'
+      },
+    );
+    print(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200) {
       myJason = json.decode(response.body);
-      adminSerializer = myJason['admin_serializer'];
-      print(myJason);
-      for (var i = 0; i < adminSerializer.length; i++) {
+      for (var i = 0; i < myJason['admin_serializer'].length; i++) {
         _myGroups.add(FlickrGroup(
-            discussionCount: adminSerializer[i]['group']['topic_count'],
-            groupName: adminSerializer[i]['group']['name'],
-            memberCount: adminSerializer[i]['group']['member_count'],
-            photoCount: adminSerializer[i]['group']['pool_count']));
+          groupName: myJason['admin_serializer'][i]['group']['name'],
+          discussionCount: myJason['admin_serializer'][i]['group']
+              ['topic_count'],
+          memberCount: myJason['admin_serializer'][i]['group']['member_count'],
+          photoCount: myJason['admin_serializer'][i]['group']['pool_count'],
+          id: myJason['admin_serializer'][i]['group']['id'],
+        ));
       }
     }
   }
