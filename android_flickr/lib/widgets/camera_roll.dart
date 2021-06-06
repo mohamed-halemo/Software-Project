@@ -23,7 +23,7 @@ class CameraRoll extends StatefulWidget {
 ///as well as all it's state variables
 class CameraRollState extends State<CameraRoll> {
   ///Bool used to determine if the user library has Posts or not.
-  bool hasImages = false;
+  bool hasImages = true;
 
   bool isinit = true;
 
@@ -229,7 +229,7 @@ class CameraRollState extends State<CameraRoll> {
           ],
         );
       },
-      itemCount: gridDates.length,
+      itemCount: gridDates.isEmpty ? 0 : gridDates.length,
     );
   }
 }

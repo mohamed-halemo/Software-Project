@@ -335,7 +335,7 @@ class Posts with ChangeNotifier {
 
             description: postDetails['description'], //found
             privacy: postDetails['is_public'], //found
-            dateTaken: DateFormat('dd-MM-yyyy')
+            dateTaken: DateFormat('yyyy-MM-ddTHH:mm:ss.mmmmmmz')
                 .parse(postDetails['date_posted']), //found
           ),
         );
