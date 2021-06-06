@@ -3,6 +3,24 @@ import 'package:flutter/material.dart';
 class NewDiscussion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    void _showError(String message) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          content: Text(message),
+          actions: <Widget>[
+            Divider(),
+            FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            )
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

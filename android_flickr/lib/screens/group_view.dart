@@ -3,6 +3,8 @@ import '../widgets/groups_tab_bar.dart';
 
 /// Group view including photos and discussions
 class GroupView extends StatefulWidget {
+  final int groupId;
+  GroupView(this.groupId);
   @override
   GroupViewState createState() => GroupViewState();
 }

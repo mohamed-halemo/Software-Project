@@ -1,6 +1,7 @@
 import 'package:android_flickr/screens/new_discussion.dart';
 import 'package:flutter/material.dart';
 import 'package:android_flickr/widgets/public_view_grid.dart';
+import 'package:path/path.dart';
 
 /// The Appbar of the groups view
 class GroupsTabBar extends StatelessWidget {
@@ -32,32 +33,41 @@ class GroupsTabBar extends StatelessWidget {
         body: TabBarView(
           children: [
             PublicViewGrid(true),
-            Column(
-              children: <Widget>[
-                Padding(padding: EdgeInsets.all(10)),
-                Center(
-                  child: OutlineButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NewDiscussion()));
-                    },
-                    child: Text(
-                      'New Discussion',
-                      style: TextStyle(
-                        fontSize: 20,
+            Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.all(10)),
+                  Center(
+                    child: OutlineButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => NewDiscussion()));
+                      },
+                      child: Text(
+                        'New Discussion',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      borderSide: BorderSide(
+                        color: Colors.black,
+                        style: BorderStyle.solid,
+                        width: 1.5,
                       ),
                     ),
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      style: BorderStyle.solid,
-                      width: 1.5,
-                    ),
+                    //heightFactor: 2,
                   ),
-                  //heightFactor: 2,
-                ),
-              ],
+                  // ListView.builder(
+                  //   shrinkWrap: true,
+                  //   itemBuilder: (context, index) {
+                  //     return Container();
+                  //   },
+                  // ),
+                ],
+              ),
             ),
           ],
         ),
