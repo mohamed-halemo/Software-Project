@@ -130,7 +130,7 @@ class MyApp extends StatelessWidget {
         ),
         home: FlickrSplashScreen(
           globals.accessToken == '' ? GetStartedScreen() : ExploreScreen(),
-          true,
+          globals.accessToken == '' ? true : false,
         ),
         //NonProfileScreen()
         /*  FlickrSplashScreen(

@@ -95,6 +95,8 @@ flutter:
   assets:
     - assets/images/
   #   - images/a_dot_ham.jpeg
+    - assets/images/BlackCover.jpg
+    - assets/images/FlickrDefaultProfilePic.jpg
     - assets/images/flickr_loading_screen.gif
     - assets/images/placeholder.png
     - assets/images/GetStartedScreens/GetStartedScreenSlide2.png

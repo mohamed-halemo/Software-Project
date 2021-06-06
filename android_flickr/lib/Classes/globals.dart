@@ -197,4 +197,75 @@ class HttpSingleton {
     Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
     Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
+
+  Future<void> postProfileCoverOrPic({
+    String imageName,
+    String imagePath,
+    BuildContext context,
+  }) async {
+    File image = File(imagePath);
+    var decodedImage = await decodeImageFromList(
+      await FileImage(image).file.readAsBytes(),
+    );
+    // print(decodedImage.width);
+    // print(decodedImage.height);
+
+    FormData formData = new FormData.fromMap(
+      {
+        'title': imageName,
+        'is_public': false,
+        'photo_width': decodedImage.width,
+        'photo_height': decodedImage.height,
+        'cover_photo': await MultipartFile.fromFile(
+          image.path,
+          // contentType: new MediaType("image", "jpeg"),
+        ),
+      },
+    );
+
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: 'https://' + HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.authorizationHeader: 'Bearer ' + accessToken,
+      HttpHeaders.contentTypeHeader: 'multipart/form-data'
+    };
+
+    // print(formData.fields.toString());
+
+    try {
+      await dio.put(
+        isMockService ? '/photos' : '/api/accounts/cover-photo',
+        data: formData,
+        onSendProgress: (int sent, int total) {
+          print('$sent $total');
+        },
+      );
+    } on DioError catch (e) {
+      print(e.response.data);
+      print(e.response.statusCode);
+      if (e.response.statusCode == 401) {
+        await HttpSingleton().tokenRefresh().then(
+          (value) async {
+            try {
+              await dio.post(
+                isMockService ? '/photos' : '/api/accounts/cover-photo',
+                data: formData,
+                onSendProgress: (int sent, int total) {
+                  print('$sent $total');
+                },
+              );
+            } on DioError catch (e) {
+              print(e.response.data);
+              print(e.response.statusCode);
+            }
+          },
+        );
+      }
+    }
+    Navigator.popUntil(context, ModalRoute.withName(ExploreScreen.routeName));
+    Navigator.of(context).pushNamed(ExploreScreen.routeName);
+  }
 }
