@@ -1061,6 +1061,10 @@ def faves_list(request):
     # GET
     user = request.user
     faves_list = user.post_favourite.all()
+    for photo in faves_list:
+        photo.is_faved= True
+        photo.save()
+
     serializer = PhotoSerializer(
         faves_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1077,6 +1081,7 @@ def photo_faves(request, id):
     serializer = OwnerSerializer(
         users, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 
@@ -1187,7 +1192,11 @@ def get_public(request, id):
     except ObjectDoesNotExist:
         
         return Response(status=status.HTTP_404_NOT_FOUND)
-
+    for photo in get_list:  
+        if request.user in photo.favourites.all():
+            photo.is_faved= True
+        else:
+            photo.is_faved= False
     #  for pagination
     Paginator = RespondPagination()
     results = Paginator.paginate_queryset(get_list, request)
@@ -1252,10 +1261,20 @@ def Home(request):
         following_photos, following_list_ids= get_photos_of_the_followed_people(request.user)
         following_photos= limit_photos_number(following_photos,150)
         Paginator = RespondPagination()
+        for photo in following_photos:  
+            if request.user in photo.favourites.all():
+                photo.is_faved= True
+            else:
+                photo.is_faved= False
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
         public_photos= get_photos_of_public_people(request.user)
         public_photos= limit_photos_number(public_photos,150)
+        for photo in public_photos:  
+            if request.user in photo.favourites.all():
+                photo.is_faved= True
+            else:
+                photo.is_faved= False
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
     return Paginator.get_paginated_response({'following_photos': following_photos,'public_photos': public_photos})

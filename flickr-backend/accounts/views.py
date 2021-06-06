@@ -634,39 +634,17 @@ def followers_list(request):
         followers_list = user.follow_followed.all().order_by('-date_create')
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
-    # check to make the flag if he is followed or not
-    # for one in followers_list:
-    #     account2=Account.objects.get(id=one.user.id)
-    #     for two in following_list:
-    #         account=Account.objects.get(id=two.user.id)
-    #         account.is_followed= False
-    #         account.save()
-    #         if account == account2:
-    #             account.is_followed=True
-    #             account.save()
-    # for one in followers_list:
-    #     account=Account.objects.get(id=one.user.id)
-    #     account.is_followed=False
-    #     account.save()
-    #     print(account,account.is_followed,"LLLll")
-    #     for two in following_list:
-    #         account2=Account.objects.get(id=two.followed.id)
-    #         print(account2,account2.is_followed,"KKKKKKKKK")
-    #         print(two,"HHHHHHH")
-    #         if account == account2:
-    #             account.is_followed=True
-    #             account.save()
-    #             print(account,account.is_followed,"PPPPPPPPPPP")
 
-    # for one in followers_list:
-    #     account2=Contacts.objects.get(user=one, followed=user)
-    #     for two in following_list:
-    #         account=Contacts.objects.get(user=user, followed=two)
-    #         account.is_followed= False
-    #         account.save()
-    #         if account == account2:
-    #             account.is_followed=True
-    #             account.save()
+    for one in followers_list:
+        account=Account.objects.get(id=one.user.id)
+        account.is_followed=False
+        account.save()
+        for two in following_list:
+            account2=Account.objects.get(id=two.followed.id)
+            if account == account2:
+                account.is_followed=True
+                account.save()
+    followers_list = user.follow_followed.all().order_by('-date_create')
                 
     serializer = FollowerSerializer(
         followers_list, many=True)
@@ -682,6 +660,11 @@ def following_list(request):
         following_list = user.follow_follower.all().order_by('-date_create')
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    for one in following_list:
+        account=Account.objects.get(id=one.followed.id)
+        account.is_followed=True
+        account.save()   
+    following_list = user.follow_follower.all().order_by('-date_create')     
     serializer = FollowingSerializer(
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -697,22 +680,25 @@ def user_following(request, userpk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     try:
 
-        user = request.user
-        following_list_user = user.follow_follower.all().order_by('-date_create')
+        logged_user = request.user
+        following_list_user = logged_user.follow_follower.all().order_by('-date_create')
     except:
-        return Response(status=status.HTTP_404_NOT_FOUND)     
-    # check to make the flag if he is followed or not
-    # for one in following_list:
-    #     account2=Account.objects.get(id=one.user.id)
-    # for two in following_list_user:
-    #     account=Account.objects.get(id=two.user.id)
-    #     account.is_followed= False
-    #     if account == account2:
-    #         account.is_followed=True
-
+        following_list_user=[]
+    # check to make the flag if he is followed or not     
+    for one in following_list:
+        account=Account.objects.get(id=one.followed.id)
+        account.is_followed=False
+        account.save()
+        for two in following_list_user:
+            account2=Account.objects.get(id=two.followed.id)
+            if account == account2:
+                account.is_followed=True
+                account.save() 
+    following_list = user.follow_follower.all().order_by('-date_create')   
     serializer = FollowingSerializer(
         following_list, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)                    
+    return Response(serializer.data, status=status.HTTP_200_OK)       
+                 
 
 test_param = openapi.Parameter('username', openapi.IN_QUERY, description="Search for people with username", type=openapi.TYPE_STRING)
 user_response = openapi.Response('response description', OwnerSerializer)
