@@ -20,6 +20,8 @@ class PicPosterDetails with ChangeNotifier {
   int followingCount;
   String profilePicUrl;
   String profileCoverPhoto;
+  int followersCount;
+  int followingCount;
   PicPosterDetails(
     this.profileId,
     this.name,
@@ -30,6 +32,8 @@ class PicPosterDetails with ChangeNotifier {
     this.followingCount,
     this.profilePicUrl,
     this.profileCoverPhoto,
+    this.followersCount,
+    this.followingCount,
   );
   void notify() {
     notifyListeners();
