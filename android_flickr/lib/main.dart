@@ -85,11 +85,6 @@ class MyApp extends StatelessWidget {
 
     ///Remove this method to stop OneSignal Debugging
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
-    var playerId;
-    var status =
-        OneSignal.shared.getPermissionSubscriptionState().then((value) {
-      playerId = value.subscriptionStatus.userId;
-    });
 
     OneSignal.shared.init("494522f0-cedd-4d54-b99b-c12ac52f66a6", iOSSettings: {
       OSiOSSettings.autoPrompt: false,
@@ -104,7 +99,10 @@ class MyApp extends StatelessWidget {
 
     /// will be called whenever a notification is opened/button pressed.
     OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {});
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+      globals.notifications.add(result);
+      print(result);
+    });
 
     var status =
         OneSignal.shared.getPermissionSubscriptionState().then((value) {
@@ -144,13 +142,12 @@ class MyApp extends StatelessWidget {
           primarySwatch: primBlack.primaryBlack,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home:
-            FlickrSplashScreen(
+        home: FlickrSplashScreen(
           globals.accessToken == '' ? GetStartedScreen() : ExploreScreen(),
           globals.accessToken == '' ? true : false,
-        ), 
-            //NonProfileScreen()
-            //FlickrSplashScreen(GetStartedScreen(), true),
+        ),
+        //NonProfileScreen()
+        //FlickrSplashScreen(GetStartedScreen(), true),
         routes: {
           ExploreScreen.routeName: (ctx) => ExploreScreen(),
           ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),
