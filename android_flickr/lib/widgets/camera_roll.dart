@@ -47,8 +47,10 @@ class CameraRollState extends State<CameraRoll> {
     if (isinit)
       await Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
         isinit = false;
+        print(postsToDisplay.first.dateTaken);
         gridDates.add(postsToDisplay.first.dateTaken);
         for (var i = 0; i < postsToDisplay.length; i++) {
+          print(postsToDisplay[i].dateTaken);
           if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
             gridDates.add(postsToDisplay[i].dateTaken);
           }

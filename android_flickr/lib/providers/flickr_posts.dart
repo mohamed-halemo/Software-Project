@@ -253,18 +253,18 @@ class Posts with ChangeNotifier {
         //int postUrl = postDetails['id'] * 2;
         //print(postDetails['title']);
         //print(postDetails['title'].length);
-        var dateNow = DateTime.now();
-        dateNow = DateFormat('dd-MM-yyyy')
-            .parse(DateFormat('dd-MM-yyyy').format(dateNow));
+        // var dateNow = DateTime.now();
+        // dateNow = DateFormat('dd-MM-yyyy')
+        //     .parse(DateFormat('dd-MM-yyyy').format(dateNow));
 
-        final difference = dateNow
-            .difference(
-                DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']))
-            .inDays;
+        // final difference = dateNow
+        //     .difference(
+        //         DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']))
+        //     .inDays;
         //print();
-        print(dateNow);
-        print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
-        print(difference);
+        // print(dateNow);
+        // print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
+        // print(difference);
         if (!loadedPicPosterProfilesIds.contains(
           postDetails['owner']['id'].toString(),
         )) {
@@ -335,9 +335,15 @@ class Posts with ChangeNotifier {
 
             description: postDetails['description'], //found
             privacy: postDetails['is_public'], //found
-            dateTaken: DateFormat('yyyy-MM-ddTHH:mm:ss.mmmmmmz')
+            dateTaken: DateFormat('yyyy-MM-dd')
                 .parse(postDetails['date_posted']), //found
           ),
+        );
+        print(
+          'Zaka: ' +
+              DateFormat('yyyy-MM-dd')
+                  .parse(postDetails['date_posted'])
+                  .toString(),
         );
       },
     );

@@ -136,21 +136,23 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               SizedBox(
                 height: 5,
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.postDetails.description == ''
-                      ? 'Add description'
-                      : widget.postDetails.description,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: widget.postDetails.description == ''
-                        ? Colors.grey.shade500
-                        : Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
+              widget.isFromPersonalProfile
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.postDetails.description == ''
+                            ? 'Add description'
+                            : widget.postDetails.description,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: widget.postDetails.description == ''
+                              ? Colors.grey.shade500
+                              : Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                  : Container(),
               SizedBox(
                 height: 20,
               ),
@@ -329,6 +331,24 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                         ],
                       ),
               ),
+              SizedBox(
+                height: 40,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Delete photo',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),
