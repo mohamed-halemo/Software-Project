@@ -51,7 +51,7 @@ class GroupViewState extends State<GroupView> {
           ),
         ];
       },
-      body: GroupsTabBar(),
+      body: GroupsTabBar(widget.groupId),
     );
   }
 }

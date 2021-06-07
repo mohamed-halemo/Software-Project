@@ -1,10 +1,18 @@
 import 'package:android_flickr/screens/new_discussion.dart';
+import 'package:android_flickr/widgets/groups_photo_view.dart';
 import 'package:flutter/material.dart';
 import 'package:android_flickr/widgets/public_view_grid.dart';
 import 'package:path/path.dart';
 
 /// The Appbar of the groups view
-class GroupsTabBar extends StatelessWidget {
+class GroupsTabBar extends StatefulWidget {
+  final int id;
+  GroupsTabBar(this.id);
+  @override
+  _GroupsTabBarState createState() => _GroupsTabBarState();
+}
+
+class _GroupsTabBarState extends State<GroupsTabBar> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -32,7 +40,7 @@ class GroupsTabBar extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            PublicViewGrid(true),
+            GroupsPhotoView(widget.id),
             Container(
               height: MediaQuery.of(context).size.height * 0.5,
               child: Column(
@@ -60,12 +68,6 @@ class GroupsTabBar extends StatelessWidget {
                     ),
                     //heightFactor: 2,
                   ),
-                  // ListView.builder(
-                  //   shrinkWrap: true,
-                  //   itemBuilder: (context, index) {
-                  //     return Container();
-                  //   },
-                  // ),
                 ],
               ),
             ),

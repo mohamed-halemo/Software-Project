@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:email_validator/email_validator.dart';
 
-class NewDiscussion extends StatelessWidget {
+class NewDiscussion extends StatefulWidget {
+  @override
+  _NewDiscussionState createState() => _NewDiscussionState();
+}
+
+GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+class _NewDiscussionState extends State<NewDiscussion> {
   @override
   Widget build(BuildContext context) {
     void _showError(String message) {
@@ -33,7 +41,9 @@ class NewDiscussion extends StatelessWidget {
             child: Container(
               width: 65,
               child: FlatButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (formKey.currentState.validate()) {}
+                },
                 child: Text('Post'),
                 textColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -48,53 +58,68 @@ class NewDiscussion extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-        margin: EdgeInsets.only(right: 20, left: 20, top: 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'Title',
-              style: TextStyle(fontSize: 16),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 10),
-              color: Colors.grey[300],
-              child: TextFormField(
-                cursorColor: Colors.green[800],
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 10),
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                ),
-                keyboardType: TextInputType.text,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 20),
-              child: Text(
-                'Description',
+      body: Form(
+        key: formKey,
+        child: Container(
+          margin: EdgeInsets.only(right: 20, left: 20, top: 25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Title',
                 style: TextStyle(fontSize: 16),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 10),
-              color: Colors.grey[300],
-              child: TextFormField(
-                cursorColor: Colors.green[800],
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.only(top: 10, bottom: 10, left: 10),
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                color: Colors.grey[300],
+                child: TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Your post needs to have both a title and a description.';
+                    }
+                    return null;
+                  },
+                  cursorColor: Colors.green[800],
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  keyboardType: TextInputType.text,
                 ),
-                keyboardType: TextInputType.text,
               ),
-            ),
-          ],
+              Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Text(
+                  'Description',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 10),
+                color: Colors.grey[300],
+                child: TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Your post needs to have both a title and a description.';
+                    }
+                    return null;
+                  },
+                  cursorColor: Colors.green[800],
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                  ),
+                  keyboardType: TextInputType.text,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
