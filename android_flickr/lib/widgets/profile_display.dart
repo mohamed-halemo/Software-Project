@@ -69,9 +69,9 @@ class _ProfileDisplayState extends State<ProfileDisplay> {
                               },
                             ),
                           ),
-                          PopupMenuItem(
-                            child: Text("bad"),
-                          ),
+                          // PopupMenuItem(
+                          //   child: Text(''),
+                          // ),
                         ];
                       },
                       icon: Icon(Icons.more_vert),

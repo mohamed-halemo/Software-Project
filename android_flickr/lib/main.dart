@@ -83,6 +83,11 @@ class MyApp extends StatelessWidget {
 
     ///Remove this method to stop OneSignal Debugging
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+    var playerId;
+    var status =
+        OneSignal.shared.getPermissionSubscriptionState().then((value) {
+      playerId = value.subscriptionStatus.userId;
+    });
 
     OneSignal.shared.init("494522f0-cedd-4d54-b99b-c12ac52f66a6", iOSSettings: {
       OSiOSSettings.autoPrompt: false,
