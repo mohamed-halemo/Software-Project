@@ -300,6 +300,7 @@ class Posts with ChangeNotifier {
         print(
           'Zaka: ' + timeDiff.inDays.toString(),
         );
+        final postedSince = postedSinceFinder(imageTime);
 
         if (!loadedPicPosterProfilesIds.contains(
           postDetails['owner']['id'].toString(),
@@ -377,7 +378,7 @@ class Posts with ChangeNotifier {
             ),
             postImageUrl:
                 'https://fotone.me' + postDetails['media_file'], //found
-            postedSince: "DateFormat().parse(postDetails['date_posted'])",
+            postedSince: postedSince,
             caption: postDetails['title'].length > 0
                 ? postDetails['title']
                 : " ", //found
@@ -407,6 +408,20 @@ class Posts with ChangeNotifier {
     });
     _picPosterProfilesDetails = loadedPicPosterProfiles;
     return loadedPosts;
+  }
+
+  String postedSinceFinder(DateTime date) {
+    Duration timeDiff = DateTime.now().difference(date);
+
+    if (timeDiff.inDays != 0) {
+      return '${timeDiff.inDays}' + 'd';
+    } else if (timeDiff.inHours != 0) {
+      return '${timeDiff.inHours}' + 'h';
+    } else if (timeDiff.inMinutes != 0) {
+      return '${timeDiff.inMinutes}' + 'm';
+    } else {
+      return '${timeDiff.inSeconds}' + 's';
+    }
   }
 
   /// Gets the posts of other profiles when using mock service from JSON server and set then in _posts if isMockService = false.
@@ -700,13 +715,3 @@ class Posts with ChangeNotifier {
     return [..._picPosterProfilesDetails];
   }
 }
-
-/* String postedSince(DateTime date) {
-  if (DateFormat.y(date) != DateFormat.y(DateTime.now())) {
-    return '';
-  } else if (DateFormat.M(date) != DateFormat.M(DateTime.now())) {
-    return '';
-  } else if (DateFormat.d(date) != DateFormat.d(DateTime.now())) {
-    return '';
-  }
-} */

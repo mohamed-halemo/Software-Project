@@ -1,13 +1,16 @@
+import 'package:android_flickr/models/flickr_groups.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
 
 /// Contains list of the groups that came from the search result.
 class SearchGroups extends StatelessWidget {
+  List<FlickrGroup> groupsSearchResult;
+  SearchGroups(this.groupsSearchResult);
   @override
   Widget build(BuildContext context) {
     /// Contains the list of the groups that came from the search result if any.
-    final groupsSearchDetails = Provider.of<Posts>(context).posts;
+    final groupsSearchDetails = groupsSearchResult;
     return ListView.builder(
       itemCount: groupsSearchDetails.length,
       itemBuilder: (ctx, index) {
@@ -26,9 +29,10 @@ class SearchGroups extends StatelessWidget {
                   ),
                 ),
                 child: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    groupsSearchDetails[index].postImageUrl,
-                  ),
+                  backgroundImage:
+                      AssetImage('assets/images/FlickrDefaultProfilePic.jpg'
+                          //groupsSearchDetails[index].postImageUrl,
+                          ),
                   minRadius: MediaQuery.of(context).size.width * 0.12,
                 ),
               ),
@@ -38,7 +42,7 @@ class SearchGroups extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "moaz groups",
+                      groupsSearchDetails[index].groupName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: MediaQuery.of(context).size.height * 0.028,
@@ -50,19 +54,20 @@ class SearchGroups extends StatelessWidget {
                       height: 15,
                     ),
                     Text(
-                      "${20} " + "members",
+                      "${groupsSearchDetails[index].memberCount} " + "members",
                       style: TextStyle(
                         color: Colors.grey.shade600,
                       ),
                     ),
                     Text(
-                      "${20} " + "photos",
+                      "${groupsSearchDetails[index].photoCount} " + "photos",
                       style: TextStyle(
                         color: Colors.grey.shade600,
                       ),
                     ),
                     Text(
-                      "${20} " + "discussions",
+                      "${groupsSearchDetails[index].discussionCount} " +
+                          "discussions",
                       style: TextStyle(
                         color: Colors.grey.shade600,
                       ),
