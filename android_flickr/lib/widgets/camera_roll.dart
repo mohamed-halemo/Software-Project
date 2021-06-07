@@ -34,55 +34,36 @@ class CameraRollState extends State<CameraRoll> {
 
   List<List<PostDetails>> sortedPosts = [];
 
-  ///fetch user images at initState
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() async {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
-    await Provider.of<Posts>(context).mianServerCameraRoll();
-  }
-
-  Future initCameraRoll() async {
-    if (isinit)
-      await Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
-        isinit = false;
-        // print(postsToDisplay.first.dateTaken);
-        gridDates.add(postsToDisplay[0].dateTaken);
-        for (var i = 0; i < postsToDisplay.length; i++) {
-          print(postsToDisplay[i].dateTaken);
-          if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
-            gridDates.add(postsToDisplay[i].dateTaken);
-          }
-        }
-        for (var i = 0; i < gridDates.length; i++) {
-          var iterable = postsToDisplay
-              .where((element) => element.dateTaken == gridDates[i]);
-          sortedPosts.add(iterable.toList());
-        }
-        setState(() {
-          hasImages = true;
-        });
-      });
-  }
-
   ///Main widget tree, rebuilds with every state update.
   @override
   Widget build(BuildContext context) {
     //get posts from provider
     postsToDisplay = Provider.of<Posts>(context).cameraRollPosts;
+    if (isinit) {
+      isinit = false;
+      // print(postsToDisplay.first.dateTaken);
+      gridDates.add(postsToDisplay[0].dateTaken);
+      for (var i = 0; i < postsToDisplay.length; i++) {
+        print(postsToDisplay[i].dateTaken);
+        if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
+          gridDates.add(postsToDisplay[i].dateTaken);
+        }
+      }
+      for (var i = 0; i < gridDates.length; i++) {
+        var iterable = postsToDisplay
+            .where((element) => element.dateTaken == gridDates[i]);
+        sortedPosts.add(iterable.toList());
+      }
+      setState(() {
+        hasImages = true;
+      });
+    }
     if (postsToDisplay.isEmpty) {
       setState(() {
         hasImages = false;
       });
     }
-    if (!postsToDisplay.isEmpty) {
-      initCameraRoll().then((value) => setState);
-    }
+
     return hasImages
         ? gridBuilder()
         : Container(

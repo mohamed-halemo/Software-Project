@@ -35,6 +35,7 @@ class Posts with ChangeNotifier {
       } else {
         await mainServerExplorePosts();
         await mianServerMyPosts();
+        await mianServerCameraRoll();
       }
     } catch (error) {
       throw (error);
@@ -292,6 +293,14 @@ class Posts with ChangeNotifier {
         //print(dateNow);
         //print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
         //print(difference);
+        DateTime imageTime =
+            DateFormat('yyyy-MM-dd').parse(postDetails['date_posted']);
+
+        Duration timeDiff = DateTime.now().difference(imageTime);
+        print(
+          'Zaka: ' + timeDiff.inDays.toString(),
+        );
+
         if (!loadedPicPosterProfilesIds.contains(
           postDetails['owner']['id'].toString(),
         )) {
