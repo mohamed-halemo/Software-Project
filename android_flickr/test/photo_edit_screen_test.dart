@@ -13,8 +13,7 @@ void main() {
     test('Set Brush Mode: Saturation', () {
       //Arrange
       BrushMode matcher = BrushMode.Saturation;
-      photoEditScreen = PhotoEditScreen('_');
-
+      photoEditScreen = PhotoEditScreen('_', false, 0);
       //Act
       photoEditScreen.setBrushState(0);
       BrushMode actual = photoEditScreen.brushMode;
@@ -24,7 +23,7 @@ void main() {
     test('Set Brush Mode: Exposure', () {
       //Arrange
       BrushMode matcher = BrushMode.Exposure;
-      photoEditScreen = PhotoEditScreen('_');
+      photoEditScreen = PhotoEditScreen('_', false, 0);
 
       //Act
       photoEditScreen.setBrushState(1);
@@ -35,7 +34,7 @@ void main() {
     test('Set Brush Mode: Contrast', () {
       //Arrange
       BrushMode matcher = BrushMode.Contrast;
-      photoEditScreen = PhotoEditScreen('_');
+      photoEditScreen = PhotoEditScreen('_', false, 0);
 
       //Act
       photoEditScreen.setBrushState(2);
@@ -46,8 +45,7 @@ void main() {
     test('Set Brush Mode: Brightness', () {
       //Arrange
       BrushMode matcher = BrushMode.Brightness;
-      photoEditScreen = PhotoEditScreen('_');
-
+      photoEditScreen = PhotoEditScreen('_', false, 0);
       //Act
       photoEditScreen.setBrushState(3);
       BrushMode actual = photoEditScreen.brushMode;
@@ -57,7 +55,7 @@ void main() {
     test('Set Brush Mode: Rotate', () {
       //Arrange
       BrushMode matcher = BrushMode.Rotate;
-      photoEditScreen = PhotoEditScreen('_');
+      photoEditScreen = PhotoEditScreen('_', false, 0);
 
       //Act
       photoEditScreen.setBrushState(4);
