@@ -570,14 +570,13 @@ def ChangeEmail(request):
 @swagger_auto_schema(method='put', request_body=ProfileUserSerializer)
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_profile(request):
     try:
         user=request.user
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        parser_classes = (MultiPartParser, FormParser)
         serializer = ProfileUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['profile_pic'])
         return Response(first,status=response)
@@ -586,18 +585,18 @@ def upload_profile(request):
 @swagger_auto_schema( methods = ['PUT'] , request_body = CoverUserSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_cover(request):
     try:
         user=request.user
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        parser_classes = (MultiPartParser, FormParser)
         serializer = CoverUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['cover_photo'])
         return Response(first,status=response)
 
+        
 #following/unfollowing
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))

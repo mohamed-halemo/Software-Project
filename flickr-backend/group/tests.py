@@ -1,223 +1,474 @@
+from project.permissions import check_permission
+from .serializers import *
+from accounts.views import verifying_user
 from django.test import TestCase
-from rest_framework.test import APITestCase, APIClient
-from rest_framework import status
-from django.test import TestCase, Client
-# from django.urls import reverse
-from .serializers import group_serializer
-from .models import group, topic, reply
-from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
+from .models import *
+from django.urls import reverse
+from rest_framework.views import status
+from .views_function import *
+from accounts.views import *
 
 
 # Create your tests here.
-client = APIClient()
+
+def create_test_user(email):
+    # prepare user
+    first_name = 'test2'
+    last_name = 'name'
+    age = '50'
+    password = 'Kamel1234567'
+    email = email
+    Account.objects.create_user(email, first_name, last_name, age, password)
+    user = Account.objects.get(email=email)
+    verifying_user(user)
+    return user
 
 
-class test_groups(APITestCase):
-
-    def setUp(self):
-        self.group = group.objects.create(name="group_test0", privacy=2)
-
-        self.post_group_url = reverse('group_create')
-        self.group_valid_url = reverse('group_info',
-                                       kwargs={'id': self.group.id})
-        self.group_invalid_url = reverse('group_info', kwargs={'id': 0})
-
-    def test_post_group(self):
-        data = {"name": "group_test1", "privacy": "1", "eighteenplus": "True"}
-        response = self.client.post(self.post_group_url, data=data,
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_post_missing_parameter_group(self):
-        data = {"name": "group_test01"}
-        response = self.client.post(self.post_group_url, data=data,
-                                    format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_get_group(self):
-        get_response = self.client.get(self.group_valid_url, format='json')
-        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
-
-    def test_get_group_invalid(self):
-        get_response = self.client.get(self.group_invalid_url, format='json')
-        self.assertEqual(get_response.status_code, status.HTTP_404_NOT_FOUND)
+class TestModels(TestCase):
+    def test_model_str(self):
+        user = create_test_user("email")
+        group_obj = group.objects.create(name="New Group")
+        topic_obj = topic.objects.create(subject="New topic", owner=user)
+        reply_obj = reply.objects.create(message="New message",
+                                         topic=topic_obj, owner=user)
+        self.assertEqual(str(group_obj), "New Group")
+        self.assertEqual(str(topic_obj), "New topic")
+        self.assertEqual(str(reply_obj), "New message")
 
 
-class test_topics(APITestCase):
+class GroupSerializerTests(TestCase):
 
-    def setUp(self):
-        self.group = group.objects.create(name="group_test2", privacy=1)
-        self.topic = topic.objects.create(subject="topic_test1",
-                                          message="topic_test1",
-                                          group=self.group)
-        self.topic2 = topic.objects.create(subject="topic_test2",
-                                           message="topic_test2",
-                                           group=self.group)
+    def test_create_group_success(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        for variable in ["name", "privacy"]:
+            data[variable] = eval(variable)
 
-        self.topic_valid_url = reverse('topic',
-                                       kwargs={'group_id': self.group.id})
-        self.topic_invalid_url = reverse('topic', kwargs={'group_id': 0})
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors, {})
 
-        self.topics_valid_url = reverse('topic_info',
-                                        kwargs={'group_id': self.group.id,
-                                                'topic_id': self.topic.id})
-        self.topics_invalid_url = reverse('topic_info',
-                                          kwargs={'group_id': self.group.id,
-                                                  'topic_id': 0})
+    def test_create_group_missing_name(self):
+        # prepare group data
+        data = {}
+        privacy = 1
+        for variable in ["privacy"]:
+            data[variable] = eval(variable)
 
-    def test_post_topic(self):
-        topic_data = {"subject": "topic_test", "message": "topic_message"}
-        post_topic_response = self.client.post(self.topic_valid_url,
-                                               topic_data, format='json')
-        self.assertEqual(post_topic_response.status_code,
-                         status.HTTP_201_CREATED)
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['name'][0],
+                         'This field is required.')
 
-    def test_post_missing_parameter_topic(self):
-        topic_data = {"subject": "topic_test"}
-        post_topic_response = self.client.post(self.topic_valid_url,
-                                               topic_data, format='json')
-        self.assertEqual(post_topic_response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+    def test_create_group_missing_privacy(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        for variable in ["name"]:
+            data[variable] = eval(variable)
 
-    def test_get_topic(self):
-        topic_get_response = self.client.get(self.topics_valid_url,
-                                             format='json')
-        self.assertEqual(topic_get_response.status_code, status.HTTP_200_OK)
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['privacy'][0],
+                         'This field is required.')
 
-    def test_get_invalid_topic(self):
-        topic_get_response = self.client.get(self.topics_invalid_url,
-                                             format='json')
-        self.assertEqual(topic_get_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+    def test_create_group_exceeds_name(self):
+        # prepare group data
+        data = {}
+        name = ''
+        for i in range (101):
+            name = name + 's'
+        privacy = 1
+        for variable in ["name", "privacy"]:
+            data[variable] = eval(variable)
 
-    def test_get_topics(self):
-        topics_get_response = self.client.get(self.topic_valid_url,
-                                              format='json')
-        self.assertEqual(topics_get_response.status_code, status.HTTP_200_OK)
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['name'][0],
+                         'Ensure this field has no more than 100 characters.')
 
-    def test_get_invalid_topics(self):
-        topics_get_response = self.client.get(self.topic_invalid_url,
-                                              format='json')
-        self.assertEqual(topics_get_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+    def test_create_group_name_already_exists(self):
+        # prepare already exist group
+        name = 'group test'
+        privacy = 1
+        group.objects.create(name=name, privacy=privacy)
 
-    def test_delete_topics(self):
-        delete_topic_response = self.client.delete(self.topics_valid_url,
-                                                   format='json')
-        self.assertEqual(delete_topic_response.status_code, status.HTTP_200_OK)
+        # prepare test data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        for variable in ["name", "privacy"]:
+            data[variable] = eval(variable)
 
-    def test_delete_invalid_topics(self):
-        delete_topic_response = self.client.delete(self.topics_invalid_url,
-                                                   format='json')
-        self.assertEqual(delete_topic_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['name'][0],
+                         'group with this name already exists.')
 
-    def test_put_topic(self):
-        topic_data = self.client.get(self.topics_valid_url, format='json')
-        topic_data = {"subject": "new_topic_test",
-                      "message": "new_topic_message"}
-        put_topic_response = self.client.put(self.topics_valid_url,
-                                             data=topic_data, format='json')
-        self.assertEqual(put_topic_response.status_code, status.HTTP_200_OK)
+    def test_change_group_name(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        description = 'description'
+        privacy = 1
+        group.objects.create(name=name, privacy=privacy,
+                             description=description)
 
-    def test_put_invalid_topic(self):
-        topic_data = self.client.get(self.topics_invalid_url,
-                                     format='json')
-        topic_data = {"subject": "new_topic_test",
-                      "message": "new_topic_message"}
-        put_topic_response = self.client.put(self.topics_invalid_url,
-                                             data=topic_data, format='json')
-        self.assertEqual(put_topic_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+        group_obj = group.objects.get(name=name)
+        data = {}
+        name = "new group"
+        for variable in ["name"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupNameSerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.name, 'new group')
+
+    def test_change_group_description(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        description = 'description'
+        privacy = 1
+        group.objects.create(name=name, privacy=privacy,
+                             description=description)
+
+        group_obj = group.objects.get(name=name)
+        data = {}
+        name = "group test"
+        description = 'new description'
+        for variable in ["name", "description"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupNameSerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.description, 'new description')
+
+    def test_change_group_privacy(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        group.objects.create(name=name, privacy=privacy)
+
+        group_obj = group.objects.get(name=name)
+        data = {}
+        privacy = 2
+        for variable in ["privacy"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupPrivacySerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.privacy, 2)
+
+    def test_change_group_safety_level(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        eighteenplus = False
+        group.objects.create(name=name, privacy=privacy,
+                             eighteenplus=eighteenplus)
+
+        group_obj = group.objects.get(name=name)
+        data = {}
+        eighteenplus = True
+        for variable in ["eighteenplus"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupSafetyLevelSerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.eighteenplus, True)
+
+    def test_change_group_rules(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        rules = 'rules'
+        group.objects.create(name=name, privacy=privacy,
+                             rules=rules)
+
+        group_obj = group.objects.get(name=name)
+        data = {}
+        rules = 'new rules'
+        for variable in ["rules"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupRulesSerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.rules, 'new rules')
+
+    def test_change_group_roles(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        member_role = 'member_role'
+        admin_role = 'admin_role'
+        group.objects.create(name=name, privacy=privacy,
+                             member_role=member_role,
+                             admin_role=admin_role)
+
+        group_obj = group.objects.get(name=name)
+        data = {}
+        member_role = 'new member_role'
+        admin_role = 'new admin_role'
+        for variable in ["member_role", "admin_role"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupRoleSerializer(group_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = group.objects.get(name=name)
+        self.assertEqual(obj.member_role, 'new member_role')
+        self.assertEqual(obj.admin_role, 'new admin_role')
+
+    def test_delete_group(self):
+        # prepare group data
+        data = {}
+        name = 'group test'
+        privacy = 1
+        for variable in ["name", "privacy"]:
+            data[variable] = eval(variable)
+
+        # Sending data to serializer to test serializer
+        serializer = CreateGroupSerializer(data=data)
+        serializer.is_valid()
+        serializer.save()
+        group_obj = group.objects.get(name=name)
+        group_obj.delete()
+        deleted_obj = group.objects.filter(name=name)
+        self.assertEqual(deleted_obj.exists(), False)
 
 
-class test_replies(APITestCase):
+class TopicSerializerTests(TestCase):
 
-    def setUp(self):
-        self.group = group.objects.create(name="group_test3", privacy=1)
-        self.topic = topic.objects.create(subject="topic_test3",
-                                          message="topic_test3",
-                                          group=self.group)
-        self.reply = reply.objects.create(message="reply_test0",
-                                          topic=self.topic)
-        self.reply1 = reply.objects.create(message="reply_test1",
-                                           topic=self.topic)
+    def test_create_topic_success(self):
+        # prepare topic data
+        data = {}
+        subject = 'subject test'
+        message = 'message test'
+        for variable in ["subject", "message"]:
+            data[variable] = eval(variable)
 
-        self.reply_valid_url = reverse('reply',
-                                       kwargs={'group_id': self.group.id,
-                                               'topic_id': self.topic.id})
-        self.reply_invalid_url = reverse('reply',
-                                         kwargs={'group_id': 0,
-                                                 'topic_id': 0})
+        # Sending data to serializer to test serializer
+        serializer = CreateTopicSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors, {})
 
-        self.reply_info_valid_url = reverse('reply_info',
-                                            kwargs={'group_id': self.group.id,
-                                                    'topic_id': self.topic.id,
-                                                    'reply_id': self.reply.id})
-        self.reply_info_inval_url = reverse('reply_info',
-                                            kwargs={'group_id': self.group.id,
-                                                    'topic_id': self.topic.id,
-                                                    'reply_id': 0})
+    def test_create_topic_missing_subject(self):
+        # prepare topic data
+        data = {}
+        message = 'message test'
+        for variable in ["message"]:
+            data[variable] = eval(variable)
 
-    def test_post_reply(self):
-        reply_data = {"message": "topic_message"}
-        post_reply_response = self.client.post(self.reply_valid_url,
-                                               reply_data, format='json')
-        self.assertEqual(post_reply_response.status_code,
-                         status.HTTP_201_CREATED)
+        # Sending data to serializer to test serializer
+        serializer = CreateTopicSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['subject'][0],
+                         'This field is required.')
 
-    def test_post_missing_parameter_reply(self):
-        reply_data = {}
-        post_reply_response = self.client.post(self.reply_valid_url,
-                                               reply_data, format='json')
-        self.assertEqual(post_reply_response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+    def test_create_topic_missing_message(self):
+        # prepare topic data
+        data = {}
+        subject = 'subject test'
 
-    def test_get_reply(self):
-        reply_get_response = self.client.get(self.reply_info_valid_url,
-                                             format='json')
-        self.assertEqual(reply_get_response.status_code, status.HTTP_200_OK)
+        for variable in ["subject"]:
+            data[variable] = eval(variable)
 
-    def test_get_invalid_reply(self):
-        reply_get_response = self.client.get(self.reply_info_inval_url,
-                                             format='json')
-        self.assertEqual(reply_get_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+        # Sending data to serializer to test serializer
+        serializer = CreateTopicSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['message'][0],
+                         'This field is required.')
 
-    def test_get_replies(self):
-        replies_get_response = self.client.get(self.reply_valid_url,
-                                               format='json')
-        self.assertEqual(replies_get_response.status_code, status.HTTP_200_OK)
+    def test_create_topic_exceeds_subject(self):
+        # prepare group data
+        data = {}
+        subject = ''
+        for i in range (101):
+            subject = subject + 's'
+        message = 'message test'
+        for variable in ["subject", "message"]:
+            data[variable] = eval(variable)
 
-    def test_get_invalid_topics(self):
-        replies_get_response = self.client.get(self.reply_invalid_url,
-                                               format='json')
-        self.assertEqual(replies_get_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+        # Sending data to serializer to test serializer
+        serializer = CreateTopicSerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['subject'][0],
+                         'Ensure this field has no more than 100 characters.')
+
+    def test_change_topic_subject(self):
+        # prepare group data
+        data = {}
+        subject = 'subject test'
+        message = 'message test'
+        topic.objects.create(subject=subject, message=message)
+
+        topic_obj = topic.objects.get(subject=subject)
+        data = {}
+        subject = "new subject"
+        for variable in ["subject"]:
+            data[variable] = eval(variable)
+        changed_serializer = TopicSubjectSerializer(topic_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = topic.objects.get(subject=subject)
+        self.assertEqual(obj.subject, 'new subject')
+
+    def test_change_topic_message(self):
+        # prepare group data
+        data = {}
+        subject = 'subject test'
+        message = 'message test'
+        topic.objects.create(subject=subject, message=message)
+
+        topic_obj = topic.objects.get(subject=subject)
+        data = {}
+        message = 'new message'
+        for variable in ["message"]:
+            data[variable] = eval(variable)
+        changed_serializer = TopicMessageSerializer(topic_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = topic.objects.get(subject=subject)
+        self.assertEqual(obj.message, 'new message')
+
+    def test_delete_topic(self):
+        # prepare group data
+        data = {}
+        subject = 'subject test'
+        message = 'message test'
+        for variable in ["subject", "message"]:
+            data[variable] = eval(variable)
+
+        # Sending data to serializer to test serializer
+        serializer = CreateTopicSerializer(data=data)
+        serializer.is_valid()
+        serializer.save()
+        topic_obj = topic.objects.get(subject=subject)
+        topic_obj.delete()
+        deleted_obj = topic.objects.filter(subject=subject)
+        self.assertEqual(deleted_obj.exists(), False)
+
+
+class ReplySerializerTests(TestCase):
+
+    def test_create_reply_success(self):
+        # prepare reply data
+        data = {}
+        message = 'message test'
+        for variable in ["message"]:
+            data[variable] = eval(variable)
+
+        # Sending data to serializer to test serializer
+        serializer = CreateReplySerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors, {})
+
+    def test_create_reply_missing_message(self):
+        # prepare reply data
+        data = {}
+
+        # Sending data to serializer to test serializer
+        serializer = CreateReplySerializer(data=data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['message'][0],
+                         'This field is required.')
+
+    def test_change_reply_message(self):
+        # prepare reply data
+        subject = 'subject test'
+        message = 'message test'
+        user = create_test_user("email")
+        topic_obj = topic.objects.create(subject=subject, message=message,
+                                         owner=user)
+
+        data = {}
+        message = 'message test'
+        reply.objects.create(message=message, topic=topic_obj, owner=user)
+
+        reply_obj = reply.objects.get(message=message)
+        data = {}
+        message = 'new message'
+        for variable in ["message"]:
+            data[variable] = eval(variable)
+        changed_serializer = CreateReplySerializer(reply_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = reply.objects.get(message=message)
+        self.assertEqual(obj.message, 'new message')
 
     def test_delete_reply(self):
-        delete_reply_response = self.client.delete(self.reply_info_valid_url,
-                                                   format='json')
-        self.assertEqual(delete_reply_response.status_code, status.HTTP_200_OK)
+        # prepare reply data
+        subject = 'subject test'
+        message = 'message test'
+        user = create_test_user("email")
+        topic_obj = topic.objects.create(subject=subject, message=message,
+                                         owner=user)
 
-    def test_delete_invalid_reply(self):
-        delete_reply_response = self.client.delete(self.reply_info_inval_url,
-                                                   format='json')
-        self.assertEqual(delete_reply_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+        message = 'message test'
+        reply.objects.create(message=message, topic=topic_obj, owner=user)
 
-    def test_put_reply(self):
-        reply_data = self.client.get(self.reply_info_valid_url, format='json')
-        reply_data = {"message": "new_reply_message"}
-        put_reply_response = self.client.put(self.reply_info_valid_url,
-                                             data=reply_data, format='json')
-        self.assertEqual(put_reply_response.status_code, status.HTTP_200_OK)
+        reply_obj = reply.objects.get(message=message)
+        reply_obj.delete()
+        deleted_obj = reply.objects.filter(message=message)
+        self.assertEqual(deleted_obj.exists(), False)
 
-    def test_put_invalid_reply(self):
-        reply_data = self.client.get(self.reply_info_inval_url,
-                                     format='json')
-        reply_data = {"message": "new_reply_message"}
-        put_reply_response = self.client.put(self.reply_info_inval_url,
-                                             data=reply_data, format='json')
-        self.assertEqual(put_reply_response.status_code,
-                         status.HTTP_404_NOT_FOUND)
+
+class MemberTestSerializer(TestCase):
+    def test_change_member(self):
+        user_obj = create_test_user("email")
+        name = 'group test'
+        privacy = 1
+        group_obj = group.objects.create(name=name, privacy=privacy)
+        member_type = 1
+        Members.objects.create(group=group_obj, member=user_obj,
+                               member_type=member_type)
+        member_obj = Members.objects.get(group=group_obj, member=user_obj)
+        data = {}
+        member_type = 2
+        for variable in ["member_type"]:
+            data[variable] = eval(variable)
+        changed_serializer = GroupMemberSerializer(member_obj, data=data)
+        changed_serializer.is_valid()
+        changed_serializer.save()
+
+        obj = Members.objects.get(group=group_obj, member=user_obj)
+        self.assertEqual(obj.member_type, 2)
+
+    def test_delete_member(self):
+        user_obj = create_test_user("email")
+        name = 'group test'
+        privacy = 1
+        group_obj = group.objects.create(name=name, privacy=privacy)
+        member_type = 1
+        Members.objects.create(group=group_obj, member=user_obj,
+                               member_type=member_type)
+        member_obj = Members.objects.get(group=group_obj, member=user_obj)
+        member_obj.delete()
+        deleted_obj = Members.objects.filter(group=group_obj, member=user_obj)
+        self.assertEqual(deleted_obj.exists(), False)

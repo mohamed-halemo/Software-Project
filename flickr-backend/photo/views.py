@@ -857,7 +857,12 @@ def get_recent_photos(request):
     # Maximum number of objects per page, changed as needed
     Paginator.page_size = 20
 
-    photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+    # If the user is logged in, his/her photos will not be included in the recent photos
+    if request.user .is_anonymous():
+        photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+    else:
+        photos = Photo.objects.filter(is_public=True).exclude(owner=request.user).order_by('-date_posted')
+
     # Maximum number of objects returned in the request, changed as needed
     required_photos = limit_photos_number(photos, 1000)
 
@@ -866,7 +871,6 @@ def get_recent_photos(request):
     recent_photos = PhotoSerializer(results, many=True).data
     return Paginator.get_paginated_response({'stat': 'ok',
                                              'photos': recent_photos})
-
 # Photo search API
 
 
@@ -1157,10 +1161,9 @@ def fav_photo(request, id):
 @swagger_auto_schema(method='post', request_body=PhotoUploadSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_media(request):
     #upload photo one at a time
-    parser_classes = (MultiPartParser, FormParser)
     serializer = PhotoUploadSerializer(data=request.data)
     empty,msg,response = check_existence_of_media_file(request.data)
     if empty :
@@ -1170,12 +1173,12 @@ def upload_media(request):
         height = request.data['photo_height']
         width = request.data['photo_width']
 
-        pixels,message,response,success= upload(file_field,request.user,width,height)
+        pixels,_,response,success= upload(file_field,request.user,width,height)
         if success:
             increment_profile_items(request.user,'total_media')
             serializer.save(photo_displaypx=pixels, owner=request.user)
             # increment the count of media 
-            return Response({'message': str(message)},status=response,)
+            return Response(serializer.data,status=response,)
         else:
             return Response(serializer.errors, status=response)                
     else:
@@ -1253,6 +1256,7 @@ def Home(request):
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
         public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+
         public_photos= limit_photos_number(public_photos,300)
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
@@ -1263,6 +1267,12 @@ def Home(request):
         following_photos= limit_photos_number(following_photos,150)
         Paginator = RespondPagination()
         for photo in following_photos:  
+            account2=Account.objects.get(id=photo.owner.id)
+            account2.is_followed=True
+            account2.save()
+        following_photos, following_list_ids= get_photos_of_the_followed_people(request.user)
+        following_photos= limit_photos_number(following_photos,150)
+        for photo in following_photos:  
             if request.user in photo.favourites.all():
                 photo.is_faved= True
             else:
@@ -1271,11 +1281,17 @@ def Home(request):
         following_photos = PhotoSerializer(results, many=True).data
         public_photos= get_photos_of_public_people(request.user)
         public_photos= limit_photos_number(public_photos,150)
-        for photo in public_photos:  
+        for photo in public_photos: 
+            account=Account.objects.get(id=photo.owner.id)
+            account.is_followed=False
+            account.save()
+        public_photos= get_photos_of_public_people(request.user)
+        public_photos= limit_photos_number(public_photos,150)   
+        for photo in public_photos: 
             if request.user in photo.favourites.all():
                 photo.is_faved= True
             else:
-                photo.is_faved= False
+                photo.is_faved= False     
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
     return Paginator.get_paginated_response({'following_photos': following_photos,'public_photos': public_photos})
