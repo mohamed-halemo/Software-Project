@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/flickr_groups.dart';
 import 'package:flutter/services.dart';
 
+///Grooups that the user joined
 class Groups extends StatefulWidget {
   @override
   _GroupsState createState() => _GroupsState();
@@ -29,8 +30,10 @@ class _GroupsState extends State<Groups> {
 
   @override
   Widget build(BuildContext context) {
+    ///List of the groups that the user joined
     List<FlickrGroup> groupList = Provider.of<YourGroups>(context).myGroups;
-    //print(groupList[0].groupName);
+
+    ///Returns an empty container is theri are no groups joined else display the groups
     return _init
         ? Container()
         : Container(

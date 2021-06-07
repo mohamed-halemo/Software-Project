@@ -1,6 +1,3 @@
-//import 'package:android_flickr/widgets/explore_post.dart';
-
-//import '../providers/flickr_posts.dart';
 import 'package:flutter/material.dart';
 import '../Classes/globals.dart' as globals;
 import 'package:http/http.dart' as http;
@@ -8,9 +5,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-/// Gridview that displays only the images of the user(currently using the device) posts in grid mode.
-// ignore: must_be_immutable
+/// Displaying the groups photos in the photos section in the group view
 class GroupsPhotoView extends StatefulWidget {
+  ///Group id number
   int id;
   GroupsPhotoView(this.id);
 
@@ -19,12 +16,17 @@ class GroupsPhotoView extends StatefulWidget {
 }
 
 class _GroupsPhotoViewState extends State<GroupsPhotoView> {
+  ///Checks if the photos view is initialize or not
   bool isInit = false;
+
+  ///List of the photos in the group
   List<dynamic> groupPhotos;
+
+  ///List of the photos urls
   List<String> photoUrls = [];
   Future<void> initGroups() async {
     var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
-        globals.isMockService ? '/login/' : 'api/group/${widget.id}/photos');
+        globals.isMockService ? '/group/' : 'api/group/${widget.id}/photos');
     final response = await http.get(
       url,
       headers: {
@@ -38,9 +40,8 @@ class _GroupsPhotoViewState extends State<GroupsPhotoView> {
       var url = Uri.https(
           globals.HttpSingleton().getBaseUrl(),
           globals.isMockService
-              ? '/login/'
+              ? '/group/'
               : 'api/photos/${groupPhotos[i]['id']}');
-      print(url);
       final response = await http.get(
         url,
         headers: {
@@ -48,7 +49,6 @@ class _GroupsPhotoViewState extends State<GroupsPhotoView> {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       ).then((value) {
-        print(value.statusCode);
         photoUrls.add(json.decode(value.body)['photo']['media_file']);
       });
     }

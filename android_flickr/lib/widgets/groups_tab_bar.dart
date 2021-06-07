@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 
 /// The Appbar of the groups view
 class GroupsTabBar extends StatefulWidget {
+  ///Group id number
   final int id;
   GroupsTabBar(this.id);
   @override
@@ -47,6 +48,7 @@ class _GroupsTabBarState extends State<GroupsTabBar> {
                 children: <Widget>[
                   Padding(padding: EdgeInsets.all(10)),
                   Center(
+                    ///Button that when clicked moves you to the new discussion page
                     child: OutlineButton(
                       onPressed: () {
                         Navigator.push(

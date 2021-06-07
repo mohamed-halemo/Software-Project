@@ -22,6 +22,8 @@ bool secureText = true;
 /// The text written on the button in login screen
 String buttonText = 'Sign up';
 
+///A key used in validating the text inputed by the user,
+///manily to make sure the text input form is not empty
 GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 /// A map that takes the email and the password of the user

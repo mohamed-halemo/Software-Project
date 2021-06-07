@@ -14,12 +14,23 @@ import 'dart:convert';
 
 ///If true, mockService Url is used, if false, Real Server is used
 bool isMockService = false;
+
+///List of the notifications that the user get
 List<dynamic> notifications = [];
+
+///Stores the access token for global usage
 String accessToken = '';
+
+///Stores the refresh token for global usage
 String refreshToken = '';
 
+///User email
 String email;
+
+///User entred password
 String password;
+
+///Remeber email and password, if true keeps the user logged in
 bool rememberMe = false;
 
 ///http handler for the project. It is a singleton.
