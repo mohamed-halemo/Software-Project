@@ -6,9 +6,14 @@ import 'package:http/http.dart' as http;
 import '../Classes/globals.dart' as globals;
 import 'dart:convert';
 
+///Getting the groups that the user joined
 class YourGroups with ChangeNotifier {
   Map<String, dynamic> myJason;
+
+  ///List of the map that cotaines all the groups
   List<Map<String, dynamic>> adminSerializer;
+
+  ///The list of user's groups
   List<FlickrGroup> _myGroups = [];
   Future<void> mainServerMyGroups() async {
     _myGroups = [];
@@ -21,8 +26,6 @@ class YourGroups with ChangeNotifier {
         HttpHeaders.authorizationHeader: 'Bearer ${globals.accessToken}'
       },
     );
-    print(response.body);
-    print(response.statusCode);
     if (response.statusCode == 200) {
       myJason = json.decode(response.body);
       for (var i = 0; i < myJason['admin_serializer'].length; i++) {

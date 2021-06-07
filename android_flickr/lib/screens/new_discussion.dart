@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 
+///New discussion in groups page
 class NewDiscussion extends StatefulWidget {
   @override
   _NewDiscussionState createState() => _NewDiscussionState();
 }
 
+///A key used in validating the text inputed by the user,
+///manily to make sure the text input form is not empty
 GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 class _NewDiscussionState extends State<NewDiscussion> {
