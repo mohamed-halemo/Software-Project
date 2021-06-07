@@ -34,7 +34,7 @@ class _ProfileDisplayState extends State<ProfileDisplay> {
   @override
   Widget build(BuildContext context) {
     final myProfile = Provider.of<MyProfile>(context).myProfile;
-
+    
     return myProfile == null
         ? Container(
             color: Colors.white,

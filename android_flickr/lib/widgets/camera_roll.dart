@@ -10,7 +10,7 @@ import '../providers/flickr_posts.dart';
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:android_flickr/screens/photo_gallery_screen.dart';
 import 'package:android_flickr/screens/click_on_image_screen.dart';
-// import '../Classes/globals.dart' as globals;
+import '../Classes/globals.dart' as globals;
 
 ///Camera Roll page where the user can view his images, open and edit them,
 ///set privacy and delete.
@@ -38,7 +38,9 @@ class CameraRollState extends State<CameraRoll> {
   @override
   Widget build(BuildContext context) {
     //get posts from provider
-    postsToDisplay = Provider.of<Posts>(context).cameraRollPosts;
+    postsToDisplay = globals.isMockService
+        ? Provider.of<Posts>(context).myPosts
+        : Provider.of<Posts>(context).cameraRollPosts;
     if (isinit) {
       isinit = false;
       // print(postsToDisplay.first.dateTaken);

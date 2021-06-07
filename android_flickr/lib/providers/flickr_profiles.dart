@@ -54,8 +54,11 @@ class MyProfile with ChangeNotifier {
 
   ///
   Future<void> fetchMyProfileInfo() async {
-    var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
-        globals.isMockService ? '/group/' : 'api/accounts/user-info/');
+    var url = globals.isMockService
+        ? Uri.http(globals.HttpSingleton().getBaseUrl(),
+            globals.isMockService ? '/MyPosts' : 'api/accounts/user-info/')
+        : Uri.https(globals.HttpSingleton().getBaseUrl(),
+            globals.isMockService ? '/group/' : 'api/accounts/user-info/');
     var response = await http.get(
       url,
       headers: {
@@ -63,31 +66,50 @@ class MyProfile with ChangeNotifier {
         HttpHeaders.authorizationHeader: 'Bearer ${globals.accessToken}'
       },
     );
-    print(response.body);
-    print(response.statusCode);
-    if (response.statusCode == 401) {
-      globals.HttpSingleton().tokenRefresh();
-      response = await http.get(
-        url,
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer ${globals.accessToken}'
-        },
-      );
-    }
-    if (response.statusCode == 200) {
-      jsonResponse = json.decode(response.body);
-      print(jsonResponse);
+    if (globals.isMockService) {
+      List<dynamic> extractedData = json.decode(response.body);
+      final firstElement = extractedData.elementAt(0);
+      print(firstElement);
       _myProfile = new PersonalProfile(
-          profileID: jsonResponse['id'],
-          firstName: jsonResponse['first_name'],
-          lastName: jsonResponse['last_name'],
-          isPro: jsonResponse['is_pro'],
-          totalMedia: jsonResponse['total_media'],
-          profileCoverPicUrl: jsonResponse['cover_photo'],
-          profilePicUrl: jsonResponse['profile_pic'],
-          followersCount: jsonResponse['followers_count'],
-          followingCount: jsonResponse['following_count']);
+        profileID: 619.toString(),
+        firstName: 'Yousef',
+        lastName: 'Ahmad',
+        isPro: true,
+        totalMedia: 5,
+        profileCoverPicUrl:
+            'https://picsum.photos/200/200?random=' + '${619 * 3}',
+        profilePicUrl: 'https://picsum.photos/200/200?random=' + '${619}',
+        followersCount: 20,
+        followingCount: 15,
+      );
+      print(extractedData);
+    } else {
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 401) {
+        globals.HttpSingleton().tokenRefresh();
+        response = await http.get(
+          url,
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: 'Bearer ${globals.accessToken}'
+          },
+        );
+      }
+      if (response.statusCode == 200) {
+        jsonResponse = json.decode(response.body);
+        print(jsonResponse);
+        _myProfile = new PersonalProfile(
+            profileID: jsonResponse['id'],
+            firstName: jsonResponse['first_name'],
+            lastName: jsonResponse['last_name'],
+            isPro: jsonResponse['is_pro'],
+            totalMedia: jsonResponse['total_media'],
+            profileCoverPicUrl: jsonResponse['cover_photo'],
+            profilePicUrl: jsonResponse['profile_pic'],
+            followersCount: jsonResponse['followers_count'],
+            followingCount: jsonResponse['following_count']);
+      }
     }
   }
 
