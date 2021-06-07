@@ -28,7 +28,6 @@ class NonProfileScreenState extends State<NonProfileScreen> {
     profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
     //print("second");
     //print(personDetails.isFollowedByUser);
-    
   }
 
   @override
@@ -79,18 +78,56 @@ class NonProfileScreenState extends State<NonProfileScreen> {
                                 )
                               : Image.asset('assets/images/BlackCover.jpg'),
                         ),
-                        Positioned(
-                          top: MediaQuery.of(context).size.height * 0.2,
-                          left: MediaQuery.of(context).size.width * 0.4,
-                          child: CircleAvatar(
-                            backgroundImage: postInformation
-                                        .picPoster.profilePicUrl !=
-                                    null
-                                ? NetworkImage(
-                                    postInformation.picPoster.profilePicUrl,
-                                  )
-                                : AssetImage(
-                                    'assets/images/FlickrDefaultProfilePic.jpg'),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 25,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: CircleAvatar(
+                              radius: 25,
+                              backgroundImage: postInformation
+                                          .picPoster.profilePicUrl !=
+                                      null
+                                  ? NetworkImage(
+                                      postInformation.picPoster.profilePicUrl,
+                                    )
+                                  : AssetImage(
+                                      'assets/images/FlickrDefaultProfilePic.jpg'),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 35,
+                            ),
+                            child: Text(
+                              postInformation.picPoster.name,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 85,
+                            ),
+                            child: Text(
+                              '${postInformation.picPoster.followersCount} followers' +
+                                  String.fromCharCode(0x2014) +
+                                  '${postInformation.picPoster.followingCount} following',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                         ),
                       ],

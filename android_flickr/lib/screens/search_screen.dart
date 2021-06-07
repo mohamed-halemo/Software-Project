@@ -129,14 +129,17 @@ class SearchScreenState extends State<SearchScreen> {
           String profileCoverPhoto = person['cover_photo'] == null
               ? person['cover_photo']
               : 'https://fotone.me' + person['cover_photo'];
+          int followersCount = person['followers_count'];
+          int followingCount = person['following_count'];
           final personDetails = PicPosterDetails(
-            profileId,
-            name,
-            person['is_pro'],
-            person['is_followed'],
-            profilePicUrl,
-            profileCoverPhoto,
-          );
+              profileId,
+              name,
+              person['is_pro'],
+              person['is_followed'],
+              profilePicUrl,
+              profileCoverPhoto,
+              followersCount,
+              followingCount);
           peopleSearchResult.add(personDetails);
         });
         print(peopleSearchResult.length);

@@ -309,22 +309,23 @@ class Posts with ChangeNotifier {
           );
           loadedPicPosterProfiles.add(
             PicPosterDetails(
-              postDetails['owner']['id'].toString(), //found
-              (postDetails['owner']['first_name'] +
-                  " " +
-                  postDetails['owner']['last_name']), //found
-              postDetails['owner']['is_pro'], //found
-              postDetails['owner'][
-                  'is_followed'], //not found, using placeholder for is_followed_by_user
-              postDetails['owner']['profile_pic'] == null
-                  ? postDetails['owner']['profile_pic']
-                  : 'https://fotone.me' +
-                      postDetails['owner']['profile_pic'], //found
-              postDetails['owner']['cover_photo'] == null
-                  ? postDetails['owner']['cover_photo']
-                  : 'https://fotone.me' +
-                      postDetails['owner']['cover_photo'], //found
-            ),
+                postDetails['owner']['id'].toString(), //found
+                (postDetails['owner']['first_name'] +
+                    " " +
+                    postDetails['owner']['last_name']), //found
+                postDetails['owner']['is_pro'], //found
+                postDetails['owner'][
+                    'is_followed'], //not found, using placeholder for is_followed_by_user
+                postDetails['owner']['profile_pic'] == null
+                    ? postDetails['owner']['profile_pic']
+                    : 'https://fotone.me' +
+                        postDetails['owner']['profile_pic'], //found
+                postDetails['owner']['cover_photo'] == null
+                    ? postDetails['owner']['cover_photo']
+                    : 'https://fotone.me' +
+                        postDetails['owner']['cover_photo'], //found
+                postDetails['owner']['followers_count'],
+                postDetails['owner']['following_count']),
           );
         }
         List<String> peopleFaved = [];
@@ -355,21 +356,22 @@ class Posts with ChangeNotifier {
               favesTotalNumber: postDetails['count_favourites'], //found
             ),
             picPoster: PicPosterDetails(
-              postDetails['owner']['id'].toString(), //found
-              (postDetails['owner']['first_name'] +
-                  " " +
-                  postDetails['owner']['last_name']), //found
-              postDetails['owner']['is_pro'], //found
-              postDetails['owner']['is_followed'],
-              postDetails['owner']['profile_pic'] == null
-                  ? postDetails['owner']['profile_pic']
-                  : 'https://fotone.me' +
-                      postDetails['owner']['profile_pic'], //found
-              postDetails['owner']['cover_photo'] == null
-                  ? postDetails['owner']['cover_photo']
-                  : 'https://fotone.me' +
-                      postDetails['owner']['cover_photo'], //found
-            ),
+                postDetails['owner']['id'].toString(), //found
+                (postDetails['owner']['first_name'] +
+                    " " +
+                    postDetails['owner']['last_name']), //found
+                postDetails['owner']['is_pro'], //found
+                postDetails['owner']['is_followed'],
+                postDetails['owner']['profile_pic'] == null
+                    ? postDetails['owner']['profile_pic']
+                    : 'https://fotone.me' +
+                        postDetails['owner']['profile_pic'], //found
+                postDetails['owner']['cover_photo'] == null
+                    ? postDetails['owner']['cover_photo']
+                    : 'https://fotone.me' +
+                        postDetails['owner']['cover_photo'], //found
+                postDetails['owner']['followers_count'],
+                postDetails['owner']['following_count']),
             postImageUrl:
                 'https://fotone.me' + postDetails['media_file'], //found
             postedSince: "DateFormat().parse(postDetails['date_posted'])",
@@ -441,15 +443,16 @@ class Posts with ChangeNotifier {
             );
             loadedPicPosterProfiles.add(
               PicPosterDetails(
-                postDetails['ProfileId'].toString(),
-                postDetails['PicPosterDetailsname'],
-                postDetails['isPro'],
-                postDetails['isFollowedByUser'],
-                'https://picsum.photos/200/200?random=' +
-                    '${postDetails['ProfileId']}',
-                'https://picsum.photos/200/200?random=' +
-                    '${postDetails['ProfileId'] * 3}',
-              ),
+                  postDetails['ProfileId'].toString(),
+                  postDetails['PicPosterDetailsname'],
+                  postDetails['isPro'],
+                  postDetails['isFollowedByUser'],
+                  'https://picsum.photos/200/200?random=' +
+                      '${postDetails['ProfileId']}',
+                  'https://picsum.photos/200/200?random=' +
+                      '${postDetails['ProfileId'] * 3}',
+                  0,
+                  0),
             );
           }
 
@@ -472,15 +475,16 @@ class Posts with ChangeNotifier {
                 favesTotalNumber: postDetails['favesTotalNumber'],
               ),
               picPoster: PicPosterDetails(
-                postDetails['ProfileId'].toString(),
-                postDetails['PicPosterDetailsname'],
-                postDetails['isPro'],
-                postDetails['isFollowedByUser'],
-                'https://picsum.photos/200/200?random=' +
-                    '${postDetails['ProfileId']}',
-                'https://picsum.photos/200/200?random=' +
-                    '${postDetails['ProfileId'] * 3}', //found
-              ),
+                  postDetails['ProfileId'].toString(),
+                  postDetails['PicPosterDetailsname'],
+                  postDetails['isPro'],
+                  postDetails['isFollowedByUser'],
+                  'https://picsum.photos/200/200?random=' +
+                      '${postDetails['ProfileId']}',
+                  'https://picsum.photos/200/200?random=' +
+                      '${postDetails['ProfileId'] * 3}', //found
+                  0,
+                  0),
               postImageUrl:
                   'https://picsum.photos/200/200?random=' + '$postUrl',
               postedSince: postDetails['postedSince'],
@@ -559,13 +563,15 @@ class Posts with ChangeNotifier {
                 favesTotalNumber: postDetails['favesTotalNumber'],
               ),
               picPoster: PicPosterDetails(
-                "619",
-                "Dragon Slayer",
-                false,
-                true,
-                'https://picsum.photos/200/200?random=' + '${619}',
-                'https://picsum.photos/200/200?random=' + '${619 * 3}', //found
-              ),
+                  "619",
+                  "Dragon Slayer",
+                  false,
+                  true,
+                  'https://picsum.photos/200/200?random=' + '${619}',
+                  'https://picsum.photos/200/200?random=' +
+                      '${619 * 3}', //found
+                  postDetails['owner']['followers_count'],
+                  postDetails['owner']['following_count']),
               postImageUrl:
                   'https://picsum.photos/200/200?random=' + '$postUrl',
               postedSince: postDetails['postedSince'],
