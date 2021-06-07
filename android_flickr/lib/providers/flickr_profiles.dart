@@ -84,7 +84,7 @@ class MyProfile with ChangeNotifier {
       );
       print(extractedData);
     } else {
-      print(response.body);
+      //print(response.body);
       print(response.statusCode);
       if (response.statusCode == 401) {
         globals.HttpSingleton().tokenRefresh();

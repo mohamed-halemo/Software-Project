@@ -37,30 +37,38 @@ class CameraRollState extends State<CameraRoll> {
   ///Main widget tree, rebuilds with every state update.
   @override
   Widget build(BuildContext context) {
-    //get posts from provider
-    postsToDisplay = globals.isMockService
-        ? Provider.of<Posts>(context).myPosts
-        : Provider.of<Posts>(context).cameraRollPosts;
-    if (isinit) {
-      isinit = false;
-      // print(postsToDisplay.first.dateTaken);
-      gridDates.add(postsToDisplay[0].dateTaken);
-      for (var i = 0; i < postsToDisplay.length; i++) {
-        print(postsToDisplay[i].dateTaken);
-        if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
-          gridDates.add(postsToDisplay[i].dateTaken);
+    if (postsToDisplay != null) {
+      if (postsToDisplay.isEmpty) {
+        setState(() {
+          hasImages = false;
+        });
+      } else {
+//get posts from provider
+        postsToDisplay = globals.isMockService
+            ? Provider.of<Posts>(context).myPosts
+            : Provider.of<Posts>(context).cameraRollPosts;
+        if (isinit) {
+          isinit = false;
+          // print(postsToDisplay.first.dateTaken);
+          gridDates.add(postsToDisplay[0].dateTaken);
+          for (var i = 0; i < postsToDisplay.length; i++) {
+            print(postsToDisplay[i].dateTaken);
+            if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
+              gridDates.add(postsToDisplay[i].dateTaken);
+            }
+          }
+          for (var i = 0; i < gridDates.length; i++) {
+            var iterable = postsToDisplay
+                .where((element) => element.dateTaken == gridDates[i]);
+            sortedPosts.add(iterable.toList());
+          }
+          setState(() {
+            hasImages = true;
+          });
         }
       }
-      for (var i = 0; i < gridDates.length; i++) {
-        var iterable = postsToDisplay
-            .where((element) => element.dateTaken == gridDates[i]);
-        sortedPosts.add(iterable.toList());
-      }
-      setState(() {
-        hasImages = true;
-      });
     }
-    if (postsToDisplay.isEmpty) {
+    if (postsToDisplay == null) {
       setState(() {
         hasImages = false;
       });
