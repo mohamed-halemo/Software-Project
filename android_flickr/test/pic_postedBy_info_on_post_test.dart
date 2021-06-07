@@ -11,7 +11,7 @@ void main() {
     privacy: false,
     description: "",
     tags: [],
-    picPoster: PicPosterDetails("1", "moaz", true, false, "",""),
+    picPoster: PicPosterDetails("1", "moaz", true, false, 20, 0, 0, "", ""),
     commentsTotalNumber: 20,
     postImageUrl: "postImageUrl",
     postedSince: "6w",
@@ -38,7 +38,7 @@ void main() {
 
     expect(actual, matcher);
   });
-  
+
   group("caption available", () {
     test("Followed by user and not followed during running", () {
       //Arrange

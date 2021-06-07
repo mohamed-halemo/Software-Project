@@ -314,8 +314,10 @@ class Posts with ChangeNotifier {
                   " " +
                   postDetails['owner']['last_name']), //found
               postDetails['owner']['is_pro'], //found
-              postDetails['owner'][
-                  'is_followed'], //not found, using placeholder for is_followed_by_user
+              postDetails['owner']['is_followed'], //found
+              postDetails['owner']['total_media'], //found
+              postDetails['owner']['followers_count'], //found
+              postDetails['owner']['following_count'], //found
               postDetails['owner']['profile_pic'] == null
                   ? postDetails['owner']['profile_pic']
                   : 'https://fotone.me' +
@@ -360,7 +362,10 @@ class Posts with ChangeNotifier {
                   " " +
                   postDetails['owner']['last_name']), //found
               postDetails['owner']['is_pro'], //found
-              postDetails['owner']['is_followed'],
+              postDetails['owner']['is_followed'], //found
+              postDetails['owner']['total_media'], //found
+              postDetails['owner']['followers_count'], //found
+              postDetails['owner']['following_count'], //found
               postDetails['owner']['profile_pic'] == null
                   ? postDetails['owner']['profile_pic']
                   : 'https://fotone.me' +
@@ -445,6 +450,9 @@ class Posts with ChangeNotifier {
                 postDetails['PicPosterDetailsname'],
                 postDetails['isPro'],
                 postDetails['isFollowedByUser'],
+                20,
+                0,
+                0,
                 'https://picsum.photos/200/200?random=' +
                     '${postDetails['ProfileId']}',
                 'https://picsum.photos/200/200?random=' +
@@ -476,6 +484,9 @@ class Posts with ChangeNotifier {
                 postDetails['PicPosterDetailsname'],
                 postDetails['isPro'],
                 postDetails['isFollowedByUser'],
+                20,
+                0,
+                0,
                 'https://picsum.photos/200/200?random=' +
                     '${postDetails['ProfileId']}',
                 'https://picsum.photos/200/200?random=' +
@@ -563,6 +574,9 @@ class Posts with ChangeNotifier {
                 "Dragon Slayer",
                 false,
                 true,
+                20,
+                0,
+                0,
                 'https://picsum.photos/200/200?random=' + '${619}',
                 'https://picsum.photos/200/200?random=' + '${619 * 3}', //found
               ),

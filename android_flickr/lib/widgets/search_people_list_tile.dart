@@ -100,7 +100,10 @@ class _SearchPeopleListTileState extends State<SearchPeopleListTile> {
         ),
       ),
       subtitle: Text(
-        "${500}" + " photos - " + "${500}" + " followers",
+        "${personSearchDetails.photosCount}" +
+            " photos - " +
+            "${personSearchDetails.followersCount}" +
+            " followers",
         overflow: TextOverflow.fade,
         softWrap: true,
       ),

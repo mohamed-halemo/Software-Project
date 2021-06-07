@@ -15,6 +15,9 @@ class PicPosterDetails with ChangeNotifier {
   bool isPro;
   bool isFollowedByUser;
   bool followedDuringRunning = false;
+  int photosCount;
+  int followersCount;
+  int followingCount;
   String profilePicUrl;
   String profileCoverPhoto;
   PicPosterDetails(
@@ -22,6 +25,9 @@ class PicPosterDetails with ChangeNotifier {
     this.name,
     this.isPro,
     this.isFollowedByUser,
+    this.photosCount,
+    this.followersCount,
+    this.followingCount,
     this.profilePicUrl,
     this.profileCoverPhoto,
   );

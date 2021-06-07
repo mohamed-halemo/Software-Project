@@ -134,6 +134,9 @@ class SearchScreenState extends State<SearchScreen> {
             name,
             person['is_pro'],
             person['is_followed'],
+            person['total_media'],
+            person['followers_count'],
+            person['following_count'],
             profilePicUrl,
             profileCoverPhoto,
           );
