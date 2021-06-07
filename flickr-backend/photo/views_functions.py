@@ -251,7 +251,7 @@ def get_photos_of_the_followed_people(user):
     following_list_ids = []
     following_list = user.follow_follower.all()
     for following in following_list:
-        following_list_ids.append(following.id)
+        following_list_ids.append(following.followed.id)
     following_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids).order_by('-date_posted')
     return following_photos , following_list_ids
 

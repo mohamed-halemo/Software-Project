@@ -982,21 +982,19 @@ class PhotoFunctionsTests(TestCase):
 
     def test_get_photos_of_the_followed_people(self):    
         user=create_user_test('user99@gmail.com')
-        owner=create_user_test('owner99@gmail.com')
+        owner=create_user_test('owner998@gmail.com')
         Contacts.objects.create(user=user,followed=owner)
-        Photo.objects.create(media_file='api/media/1236.png',photo_height=123,photo_width=22,owner=user)
-        photo_obj=Photo.objects.all().first()
-        following_photos,following_list_ids =get_photos_of_the_followed_people(user)
-        self.assertEqual(following_photos.first(),photo_obj )    
-        self.assertEqual(following_list_ids[0],1)
+        Photo.objects.create(media_file='api/media/1236.png',photo_height=123,photo_width=22,owner=owner)
+        following_photos,_ =get_photos_of_the_followed_people(user)
+        self.assertEqual(following_photos.exists(),True)
     
     def test_get_photos_of_the_followed_people_failure(self):    
         user=create_user_test('user2@gmail.com')
         owner=create_user_test('owner2@gmail.com')
         Contacts.objects.create(user=user,followed=owner)
-        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=owner)
+        Photo.objects.create(media_file='api/media/123.png',photo_height=123,photo_width=22,owner=user)
         following_photos,_ =get_photos_of_the_followed_people(user)
-        self.assertEqual(following_photos.first(),None )    
+        self.assertEqual(following_photos.exists(), False )    
 
     def test_get_photos_of_the_public_people_success(self):    
         user=create_user_test('user@gmail.com')

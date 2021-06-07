@@ -596,6 +596,7 @@ def upload_cover(request):
         first,response= check_media_content_type(serializer,request.FILES['cover_photo'])
         return Response(first,status=response)
 
+        
 #following/unfollowing
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
