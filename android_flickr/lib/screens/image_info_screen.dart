@@ -3,6 +3,7 @@ import 'package:android_flickr/screens/edit_description_screen.dart';
 import 'package:flutter/material.dart';
 //packages and plugins
 import 'package:android_flickr/providers/flickr_post.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -219,6 +220,58 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                   ],
                 ),
               ),
+              widget.postDetails.tags.isEmpty
+                  ? Container()
+                  : SizedBox(
+                      height: 20,
+                    ),
+              widget.postDetails.tags.isEmpty
+                  ? Container()
+                  : Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'Tags',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+              SizedBox(
+                height: 5,
+              ),
+              widget.postDetails.tags.isEmpty
+                  ? Container()
+                  : GridView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisSpacing: 5,
+                        childAspectRatio: 2.4,
+                        crossAxisCount: 5,
+                      ),
+                      itemCount: widget.postDetails.tags.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              primary: Colors.white,
+                              side: BorderSide(
+                                color: Colors.white,
+                              ),
+                            ),
+                            child: Text(
+                              widget.postDetails.tags[index]['tag_text'],
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                            onPressed: () {},
+                          ),
+                        );
+                      }),
               SizedBox(
                 height: 20,
               ),
@@ -239,8 +292,7 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  DateFormat('EEEE-MMM-d   HH:mm:ss')
-                      .format(widget.postDetails.dateTaken),
+                  DateFormat('EEEE-MMM-d').format(widget.postDetails.dateTaken),
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     color: Colors.white,
