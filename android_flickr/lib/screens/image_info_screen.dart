@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 //packages and plugins
 import 'package:android_flickr/providers/flickr_post.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 
 //personal imports
 import 'edit_title_screen.dart';
+import '../Classes/globals.dart' as globals;
 
 ///A page that displays info of the Current Image
 //ignore: must_be_immutable
@@ -337,7 +341,18 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    int photoId = int.parse(widget.postDetails.id);
+                    var url = Uri.https(
+                        globals.HttpSingleton().getBaseUrl(),
+                        globals.isMockService
+                            ? '/sign-up/'
+                            : 'api/photos/$photoId');
+                    final response = await http.delete(url, headers: {
+                      HttpHeaders.contentTypeHeader: 'application/json',
+                      HttpHeaders.authorizationHeader:
+                          'Bearer ' + globals.accessToken,
+                    });
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
