@@ -43,8 +43,8 @@ class PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
       if (x.name == null) return 0;
       if (y.name == null) return 0;
 
-      if (x.name == 'Download' || x.name == 'Downloads') return -1;
-      if (y.name == 'Download' || y.name == 'Downloads') return -1;
+      if (x.name == 'Download' || x.name == 'Downloads') return 1;
+      if (y.name == 'Download' || y.name == 'Downloads') return 1;
       return x.name.toLowerCase().compareTo(y.name.toLowerCase());
     });
     bool tempGreyTile = true;
