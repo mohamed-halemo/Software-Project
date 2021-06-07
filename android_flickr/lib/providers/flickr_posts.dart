@@ -269,7 +269,7 @@ class Posts with ChangeNotifier {
       throw (error);
     }
   }
-
+  ///Sets the posts or my posts from the main server by taking the extractedposts and setting them in a list which is returned at the end of the function.
   List<PostDetails> setPostsFromMainserver(List<dynamic> posts, dynamic myId) {
     final List<PostDetails> loadedPosts = [];
     final List<PicPosterDetails> loadedPicPosterProfiles = [];
@@ -409,7 +409,7 @@ class Posts with ChangeNotifier {
     _picPosterProfilesDetails = loadedPicPosterProfiles;
     return loadedPosts;
   }
-
+  ///Returns posted since when based on the diffrence between todays date and the date it was posted.
   String postedSinceFinder(DateTime date) {
     Duration timeDiff = DateTime.now().difference(date);
 
@@ -475,7 +475,6 @@ class Posts with ChangeNotifier {
               ),
             );
           }
-
           loadedPosts.add(
             PostDetails(
               id: postDetails['id'].toString(),
@@ -586,7 +585,7 @@ class Posts with ChangeNotifier {
               ),
               picPoster: PicPosterDetails(
                 "619",
-                "Dragon Slayer",
+                "Yousef Ahmed",
                 false,
                 true,
                 20,

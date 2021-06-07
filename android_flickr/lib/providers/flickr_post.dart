@@ -50,7 +50,8 @@ class FavedPostDetails {
 }
 
 ///Class PostDetails includes complete information about the post : its id, instance of PicPosterDetails, instance of FavedPostdetails,
-///total number of comments on post, the image posted, caption (if available) and since when was it posted.
+///total number of comments on post, the image posted, caption (if available), since when was it posted, description of the post and
+///when was it taken, privacy and List of tags.
 class PostDetails with ChangeNotifier {
   String id;
   PicPosterDetails picPoster;
