@@ -10,6 +10,7 @@ import '../providers/flickr_posts.dart';
 // import 'package:swipedetector/swipedetector.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../widgets/notifications_display.dart';
 
 /// This is the Main screen where we have diffrent tabs(explore, search,personal profile, notifications, camera).
 class ExploreScreen extends StatefulWidget {
@@ -143,15 +144,7 @@ class ExploreScreenState extends State<ExploreScreen>
             ),
             SearchDisplay(),
             ProfileDisplay(),
-
-            Container(
-              height: double.infinity,
-              width: double.infinity,
-              child: Text(
-                "no notifications",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            NotificationsDisplay(),
 /*             SwipeDetector(
               onSwipeLeft: () {
                 setState(() {

@@ -99,7 +99,10 @@ class MyApp extends StatelessWidget {
 
     /// will be called whenever a notification is opened/button pressed.
     OneSignal.shared
-        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {});
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+      globals.notifications.add(result);
+      print(result);
+    });
 
     var status =
         OneSignal.shared.getPermissionSubscriptionState().then((value) {

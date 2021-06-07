@@ -14,7 +14,7 @@ import 'dart:convert';
 
 ///If true, mockService Url is used, if false, Real Server is used
 bool isMockService = false;
-
+List<dynamic> notifications = [];
 String accessToken = '';
 String refreshToken = '';
 
