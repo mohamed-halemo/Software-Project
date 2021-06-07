@@ -20,7 +20,7 @@ class PicPostedByInfoOnPost extends StatelessWidget {
 
   /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
   /// and profiles to choose the posts and images needed and display them.
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+  void goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
     final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
         postInformation.picPoster, currentPosts);
@@ -86,14 +86,16 @@ class PicPostedByInfoOnPost extends StatelessWidget {
         ListTile(
           leading: GestureDetector(
             onTap: () {
-              _goToNonprofile(
+              goToNonprofile(
                   context, postInformation, currentPosts, flickrProfiles);
             },
             child: CircleAvatar(
               radius: MediaQuery.of(context).size.width / 20,
-              backgroundImage: postInformation.picPoster.profilePicUrl!=null? NetworkImage(
-                postInformation.picPoster.profilePicUrl,
-              ): AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
+              backgroundImage: postInformation.picPoster.profilePicUrl != null
+                  ? NetworkImage(
+                      postInformation.picPoster.profilePicUrl,
+                    )
+                  : AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
               backgroundColor: Colors.transparent,
             ),
           ),
