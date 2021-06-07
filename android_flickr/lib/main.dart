@@ -46,7 +46,7 @@ void main() async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     globals.rememberMe = prefs.getBool('remember') ?? false;
-    globals.rememberMe = false;
+    // globals.rememberMe = false;
     print(globals.rememberMe);
     if (globals.rememberMe) {
       var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
