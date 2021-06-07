@@ -54,8 +54,8 @@ path('change-to-pro/', ChangeToPro.as_view(), name="change-to-pro"),
 #get account info
 path('user-info/', UserInfo.as_view(), name="user-info"),
 
-#get,put profile details of a specific user 
-path('<int:id>', UserDetailList.as_view(), name='Userdetail'),
+#get profile details of a specific user 
+path('<int:id>', user_detail, name='Userdetail'),
 
 path('profile-pic', upload_profile, name='upload_profile'),
 

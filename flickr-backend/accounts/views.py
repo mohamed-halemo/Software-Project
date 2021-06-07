@@ -481,13 +481,31 @@ class UserInfo(generics.RetrieveAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         obj = queryset.get(id=self.request.user.id)
         return obj
-
 #get specific user info
-class UserDetailList(generics.RetrieveAPIView):
-    serializer_class = OwnerSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    queryset = Account.objects.all()
-    lookup_field = 'id'
+
+@api_view(['GET'])
+def user_detail(request, id):
+    try:
+        user_obj= Account.objects.get(id=id)
+    except  ObjectDoesNotExist :
+        return Response(Status=status.HTTP_404_NOT_FOUND)
+    try:
+        user = request.user
+        following_list = user.follow_follower.all().order_by('-date_create')
+    except ObjectDoesNotExist:
+        following_list=[]
+    user_obj.is_followed=False
+    user_obj.save()
+
+    for one in following_list:  
+        account1=Account.objects.get(id=one.followed.id)
+        if  user_obj == account1:
+            account1.is_followed=True
+            account1.save()
+    user_obj= Account.objects.get(id=id)           
+    serializer = OwnerSerializer(user_obj)
+    return Response(serializer.data)
+
 
 #Resend Reset password mail
 class ResendPasswordResetEmail(generics.GenericAPIView):
@@ -707,22 +725,37 @@ user_response = openapi.Response('response description', OwnerSerializer)
 @api_view(['GET'])
 def search(request):
     paginator = PageNumberPagination()
-    paginator.page_size = 10
+    paginator.page_size = 50
 
     value = request.query_params.get("username")
-    people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) )
-    required_people = limit_people_number(people,500)
-    result_page = paginator.paginate_queryset(required_people, request)
-    all_people = OwnerSerializer(result_page, many=True).data
+    
 
     if request.user.is_anonymous:
+        people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) )
+        for one in people:  
+            one.is_followed=False
+            one.save()
+        people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) )
         following = []
     else:
         user = request.user
+        people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) ).exclude(id=user.id)
+        for one in people:  
+            one.is_followed=False
+            one.save()
+        people = Account.objects.all().filter(Q(username__icontains=value) | Q(first_name__icontains=value) | Q(last_name__icontains=value) ).exclude(id=user.id)
+        following_list = user.follow_follower.all().filter(followed__in=people)
+        for one in following_list:  
+            account2=Account.objects.get(id=one.followed.id)
+            account2.is_followed=True
+            account2.save()
         following_list = user.follow_follower.all().filter(followed__in=people)
         result_page1 = paginator.paginate_queryset(following_list, request)
         following = FollowingSerializer(result_page1, many=True).data
-
+        
+    required_people = limit_people_number(people,500)
+    result_page = paginator.paginate_queryset(required_people, request)
+    all_people = OwnerSerializer(result_page, many=True).data
     return paginator.get_paginated_response({'following': following, 'all_people': all_people})
 
 test_param = openapi.Parameter('email', openapi.IN_QUERY, description="Search for people with email", type=openapi.TYPE_STRING)
@@ -733,19 +766,35 @@ user_response = openapi.Response('response description', OwnerSerializer)
 @api_view(['GET'])
 def search_email(request):
     paginator = PageNumberPagination()
-    paginator.page_size = 10
+    paginator.page_size = 50
 
     value = request.query_params.get("email")
-    people = Account.objects.all().filter(email=value).order_by('-date_joined')
-    result_page = paginator.paginate_queryset(people, request)
-    all_people = OwnerSerializer(result_page, many=True).data
+    
 
     if request.user.is_anonymous:
+        people = Account.objects.all().filter(email=value )
+        for one in people:  
+            one.is_followed=False
+            one.save()
+        people = Account.objects.all().filter(email=value )
         following = []
     else:
         user = request.user
-        following_list = user.follow_follower.all().filter(followed__in=people).order_by('-date_create')
+        people = Account.objects.all().filter(email=value ).exclude(email=user.email)
+        for one in people:  
+            one.is_followed=False
+            one.save()
+        people = Account.objects.all().filter(email=value ).exclude(email=user.email)
+        following_list = user.follow_follower.all().filter(followed__in=people)
+        for one in following_list:  
+            account2=Account.objects.get(id=one.followed.id)
+            account2.is_followed=True
+            account2.save()
+        following_list = user.follow_follower.all().filter(followed__in=people)
         result_page1 = paginator.paginate_queryset(following_list, request)
         following = FollowingSerializer(result_page1, many=True).data
-
+        
+    required_people = limit_people_number(people,500)
+    result_page = paginator.paginate_queryset(required_people, request)
+    all_people = OwnerSerializer(result_page, many=True).data
     return paginator.get_paginated_response({'following': following, 'all_people': all_people})

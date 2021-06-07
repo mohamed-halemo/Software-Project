@@ -50,7 +50,6 @@ def set_or_get_perms(request, id):
 
     try:
         required_photo = get_required_photo(id)
-
         # Only the owner is allowed to get or set perms for his/her photo
         if (required_photo.owner != request.user):
             return Response(
@@ -417,12 +416,28 @@ def delete_photo_or_get_photo_info(request, id):
 
         # Getting photo info
         if request.method == 'GET':
+            try:
+                user = request.user
+                following_list = user.follow_follower.all().order_by('-date_create')
+            except ObjectDoesNotExist:
+                following_list=[]
+            for two in following_list:
+                account2=Account.objects.get(id=two.followed.id)
+                photo_required.owner.is_followed=False
+                photo_required.owner.save() 
+            for two in following_list:
+                account2=Account.objects.get(id=two.followed.id)  
+                if photo_required.owner == account2:
+                    photo_required.owner.is_followed=True
+                    photo_required.owner.save()
 
+ 
             if request.user in photo_required.favourites.all():
                 photo_required.is_faved= True
             else:
                 photo_required.is_faved= False
-                
+
+            # if photo_required.owner in      
             photo = PhotoSerializer(photo_required).data
             return Response({'stat': 'ok',
                              'photo': photo},
