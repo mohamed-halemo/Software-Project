@@ -160,8 +160,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                         maxScale: 8.0,
                         controller: photoViewController,
                         initialScale: photoscale,
-                        imageProvider:allPosts[index].postImageUrl!=null?
-                            NetworkImage(allPosts[index].postImageUrl):AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
+                        imageProvider:
+                            NetworkImage(allPosts[index].postImageUrl),
                       ),
                     ),
                   ),
@@ -184,9 +184,15 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                         },
                         child: CircleAvatar(
                           radius: MediaQuery.of(context).size.width / 20,
-                          backgroundImage: NetworkImage(
-                            allPosts[index].picPoster.profilePicUrl,
-                          ),
+                          backgroundImage: allPosts[index]
+                                      .picPoster
+                                      .profilePicUrl !=
+                                  null
+                              ? NetworkImage(
+                                  allPosts[index].picPoster.profilePicUrl,
+                                )
+                              : AssetImage(
+                                  'assets/images/FlickrDefaultProfilePic.jpg'),
                           backgroundColor: Colors.transparent,
                         ),
                       ),
