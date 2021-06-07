@@ -57,9 +57,12 @@ class SearchPeopleState extends State<SearchPeople> {
               },
               child: CircleAvatar(
                 radius: MediaQuery.of(context).size.width / 20,
-                backgroundImage: NetworkImage(
-                  peopleSearchDetails[index].profilePicUrl,
-                ),
+                backgroundImage: peopleSearchDetails[index].profilePicUrl !=
+                        null
+                    ? NetworkImage(
+                        peopleSearchDetails[index].profilePicUrl,
+                      )
+                    : AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
                 backgroundColor: Colors.transparent,
               ),
             ),

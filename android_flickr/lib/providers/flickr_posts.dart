@@ -48,6 +48,8 @@ class Posts with ChangeNotifier {
     final url =
         Uri.https(globals.HttpSingleton().getBaseUrl(), 'api/photos/home');
     //print(url);
+    final myInfoUrl = Uri.https(
+        globals.HttpSingleton().getBaseUrl(), 'api/accounts/user-info');
 
     try {
       final response = await http.get(
@@ -57,6 +59,17 @@ class Posts with ChangeNotifier {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
+      final myInfoResponse = await http.get(
+        myInfoUrl,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+      //print(myInfoResponse.body);
+      final extractedMyInfo =
+          json.decode(myInfoResponse.body) as Map<String, dynamic>;
+      final myId = extractedMyInfo['id'];
       //print(response.body);
       /* final extractedData =
           json.decode(response.body) as List<Map<String, dynamic>>; */
@@ -66,10 +79,10 @@ class Posts with ChangeNotifier {
       final publicPosts =
           extractedData['results']['public_photos'] as List<dynamic>;
 
-      final loadedFollowPosts = setPostsFromMainserver(followingPosts);
-      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
-      print(loadedFollowPosts.length);
-      print(loadedPublicPosts.length);
+      final loadedFollowPosts = setPostsFromMainserver(followingPosts, myId);
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts, myId);
+      //print(loadedFollowPosts.length);
+      //print(loadedPublicPosts.length);
       //print("start");
       //print(followingPosts.length);
 /*       final List<PostDetails> loadedPosts = [];
@@ -178,7 +191,7 @@ class Posts with ChangeNotifier {
       loadedPublicPosts.forEach((post) {
         _posts.add(post);
       });
-      print(_posts.length);
+      //print(_posts.length);
       //_posts = loadedPosts;
 
       // print("check profile count");
@@ -197,6 +210,9 @@ class Posts with ChangeNotifier {
         globals.HttpSingleton().getBaseUrl(), 'api/photos/publiclogged');
     //print(url);
 
+    final myInfoUrl = Uri.https(
+        globals.HttpSingleton().getBaseUrl(), 'api/accounts/user-info');
+
     try {
       final response = await http.get(
         url,
@@ -205,6 +221,17 @@ class Posts with ChangeNotifier {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
+      final myInfoResponse = await http.get(
+        myInfoUrl,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+      //print(myInfoResponse.body);
+      final extractedMyInfo =
+          json.decode(myInfoResponse.body) as Map<String, dynamic>;
+      final myId = extractedMyInfo['id'];
       //print(response.body);
       /* final extractedData =
           json.decode(response.body) as List<Map<String, dynamic>>; */
@@ -213,9 +240,9 @@ class Posts with ChangeNotifier {
           extractedData['results']['following_photos'] as List<dynamic>; */
       final publicPosts = extractedData['results']['photos'] as List<dynamic>;
 
-      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts, myId);
       //print(loadedFollowPosts.length);
-      print(loadedPublicPosts.length);
+      //(loadedPublicPosts.length);
       _myPosts.clear();
       loadedPublicPosts.forEach((post) {
         _myPosts.add(post);
@@ -242,7 +269,7 @@ class Posts with ChangeNotifier {
     }
   }
 
-  List<PostDetails> setPostsFromMainserver(List<dynamic> posts) {
+  List<PostDetails> setPostsFromMainserver(List<dynamic> posts, dynamic myId) {
     final List<PostDetails> loadedPosts = [];
     final List<PicPosterDetails> loadedPicPosterProfiles = [];
     final List<String> loadedPicPosterProfilesIds = [];
@@ -262,9 +289,9 @@ class Posts with ChangeNotifier {
                 DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']))
             .inDays;
         //print();
-        print(dateNow);
-        print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
-        print(difference);
+        //print(dateNow);
+        //print(DateFormat('dd-MM-yyyy').parse(postDetails['date_posted']));
+        //print(difference);
         if (!loadedPicPosterProfilesIds.contains(
           postDetails['owner']['id'].toString(),
         )) {
@@ -278,9 +305,8 @@ class Posts with ChangeNotifier {
                   " " +
                   postDetails['owner']['last_name']), //found
               postDetails['owner']['is_pro'], //found
-              postDetails['owner']['is_followed']
-                  ? false
-                  : true, //not found, using placeholder for is_followed_by_user
+              postDetails['owner'][
+                  'is_followed'], //not found, using placeholder for is_followed_by_user
               'https://picsum.photos/200/200?random=' +
                   '${postDetails['owner']['id']}', //found
               'https://picsum.photos/200/200?random=' +
@@ -291,22 +317,28 @@ class Posts with ChangeNotifier {
         List<String> peopleFaved = [];
         final getFavedNames = postDetails['favourites'] as List<dynamic>;
         //print(getFavedNames[0]['first_name']);
+        bool is_faved = false;
         getFavedNames.forEach((user) {
-          String addName =
-              user['first_name'] + ' ' + user['last_name'] as String;
-          peopleFaved.add(addName);
+          if (myId == user['id']) {
+            is_faved = true;
+            peopleFaved.insert(0, 'You');
+          } else {
+            String addName =
+                user['first_name'] + ' ' + user['last_name'] as String;
+            peopleFaved.add(addName);
+          }
         });
         //print(peopleFaved.length);
-        if (postDetails['is_faved']) {
-          peopleFaved.insert(0, 'You');
-        }
+        //if (postDetails['owner']['id'] == 8) {}
+        
         loadedPosts.add(
           PostDetails(
             id: postDetails['id'].toString(), //found
             commentsTotalNumber: postDetails['count_comments'], //found
             favesDetails: FavedPostDetails(
               favedUsersNames: peopleFaved, //found
-              isFaved: postDetails['is_faved'], //found
+              isFaved: is_faved, //postDetails['is_faved'], //found
+
               favesTotalNumber: postDetails['count_favourites'], //found
             ),
             picPoster: PicPosterDetails(
@@ -548,6 +580,9 @@ class Posts with ChangeNotifier {
         globals.HttpSingleton().getBaseUrl(), 'api/photos/photoslogged');
     //print(url);
 
+    final myInfoUrl = Uri.https(
+        globals.HttpSingleton().getBaseUrl(), 'api/accounts/user-info');
+
     try {
       final response = await http.get(
         url,
@@ -556,6 +591,17 @@ class Posts with ChangeNotifier {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
+      final myInfoResponse = await http.get(
+        myInfoUrl,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+      //print(myInfoResponse.body);
+      final extractedMyInfo =
+          json.decode(myInfoResponse.body) as Map<String, dynamic>;
+      final myId = extractedMyInfo['id'];
       //print(response.body);
       /* final extractedData =
           json.decode(response.body) as List<Map<String, dynamic>>; */
@@ -564,9 +610,9 @@ class Posts with ChangeNotifier {
           extractedData['results']['following_photos'] as List<dynamic>; */
       final publicPosts = extractedData['results']['photos'] as List<dynamic>;
 
-      final loadedPublicPosts = setPostsFromMainserver(publicPosts);
+      final loadedPublicPosts = setPostsFromMainserver(publicPosts, myId);
       //print(loadedFollowPosts.length);
-      print(loadedPublicPosts.length);
+      //print(loadedPublicPosts.length);
       _cameraRollPosts.clear();
       loadedPublicPosts.forEach((post) {
         _cameraRollPosts.add(post);

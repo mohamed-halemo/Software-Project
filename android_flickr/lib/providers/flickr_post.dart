@@ -89,12 +89,15 @@ class PostDetails with ChangeNotifier {
     notifyListeners();
     if (globals.isMockService) {
       updateFavoriteStatus(favesDetails.isFaved, favesDetails.favesTotalNumber);
+    } else if (favesDetails.isFaved) {
+      faveMainServer();
     } else {
-      updateFavoriteStatusMainServer();
+      unFaveMainServer();
     }
   }
 
-  Future<void> updateFavoriteStatusMainServer() async {
+  /// Update the main database that the post is faved.
+  Future<void> faveMainServer() async {
     final token =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIyOTM3NjA4LCJqdGkiOiIwZmE4MWRmNjI2YzE0NGNjYjliODNiZjNmZWRkOWZhNyIsInVzZXJfaWQiOjJ9.kFxguEk7VOpS9gw5amu9NFijyGPyL8ZQKJiU_3YZH0c";
     final url =
@@ -113,10 +116,10 @@ class PostDetails with ChangeNotifier {
           },
         ),  */
       );
-      print(globals.accessToken);
-      print(picPoster.profileId);
+      //print(globals.accessToken);
+      //print(picPoster.profileId);
       print('done');
-      print(responseId.body);
+      //print(responseId.body);
 
       //print(response.statusCode);
     } catch (error) {
@@ -124,10 +127,47 @@ class PostDetails with ChangeNotifier {
       //print(error.data);
       //print(error.response.statusCode);
     }
-    final urlGet =
+    /* final urlGet =
         Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/$id/faves');
     final response = await http.get(urlGet);
-    print(response.body);
+    print(response.body); */
+  }
+
+  /// Update the main database that the post is unfaved.
+  Future<void> unFaveMainServer() async {
+    final token =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIyOTM3NjA4LCJqdGkiOiIwZmE4MWRmNjI2YzE0NGNjYjliODNiZjNmZWRkOWZhNyIsInVzZXJfaWQiOjJ9.kFxguEk7VOpS9gw5amu9NFijyGPyL8ZQKJiU_3YZH0c";
+    final url =
+        Uri.https(globals.HttpSingleton().getBaseUrl(), 'api/photos/$id/fav');
+    print(url);
+    try {
+      final responseId = await http.delete(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+        /* body: json.encode(
+          {
+            'id': 1,
+          },
+        ),  */
+      );
+      //print(globals.accessToken);
+      //print(picPoster.profileId);
+      print('done');
+      //print(responseId.body);
+
+      //print(response.statusCode);
+    } catch (error) {
+      throw (error);
+      //print(error.data);
+      //print(error.response.statusCode);
+    }
+    /* final urlGet =
+        Uri.http(globals.HttpSingleton().getBaseUrl(), 'api/photos/$id/faves');
+    final response = await http.get(urlGet);
+    print(response.body); */
   }
 
   ///UpdateFavoriteStatus is called inside toggleFavoriteStatus function to reflect changes on mock service and database.
@@ -162,7 +202,11 @@ class PostDetails with ChangeNotifier {
     picPoster.followedDuringRunning = true;
 
     notifyListeners();
-    updateFollowPicPoster(posts);
+    if (globals.isMockService) {
+      updateFollowPicPoster(posts);
+    } else {
+      updateMainServerFollowPicPoster(picPoster.isFollowedByUser);
+    }
   }
 
   /// Used When there is a fullow button to follow/unfollow other profiles and updates the data on the mock service and database.
@@ -181,7 +225,11 @@ class PostDetails with ChangeNotifier {
     //picPoster.followedDuringRunning = true;
     personDetails.notify();
     notifyListeners();
-    updateFollowPicPoster(posts);
+    if (globals.isMockService) {
+      updateFollowPicPoster(posts);
+    } else {
+      updateMainServerFollowPicPoster(picPoster.isFollowedByUser);
+    }
   }
 
   ///This function is called inside followPicPoster and toggleFollowPicPoster to reflect change on database and mock service.
@@ -210,6 +258,44 @@ class PostDetails with ChangeNotifier {
         );
       }
     } catch (error) {}
+  }
+
+  Future<void> updateMainServerFollowPicPoster(bool isFollowedByUser) async {
+    final url = Uri.https(globals.HttpSingleton().getBaseUrl(),
+        'api/accounts/follow/' + picPoster.profileId);
+    print(url);
+    //print(picPoster.profileId);
+    //print(isFollowedByUser);
+    if (isFollowedByUser) {
+      await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+    } else {
+      await http.delete(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+        },
+      );
+    }
+
+    try {
+      //print(globals.accessToken);
+      //print(picPoster.profileId);
+      print('done');
+      //print(responseId.body);
+
+      //print(response.statusCode);
+    } catch (error) {
+      throw (error);
+      //print(error.data);
+      //print(error.response.statusCode);
+    }
   }
 
   ///Returns the short list of the users names who faved the post to display on screen.

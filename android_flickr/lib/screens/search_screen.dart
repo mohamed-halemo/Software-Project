@@ -5,6 +5,12 @@ import '../providers/flickr_posts.dart';
 import '../providers/flickr_post.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
+import 'dart:io';
+import '../Classes/globals.dart' as globals;
 // import '../Classes/globals.dart' as globals;
 
 /// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
@@ -25,8 +31,122 @@ class SearchScreenState extends State<SearchScreen> {
   /// Contains the List of people that will be displayed on people tab.
   List<PicPosterDetails> peopleSearchResult = [];
 
-  /// When the user searches for anything this function is called and it applies the search criteria on the available data to extract the data the user needs.
-  void submitData(List<PostDetails> postsToDisplay,
+  ///
+  Future<void> getPhotosSearchResultMainServer(Posts postsPointer) async {
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+    };
+    var extractedData;
+
+    try {
+      await dio.get(
+        '/api/photos/search',
+        queryParameters: {"search_text": searchTextController.text},
+      ).then((value) => extractedData = value.data);
+      setState(() {
+        final photosSearchExtractedPosts =
+            extractedData['results']['everyone_photos'] as List<dynamic>;
+        print(photosSearchExtractedPosts);
+        photosSearchResult.clear();
+        photosSearchResult =
+            postsPointer.setPostsFromMainserver(photosSearchExtractedPosts, 2);
+        print(photosSearchResult.length);
+      });
+    } on DioError catch (error) {
+      print(error.response.statusCode);
+    }
+  }
+
+  ///
+  Future<void> getPeopleSearchResultMainServer(Posts postsPointer) async {
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+    };
+    var extractedData;
+
+    try {
+      await dio.get(
+        '/api/accounts/search',
+        queryParameters: {'username': searchTextController.text},
+      ).then((value) => extractedData = value.data);
+      setState(() {
+        peopleSearchResult.clear();
+
+        /// clear old list.
+        ///Extract the profiles of people that I follow.
+        final followedPeopleSearchExtractedProfiles =
+            extractedData['results']['following'] as List<dynamic>;
+        print(followedPeopleSearchExtractedProfiles.length);
+
+        ///Loop on each item in the list of people I follow to add the profile to the peopleSearchResult so they are displayed.
+        followedPeopleSearchExtractedProfiles.forEach((followedPerson) {
+          String profileId = followedPerson['followed']['id'].toString();
+          String name = followedPerson['followed']['first_name'] +
+              ' ' +
+              followedPerson['followed']['last_name'];
+          String profilePicUrl = followedPerson['followed']['profile_pic'] ==
+                  null
+              ? followedPerson['followed']['profile_pic']
+              : 'https://fotone.me' + followedPerson['followed']['profile_pic'];
+          String profileCoverPhoto = followedPerson['followed']
+                      ['cover_photo'] ==
+                  null
+              ? followedPerson['followed']['cover_photo']
+              : 'https://fotone.me' + followedPerson['followed']['cover_photo'];
+          final followedPersonDetails = PicPosterDetails(
+            profileId,
+            name,
+            followedPerson['followed']['is_pro'],
+            followedPerson['followed']['is_followed'],
+            profilePicUrl,
+            profileCoverPhoto,
+          );
+          peopleSearchResult.add(followedPersonDetails);
+        });
+        final allPeopleSearchExtractedProfiles =
+            extractedData['results']['all_people'] as List<dynamic>;
+        print(allPeopleSearchExtractedProfiles.length);
+
+        ///Loop on each item in the list of people to add the profile to the peopleSearchResult so they are displayed.
+        allPeopleSearchExtractedProfiles.forEach((person) {
+          String profileId = person['id'].toString();
+          String name = person['first_name'] + ' ' + person['last_name'];
+          String profilePicUrl = person['profile_pic'] == null
+              ? person['profile_pic']
+              : 'https://fotone.me' + person['profile_pic'];
+          String profileCoverPhoto = person['cover_photo'] == null
+              ? person['cover_photo']
+              : 'https://fotone.me' + person['cover_photo'];
+          final personDetails = PicPosterDetails(
+            profileId,
+            name,
+            person['is_pro'],
+            person['is_followed'],
+            profilePicUrl,
+            profileCoverPhoto,
+          );
+          peopleSearchResult.add(personDetails);
+        });
+        print(peopleSearchResult.length);
+      });
+    } on DioError catch (error) {
+      print(error.response.statusCode);
+    }
+  }
+
+  void searchResultMockService(List<PostDetails> postsToDisplay,
       List<PicPosterDetails> loadedPicPosterProfiles) {
     setState(
       () {
@@ -56,10 +176,24 @@ class SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  /// When the user searches for anything this function is called and it applies the search criteria on the available data to extract the data the user needs.
+  Future<void> submitData(
+      List<PostDetails> postsToDisplay,
+      List<PicPosterDetails> loadedPicPosterProfiles,
+      Posts postsPointer) async {
+    if (globals.isMockService) {
+      searchResultMockService(postsToDisplay, loadedPicPosterProfiles);
+    } else {
+      await getPhotosSearchResultMainServer(postsPointer);
+      await getPeopleSearchResultMainServer(postsPointer);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ///Gets all the posts available.
     final postsToDisplay = Provider.of<Posts>(context).posts;
+    final postsPointer = Provider.of<Posts>(context);
 
     ///Gets the profiles of available users to search among them.
     final loadedPicPosterProfiles =
@@ -74,8 +208,8 @@ class SearchScreenState extends State<SearchScreen> {
           automaticallyImplyLeading: false,
           title: TextField(
             controller: searchTextController,
-            onSubmitted: (_) =>
-                submitData(postsToDisplay, loadedPicPosterProfiles),
+            onSubmitted: (_) => submitData(
+                postsToDisplay, loadedPicPosterProfiles, postsPointer),
             style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: "Search Flickr",
