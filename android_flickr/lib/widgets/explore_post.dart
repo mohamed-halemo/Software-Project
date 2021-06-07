@@ -16,6 +16,7 @@ class ExplorePost extends StatelessWidget {
 
   /// Tells whether this widget is used in profile mode or non profile mode.
   final isProfile;
+  final isNotMyProfile;
 
   /// Index of the post currently displayed.
   final exploreindex;
@@ -34,16 +35,17 @@ class ExplorePost extends StatelessWidget {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': toSendPosts.toList(),
+        'postDetails': isNotMyProfile ? toSendPosts.toList() : allPosts,
         'isFromPersonalProfile': false,
-        'explorePosts': toSendPosts.toList(),
+        'explorePosts': isNotMyProfile ? toSendPosts.toList() : allPosts,
         'postIndex': exploreindex,
         'ExORPup': 'explore'
       },
     );
   }
 
-  ExplorePost(this.inPublicMode, this.exploreindex, this.isProfile);
+  ExplorePost(this.inPublicMode, this.exploreindex, this.isProfile,
+      this.isNotMyProfile);
   @override
   Widget build(BuildContext context) {
     /// We set up a listener here to class Posts to listen any change to the post.

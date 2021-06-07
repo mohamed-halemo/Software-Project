@@ -34,7 +34,7 @@ class ExploreState extends State<Explore> {
 
           /// False in explore post is to indicate that posts are displayed in explore mode
           /// not public mode to display the popupmenu button accordingly.
-          child: ExplorePost(inPublicMode, index, isProfile),
+          child: ExplorePost(inPublicMode, index, isProfile, false),
         );
       },
     );

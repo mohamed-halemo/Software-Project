@@ -13,6 +13,7 @@ class NonProfilePublicViewPost extends StatelessWidget {
 
   ///Not in the profile section other person profile is being displayed .
   final isProfile = false;
+  final isNotMyProfile = true;
   /* FlickrProfile _goToNonprofile(BuildContext ctx, PostDetails postInformation,
       List<PostDetails> currentPosts) {
     final flickrProfileDetails = FlickrProfiles()
@@ -40,7 +41,8 @@ class NonProfilePublicViewPost extends StatelessWidget {
                 value: postsToDisplay[index],
 
                 /// True in explore post is to indicate that posts are displayed in public mode not explore mode.
-                child: ExplorePost(inPublicMode, index, isProfile),
+                child:
+                    ExplorePost(inPublicMode, index, isProfile, isNotMyProfile),
               );
             },
           )
