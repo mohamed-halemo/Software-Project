@@ -133,7 +133,7 @@ class MyApp extends StatelessWidget {
         title: 'Flickr',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          fontFamily: 'Rubik',
+          fontFamily: 'Proxima Nova',
           primarySwatch: primBlack.primaryBlack,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
