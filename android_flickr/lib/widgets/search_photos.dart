@@ -8,10 +8,17 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 /// Displays list of the photos that the user search for.
 class SearchPhotos extends StatelessWidget {
   final photosSearchResult;
-  void clickOnImageScreen(BuildContext ctx, PostDetails postInformation) {
+  void clickOnImageScreen(
+      BuildContext ctx, List<PostDetails> postsToDisplay, int index) {
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
-      arguments: postInformation,
+      arguments: {
+        'postDetails': postsToDisplay,
+        'isFromPersonalProfile': false,
+        'explorePosts': postsToDisplay,
+        'postIndex': index,
+        'ExORPup': 'explore'
+      },
     );
   }
 
@@ -28,7 +35,7 @@ class SearchPhotos extends StatelessWidget {
       itemBuilder: (context, index) {
         return InkWell(
           onTap: () {
-            clickOnImageScreen(context, postsToDisplay[index]);
+            clickOnImageScreen(context, postsToDisplay, index);
           },
           child: Image.network(
             postsToDisplay[index].postImageUrl,
