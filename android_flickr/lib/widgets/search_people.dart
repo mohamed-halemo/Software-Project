@@ -16,25 +16,52 @@ class SearchPeople extends StatefulWidget {
 class SearchPeopleState extends State<SearchPeople> {
   /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
   /// and profiles to choose the posts and images needed and display them.
-  void _goToNonprofile(BuildContext ctx, PostDetails postInformation,
+  void _goToNonprofile(BuildContext ctx, PicPosterDetails userDetails,
       List<PostDetails> currentPosts, FlickrProfiles flickrProfiles) {
-    final flickrProfileDetails = flickrProfiles.addProfileDetailsToList(
-        postInformation.picPoster, currentPosts);
+    final flickrProfileDetails =
+        flickrProfiles.addProfileDetailsToList(userDetails, currentPosts);
     /* final flickrProfileDetails = FlickrProfiles().profiles.where(
         (profile) => profile.profileID == postInformation.picPoster.profileId); */
     // print(flickrProfileDetails.profileID);
+    final profileFirstPostFound = currentPosts.firstWhere(
+      (post) => post.picPoster.profileId == userDetails.profileId,
+      orElse: () {
+        return PostDetails(
+          picPoster: userDetails,
+          id: "-1",
+          dateTaken: DateTime.now(),
+          privacy: false,
+          description: "",
+          tags: [],
+          commentsTotalNumber: 20,
+          postImageUrl: "postImageUrl",
+          postedSince: "6w",
+          favesDetails: FavedPostDetails(favedUsersNames: [], isFaved: false),
+        );
+      },
+    );
     Navigator.of(ctx).pushNamed(
       NonProfileScreen.routeName,
-      arguments: [postInformation, flickrProfileDetails],
+      arguments: [profileFirstPostFound, flickrProfileDetails],
     );
   }
 
   ///When the follow button is pressed this function updates the data so any widgets that needs to know can notice the changes
   void toggleFollowPicPoster(
       PicPosterDetails personDetails, List<PostDetails> currentPosts) {
+    //print("first");
+    //print(personDetails.isFollowedByUser);
+    //print
     final profileFirstPostFound = currentPosts.firstWhere(
         (post) => post.picPoster.profileId == personDetails.profileId);
-    profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
+    profileFirstPostFound.toggleFollowPicPoster(
+        currentPosts, profileFirstPostFound.picPoster);
+    personDetails.notify();
+    //print("second");
+    //print(personDetails.isFollowedByUser);
+    setState(() {
+      personDetails.isFollowedByUser = !personDetails.isFollowedByUser;
+    });
   }
 
   @override
@@ -44,6 +71,7 @@ class SearchPeopleState extends State<SearchPeople> {
         widget.peopleSearchResult as List<PicPosterDetails>;
     final flickrProfiles = Provider.of<FlickrProfiles>(context);
     final currentPosts = Provider.of<Posts>(context).posts;
+    //final listener = Provider.of<PicPosterDetails>(context);
     return ListView.builder(
       itemCount: peopleSearchDetails.length,
       itemBuilder: (ctx, index) {
@@ -52,8 +80,8 @@ class SearchPeopleState extends State<SearchPeople> {
           child: ListTile(
             leading: GestureDetector(
               onTap: () {
-                _goToNonprofile(
-                    context, currentPosts[index], currentPosts, flickrProfiles);
+                _goToNonprofile(context, peopleSearchDetails[index],
+                    currentPosts, flickrProfiles);
               },
               child: CircleAvatar(
                 radius: MediaQuery.of(context).size.width / 20,

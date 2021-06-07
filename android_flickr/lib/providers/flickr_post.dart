@@ -213,6 +213,8 @@ class PostDetails with ChangeNotifier {
   /// Listeners of Posts and PicPosterDetails are notified with the changes so the widgets can adapt to the new situation
   void toggleFollowPicPoster(
       List<PostDetails> posts, PicPosterDetails personDetails) {
+    //personDetails.isFollowedByUser = !personDetails.isFollowedByUser;
+    picPoster.isFollowedByUser = !picPoster.isFollowedByUser;
     personDetails.isFollowedByUser = !personDetails.isFollowedByUser;
 
     posts.forEach((post) {
@@ -221,8 +223,9 @@ class PostDetails with ChangeNotifier {
       }
     });
 
-    picPoster.isFollowedByUser = !picPoster.isFollowedByUser;
+    print(picPoster.isFollowedByUser);
     //picPoster.followedDuringRunning = true;
+    picPoster.notify();
     personDetails.notify();
     notifyListeners();
     if (globals.isMockService) {
@@ -274,6 +277,7 @@ class PostDetails with ChangeNotifier {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
+      print('follow');
     } else {
       await http.delete(
         url,
@@ -282,6 +286,7 @@ class PostDetails with ChangeNotifier {
           HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
         },
       );
+      print('unfollow');
     }
 
     try {

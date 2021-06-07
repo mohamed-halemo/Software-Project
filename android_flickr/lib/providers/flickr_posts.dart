@@ -471,7 +471,7 @@ class Posts with ChangeNotifier {
               lastComment: {
                 postDetails['lastCommentUser']: postDetails['lastCommentText'],
               },
-              tags: postDetails['tags'],
+              tags: [postDetails['tags']],
               //dateTaken: postDetails['date_taken'],
               description: postDetails['description'],
               privacy: postDetails['privacy'],
@@ -556,7 +556,7 @@ class Posts with ChangeNotifier {
               lastComment: {
                 postDetails['lastCommentUser']: postDetails['lastCommentText'],
               },
-              tags: postDetails['tags'],
+              tags: [postDetails['tags']],
               //dateTaken: postDetails['date_taken'],
               description: postDetails['description'],
               privacy: postDetails['privacy'],
