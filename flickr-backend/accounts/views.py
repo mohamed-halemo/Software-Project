@@ -570,14 +570,13 @@ def ChangeEmail(request):
 @swagger_auto_schema(method='put', request_body=ProfileUserSerializer)
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_profile(request):
     try:
         user=request.user
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        parser_classes = (MultiPartParser, FormParser)
         serializer = ProfileUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['profile_pic'])
         return Response(first,status=response)
@@ -586,18 +585,18 @@ def upload_profile(request):
 @swagger_auto_schema( methods = ['PUT'] , request_body = CoverUserSerializer )
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_cover(request):
     try:
         user=request.user
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
-        parser_classes = (MultiPartParser, FormParser)
         serializer = CoverUserSerializer(user, data=request.data)
         first,response= check_media_content_type(serializer,request.FILES['cover_photo'])
         return Response(first,status=response)
 
+        
 #following/unfollowing
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -634,17 +633,17 @@ def followers_list(request):
         followers_list = user.follow_followed.all().order_by('-date_create')
     except:
         return Response(status=status.HTTP_404_NOT_FOUND) 
-    # check to make the flag if he is followed or not
-    # for one in following_list:
-    #     account2=Account.objects.get(id=one.user.id)
-    #     for two in followers_list:
-    #         account=Account.objects.get(id=two.user.id)
-    #         account.is_followed= False
-    #         account.save()
-    #         if account == account2:
-    #             account.is_followed=True
-    #             account.save()
 
+    for one in followers_list:
+        account=Account.objects.get(id=one.user.id)
+        account.is_followed=False
+        account.save()
+        for two in following_list:
+            account2=Account.objects.get(id=two.followed.id)
+            if account == account2:
+                account.is_followed=True
+                account.save()
+    followers_list = user.follow_followed.all().order_by('-date_create')
                 
     serializer = FollowerSerializer(
         followers_list, many=True)
@@ -660,6 +659,11 @@ def following_list(request):
         following_list = user.follow_follower.all().order_by('-date_create')
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    for one in following_list:
+        account=Account.objects.get(id=one.followed.id)
+        account.is_followed=True
+        account.save()   
+    following_list = user.follow_follower.all().order_by('-date_create')     
     serializer = FollowingSerializer(
         following_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -675,22 +679,25 @@ def user_following(request, userpk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     try:
 
-        user = request.user
-        following_list_user = user.follow_follower.all().order_by('-date_create')
+        logged_user = request.user
+        following_list_user = logged_user.follow_follower.all().order_by('-date_create')
     except:
-        return Response(status=status.HTTP_404_NOT_FOUND)     
-    # check to make the flag if he is followed or not
-    # for one in following_list:
-    #     account2=Account.objects.get(id=one.user.id)
-    # for two in following_list_user:
-    #     account=Account.objects.get(id=two.user.id)
-    #     account.is_followed= False
-    #     if account == account2:
-    #         account.is_followed=True
-
+        following_list_user=[]
+    # check to make the flag if he is followed or not     
+    for one in following_list:
+        account=Account.objects.get(id=one.followed.id)
+        account.is_followed=False
+        account.save()
+        for two in following_list_user:
+            account2=Account.objects.get(id=two.followed.id)
+            if account == account2:
+                account.is_followed=True
+                account.save() 
+    following_list = user.follow_follower.all().order_by('-date_create')   
     serializer = FollowingSerializer(
         following_list, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)                    
+    return Response(serializer.data, status=status.HTTP_200_OK)       
+                 
 
 test_param = openapi.Parameter('username', openapi.IN_QUERY, description="Search for people with username", type=openapi.TYPE_STRING)
 user_response = openapi.Response('response description', OwnerSerializer)

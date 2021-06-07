@@ -130,10 +130,11 @@ DATABASES = {
         'CLIENT': {
                     'host': "mongodb+srv://Fotone:@cluster0.khmwk.mongodb.net/flickr_database?retryWrites=true&w=majority",
                     'username': 'Fotone',
-                    'password': config('DATABASE_PASSWORD')
+                    'password': '1234567890'
                     },
     }
 }
+
 # mongodb compass
 # mongodb+srv://Fotone:*****@cluster0.khmwk.mongodb.net/test?authSource=admin&replicaSet=atlas-1vvl1b-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
 # cluster0-shard-00-02.khmwk.mongodb.net:27017

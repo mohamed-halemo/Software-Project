@@ -30,14 +30,14 @@ def search_in_search_place(photo_ids_list, user):
 
 
 def search_according_to_all_or_tags(request_data):
-
+    
     # Searching for search_text in title, description & tags OR tags only
-    list = request_data['search_text'].split()
+    list = request_data.get('search_text').split()
     photo_ids_list = []
 
     # If all_or_tags is not provided or is set to (all),
     # search for search_text in title, description & tags
-    if ('all_or_tags' not in request_data) or (request_data['all_or_tags'] == 'all'):
+    if ('all_or_tags' not in request_data) or (request_data.get('all_or_tags') == 'all'):
 
         for text in list:
             photos = Photo.objects.filter(title__icontains=text) | Photo.objects.filter(description__icontains=text)
@@ -51,7 +51,7 @@ def search_according_to_all_or_tags(request_data):
 
    # If all_or_tags is set to (tags),
    # search for search_text in tags ONLY
-    elif (request_data['all_or_tags'] == 'tags'):
+    elif (request_data.get('all_or_tags') == 'tags'):
 
         for text in list:
             tags = Tag.objects.filter(tag_text__icontains=text)
@@ -62,7 +62,6 @@ def search_according_to_all_or_tags(request_data):
 
     else:
         return None
-
 
 def limit_photos_number(photos, max_limit):
 
@@ -252,7 +251,7 @@ def get_photos_of_the_followed_people(user):
     following_list_ids = []
     following_list = user.follow_follower.all()
     for following in following_list:
-        following_list_ids.append(following.id)
+        following_list_ids.append(following.followed.id)
     following_photos = Photo.objects.filter(is_public=True, owner_id__in=following_list_ids).order_by('-date_posted')
     return following_photos , following_list_ids
 

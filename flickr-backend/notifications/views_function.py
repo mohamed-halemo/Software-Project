@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 
 def check_notification_exists(id):
+    noti_obj=None
     response = ''
     bool = False
     try:

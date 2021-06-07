@@ -857,7 +857,12 @@ def get_recent_photos(request):
     # Maximum number of objects per page, changed as needed
     Paginator.page_size = 20
 
-    photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+    # If the user is logged in, his/her photos will not be included in the recent photos
+    if request.user .is_anonymous():
+        photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+    else:
+        photos = Photo.objects.filter(is_public=True).exclude(owner=request.user).order_by('-date_posted')
+
     # Maximum number of objects returned in the request, changed as needed
     required_photos = limit_photos_number(photos, 1000)
 
@@ -866,18 +871,20 @@ def get_recent_photos(request):
     recent_photos = PhotoSerializer(results, many=True).data
     return Paginator.get_paginated_response({'stat': 'ok',
                                              'photos': recent_photos})
-
-
-
 # Photo search API
 
-# test_param = openapi.Parameter('search_text', openapi.IN_QUERY, description="Search for a photo with search_text", type=openapi.TYPE_STRING)
 
-# test_param2 = openapi.Parameter('all_or_tags', openapi.IN_QUERY, description="Search for a photo with tags or all", type=openapi.TYPE_STRING)
+test_param = openapi.Parameter('search_text', openapi.IN_QUERY, description="Search for a photo with search_text", type=openapi.TYPE_STRING)
 
-# user_response = openapi.Response('response description', )
+test_param2 = openapi.Parameter('all_or_tags', openapi.IN_QUERY, description="Search for a photo with (all or tags)", type=openapi.TYPE_STRING)
 
-# @swagger_auto_schema(method='get', manual_parameters=[test_param,test_param2], responses={200: user_response})
+test_param3 = openapi.Parameter('min_upload_date', openapi.IN_QUERY, description="Search for a photo with min upload date , Valid format is: ( %Y-%m-%d %H:%M:%S )",type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME)
+
+test_param4 = openapi.Parameter('max_upload_date', openapi.IN_QUERY, description="Search for a photo with  max upload date , Valid format is: ( %Y-%m-%d %H:%M:%S )", type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME)
+
+user_response = openapi.Response('response description', )
+
+@swagger_auto_schema(method='get', manual_parameters=[test_param,test_param2,test_param3,test_param4], responses={200: user_response})
 
 @api_view(['GET'])
 def search_photos(request):
@@ -887,13 +894,13 @@ def search_photos(request):
     Paginator.page_size = 20
 
     # If search_text is missing, return an error message
-    if ('search_text' not in request.data):
+    if ('search_text' not in request.query_params):
         return Response(
                     {'stat': 'fail',
                      'message': 'search_text is missing.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
-    photo_ids_list = search_according_to_all_or_tags(request.data)
+    photo_ids_list = search_according_to_all_or_tags(request.query_params)
 
     # In case all_or_tags is neither (all) nor (tags), send an error mesage
     if (photo_ids_list == None):
@@ -912,24 +919,24 @@ def search_photos(request):
        
 
     # If both upload dates and taken dates are entered, return an error message
-    if ('min_upload_date' in request.data and 'min_taken_date' in request.data
-       ) or ('max_upload_date' in request.data and 'max_taken_date' in request.data
-       ) or ('min_upload_date' in request.data and 'max_taken_date' in request.data
-       ) or ('max_upload_date' in request.data and 'min_taken_date' in request.data):
+    if ('min_upload_date' in request.query_params and 'min_taken_date' in request.query_params
+       ) or ('max_upload_date' in request.query_params and 'max_taken_date' in request.query_params
+       ) or ('min_upload_date' in request.query_params and 'max_taken_date' in request.query_params
+       ) or ('max_upload_date' in request.query_params and 'min_taken_date' in request.query_params):
         return Response(
                     {'stat': 'fail',
                      'message': 'Enter either upload dates or taken dates, not both.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
     # Filtering by date posted
-    elif ('min_upload_date' in request.data) or ('max_upload_date' in request.data):
+    elif ('min_upload_date' in request.query_params) or ('max_upload_date' in request.query_params):
 
-        if ('min_upload_date' in request.data) and ('max_upload_date' in request.data):
+        if ('min_upload_date' in request.query_params) and ('max_upload_date' in request.query_params):
 
             # Checking validatity of DateTime format entered
             try:
-                min_upload_date = datetime.strptime(request.data['min_upload_date'], '%Y-%m-%d %H:%M:%S')
-                max_upload_date = datetime.strptime(request.data['max_upload_date'], '%Y-%m-%d %H:%M:%S')
+                min_upload_date = datetime.strptime(request.query_params.get('min_upload_date'), '%Y-%m-%d %H:%M:%S')
+                max_upload_date = datetime.strptime(request.query_params.get('max_upload_date'), '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -953,14 +960,14 @@ def search_photos(request):
                     status=status.HTTP_400_BAD_REQUEST)
 
     # Filtering by date taken
-    elif ('min_taken_date' in request.data) or ('max_taken_date' in request.data):
+    elif ('min_taken_date' in request.query_params) or ('max_taken_date' in request.query_params):
 
-        if ('min_taken_date' in request.data) and ('max_taken_date' in request.data):
+        if ('min_taken_date' in request.query_params) and ('max_taken_date' in request.query_params):
 
             # Checking validatity of DateTime format entered
             try:
-                min_taken_date = datetime.strptime(request.data['min_taken_date'], '%Y-%m-%d %H:%M:%S')
-                max_taken_date = datetime.strptime(request.data['max_taken_date'], '%Y-%m-%d %H:%M:%S')
+                min_taken_date = datetime.strptime(request.query_params.get('min_taken_date'), '%Y-%m-%d %H:%M:%S')
+                max_taken_date = datetime.strptime(request.query_params.get('max_taken_date'), '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 return Response(
                     {'stat': 'fail',
@@ -1000,8 +1007,6 @@ def search_photos(request):
                                              'user_photos': user_search_photos,
                                              'following_photos': following_search_photos,
                                              'everyone_photos': everyone_search_photos})
-
-
 
 # Rotate photo API
 @swagger_auto_schema( methods = ['put'] , request_body = PhotoRotationSerializer) 
@@ -1061,6 +1066,10 @@ def faves_list(request):
     # GET
     user = request.user
     faves_list = user.post_favourite.all()
+    for photo in faves_list:
+        photo.is_faved= True
+        photo.save()
+
     serializer = PhotoSerializer(
         faves_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -1079,48 +1088,7 @@ def photo_faves(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# def fav_photo(user,photo_obj):
-#     owner, _ = check_permission( user, photo_obj)
-#     if owner:
-#         response =status.HTTP_403_FORBIDDEN
-#         return response
-#     exist= check_existence_of_object_in_list(user, photo_obj.favourites.all())
 
-#     # if request.user not in photo_obj.favourites.all():
-#     if not exist:
-#         photo_obj.favourites.add(request.user)
-#         # increment the count of the users who faved this photo by 1
-#         increment_photo_meta_counts(photo_obj,'count_favourites')
-#         # send notification to photo owner when you faved his photo
-#         if photo_obj.faved_notification:
-#             turn_on = True
-#             show = True
-#             # # push notification
-#             header = {"Content-Type": "application/json; charset=utf-8",
-#             "Authorization": "Basic "+ str(settings.AUTH_NOTIFY)}
-
-#             payload = {"app_id": str(settings.API_KEY),
-#                         "include_player_ids": [str(settings.PLAYER_ID)],
-#                     "contents": {"en": str(request.user.first_name +" "+ request.user.last_name + " faved your photo")}}
-#                     # "big_picture": str("https://" + photo_obj.media_file)}
-                    
-#                     # "big_picture": "https://cdn.vox-cdn.com/thumbor/-cVT6oDpSP7kfe-0vdEKIdWlIuQ=/1400x1050/filters:format(png)/cdn.vox-cdn.com/uploads/chorus_asset/file/13370313/flickr.png"}
-
-#             req = requests.post("https://app.onesignal.com/api/v1/notifications",
-#                                 headers=header, data=json.dumps(payload))
-#         else:
-#             turn_on = False
-#             show = False
-#         Notification.objects.create(sender=request.user,
-#                                     user=photo_obj.owner,
-#                                     photo=photo_obj,
-#                                     notification_type=1,
-#                                     turn_on=turn_on,
-#                                     show=show)
-#         response =status.HTTP_200_OK
-#         return response
-#     response = status.HTTP_400_BAD_REQUEST
-#     return  response
 
 @api_view(['POST', 'DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -1193,10 +1161,9 @@ def fav_photo(request, id):
 @swagger_auto_schema(method='post', request_body=PhotoUploadSerializer)
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-@parser_classes((FormParser,))
+@parser_classes((FormParser,MultiPartParser,))
 def upload_media(request):
     #upload photo one at a time
-    parser_classes = (MultiPartParser, FormParser)
     serializer = PhotoUploadSerializer(data=request.data)
     empty,msg,response = check_existence_of_media_file(request.data)
     if empty :
@@ -1206,12 +1173,12 @@ def upload_media(request):
         height = request.data['photo_height']
         width = request.data['photo_width']
 
-        pixels,message,response,success= upload(file_field,request.user,width,height)
+        pixels,_,response,success= upload(file_field,request.user,width,height)
         if success:
             increment_profile_items(request.user,'total_media')
             serializer.save(photo_displaypx=pixels, owner=request.user)
             # increment the count of media 
-            return Response({'message': str(message)},status=response,)
+            return Response(serializer.data,status=response,)
         else:
             return Response(serializer.errors, status=response)                
     else:
@@ -1229,7 +1196,11 @@ def get_public(request, id):
     except ObjectDoesNotExist:
         
         return Response(status=status.HTTP_404_NOT_FOUND)
-
+    for photo in get_list:  
+        if request.user in photo.favourites.all():
+            photo.is_faved= True
+        else:
+            photo.is_faved= False
     #  for pagination
     Paginator = RespondPagination()
     results = Paginator.paginate_queryset(get_list, request)
@@ -1285,6 +1256,7 @@ def Home(request):
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
         public_photos = Photo.objects.filter(is_public=True).order_by('-date_posted')
+
         public_photos= limit_photos_number(public_photos,300)
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
@@ -1294,10 +1266,32 @@ def Home(request):
         following_photos, following_list_ids= get_photos_of_the_followed_people(request.user)
         following_photos= limit_photos_number(following_photos,150)
         Paginator = RespondPagination()
+        for photo in following_photos:  
+            account2=Account.objects.get(id=photo.owner.id)
+            account2.is_followed=True
+            account2.save()
+        following_photos, following_list_ids= get_photos_of_the_followed_people(request.user)
+        following_photos= limit_photos_number(following_photos,150)
+        for photo in following_photos:  
+            if request.user in photo.favourites.all():
+                photo.is_faved= True
+            else:
+                photo.is_faved= False
         results = Paginator.paginate_queryset(following_photos, request)
         following_photos = PhotoSerializer(results, many=True).data
         public_photos= get_photos_of_public_people(request.user)
         public_photos= limit_photos_number(public_photos,150)
+        for photo in public_photos: 
+            account=Account.objects.get(id=photo.owner.id)
+            account.is_followed=False
+            account.save()
+        public_photos= get_photos_of_public_people(request.user)
+        public_photos= limit_photos_number(public_photos,150)   
+        for photo in public_photos: 
+            if request.user in photo.favourites.all():
+                photo.is_faved= True
+            else:
+                photo.is_faved= False     
         results2 = Paginator.paginate_queryset(public_photos, request)
         public_photos = PhotoSerializer(results2, many=True).data
     return Paginator.get_paginated_response({'following_photos': following_photos,'public_photos': public_photos})

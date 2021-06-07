@@ -6,7 +6,7 @@ from accounts.models import Account
 from accounts.serializers import *
 from project.utils import validate_password
 
-class TestModels(TestCase):
+class TestAccounts(TestCase):
 
 #testing sign_up         
     def test_signup_full_assignment(self):
@@ -759,9 +759,74 @@ class TestModels(TestCase):
         response,_ = change_user_email(new_email,user)
         
         self.assertEqual(response['error'], 'Please enter a valid mail')
+def create_test_user(email):
+    #prepare user
+    first_name = 'test2'
+    last_name = 'name'
+    age = '50'
+    password = 'Kamel1234567'
+    email = email
+    Account.objects.create_user(email,first_name,last_name,age,password)
+    user=Account.objects.get(email = email)
+    verifying_user(user)
+    return user 
 
+class TestContacts(TestCase):
+    
+    def test_follow_success(self):
+        user=create_test_user('user@gmail.com')
+        #second user
+        followed_user= create_test_user('second@gmail.com')
+        
+        contact = Contacts.objects.filter(
+            user=user, followed=followed_user)
+        response= follow(contact,followed_user,user)
+        contact = Contacts.objects.filter(
+            user=user, followed=followed_user)
+        self.assertEqual(contact.exists(), True)            
+        self.assertEqual(response, 200)
+        self.assertEqual(user.following_count,1)
+        self.assertEqual(followed_user.followers_count,1)
 
+    def test_follow_failure(self):
+        user=create_test_user('user@gmail.com')
+        contact = Contacts.objects.filter(
+            user=user, followed=user)
+        response= follow(contact,user,user)
 
+        contact = Contacts.objects.filter(
+            user=user, followed=user)
+        self.assertEqual(contact.exists(), False)     
+        self.assertEqual(response, 400)
+        self.assertEqual(user.following_count,0)
+        self.assertEqual(user.followers_count,0)
+
+    def test_unfollow_success(self):
+        user=create_test_user('user22@gmail.com')
+        #second user
+        followed_user= create_test_user('second22@gmail.com')
+        
+        contact1 = Contacts.objects.filter(
+            user=user, followed=followed_user)
+        follow(contact1,followed_user,user)
+        contact2 = Contacts.objects.filter(
+            user=user, followed=followed_user)    
+        response= unfollow(contact2,user,followed_user)
+        contact = Contacts.objects.filter(
+            user=user, followed=followed_user)
+        self.assertEqual(contact.exists(), False)            
+        self.assertEqual(response, 204)
+        self.assertEqual(user.following_count,0)
+        self.assertEqual(followed_user.followers_count,0)
+
+    def test_unfollow_failure(self):
+        user=create_test_user('user45@gmail.com')
+        contact = Contacts.objects.filter(
+            user=user, followed=user)
+        response= unfollow(contact,user,user)   
+        self.assertEqual(response, 400)
+
+        
 
 
 
