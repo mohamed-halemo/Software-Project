@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import '../Classes/globals.dart' as globals;
+import '../models/flickr_groups.dart';
 // import '../Classes/globals.dart' as globals;
 
 /// When the search textfield is pressed in the search tab on explore screen, this screen is displayed with textfield for the user to search for group/photo/people.
@@ -31,7 +32,11 @@ class SearchScreenState extends State<SearchScreen> {
   /// Contains the List of people that will be displayed on people tab.
   List<PicPosterDetails> peopleSearchResult = [];
 
-  ///
+  /// Contains the List of groups that will be displayed on groups tab.
+  List<FlickrGroup> groupsSearchResult = [];
+
+  /// Extracts posts of PostDetails from the search result and adds them to the photosSearchResult list which is then passed to the
+  /// SearchPhotos widget down below.
   Future<void> getPhotosSearchResultMainServer(Posts postsPointer) async {
     Dio dio = new Dio(
       BaseOptions(
@@ -63,8 +68,53 @@ class SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  ///
-  Future<void> getPeopleSearchResultMainServer(Posts postsPointer) async {
+  /// Extracts groups from the search result and adds them to the photosSearchResult list which is then passed to the
+  /// SearchPhotos widget down below.
+  Future<void> getGroupsSearchResultMainServer() async {
+    Dio dio = new Dio(
+      BaseOptions(
+        baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
+      ),
+    );
+    dio.options.headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: 'Bearer ' + globals.accessToken,
+    };
+    var extractedData;
+    try {
+      await dio.get(
+        '/api/group/search',
+        queryParameters: {"name": searchTextController.text},
+      ).then((value) => extractedData = value.data);
+
+      setState(() {
+        final groupsSearchExtractedData =
+            extractedData['results']['groups'] as List<dynamic>;
+        //print(groupsSearchExtractedData);
+        groupsSearchResult.clear();
+        /* photosSearchResult =
+            postsPointer.setPostsFromMainserver(groupsSearchExtractedPosts, 2); */
+        groupsSearchExtractedData.forEach((group) {
+          groupsSearchResult.add(
+            FlickrGroup(
+              id: group['id'],
+              groupName: group['name'],
+              discussionCount: group['topic_count'],
+              memberCount: group['member_count'],
+              photoCount: group['pool_count'],
+            ),
+          );
+        });
+        print(groupsSearchResult.length);
+      });
+    } on DioError catch (error) {
+      print(error.response.statusCode);
+    }
+  }
+
+  /// Extracts people PicPosterDetails from the search result and adds them to the peopleSearchResult list which is then passed to the
+  /// SearchPeople widget down below.
+  Future<void> getPeopleSearchResultMainServer() async {
     Dio dio = new Dio(
       BaseOptions(
         baseUrl: 'https://' + globals.HttpSingleton().getBaseUrl(),
@@ -86,7 +136,7 @@ class SearchScreenState extends State<SearchScreen> {
 
         /// clear old list.
         ///Extract the profiles of people that I follow.
-        /* final followedPeopleSearchExtractedProfiles =
+        final followedPeopleSearchExtractedProfiles =
             extractedData['results']['following'] as List<dynamic>;
         print(followedPeopleSearchExtractedProfiles.length);
 
@@ -110,11 +160,14 @@ class SearchScreenState extends State<SearchScreen> {
             name,
             followedPerson['followed']['is_pro'],
             followedPerson['followed']['is_followed'],
+            followedPerson['total_media'],
+            followedPerson['followers_count'],
+            followedPerson['following_count'],
             profilePicUrl,
             profileCoverPhoto,
           );
           peopleSearchResult.add(followedPersonDetails);
-        }); */
+        });
         final allPeopleSearchExtractedProfiles =
             extractedData['results']['all_people'] as List<dynamic>;
         print(allPeopleSearchExtractedProfiles.length);
@@ -137,12 +190,14 @@ class SearchScreenState extends State<SearchScreen> {
             person['is_pro'],
             person['is_followed'],
             person['total_media'],
-            person['followers_count'],
-            person['following_count'],
+            followersCount,
+            followingCount,
             profilePicUrl,
             profileCoverPhoto,
           );
-          peopleSearchResult.add(personDetails);
+          if (personDetails.isFollowedByUser == false) {
+            peopleSearchResult.add(personDetails);
+          }
         });
         print(peopleSearchResult.length);
       });
@@ -193,7 +248,8 @@ class SearchScreenState extends State<SearchScreen> {
       searchResultMockService(postsToDisplay, loadedPicPosterProfiles);
     } else {
       await getPhotosSearchResultMainServer(postsPointer);
-      await getPeopleSearchResultMainServer(postsPointer);
+      await getPeopleSearchResultMainServer();
+      await getGroupsSearchResultMainServer();
     }
   }
 
@@ -269,7 +325,7 @@ class SearchScreenState extends State<SearchScreen> {
           children: <Widget>[
             SearchPhotos(photosSearchResult),
             SearchPeople(peopleSearchResult),
-            SearchGroups(),
+            SearchGroups(groupsSearchResult),
           ],
         ),
       ),
