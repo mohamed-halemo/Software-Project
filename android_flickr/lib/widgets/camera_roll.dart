@@ -44,11 +44,15 @@ class CameraRollState extends State<CameraRoll> {
   void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    await Provider.of<Posts>(context).mianServerCameraRoll();
+  }
+
+  Future initCameraRoll() async {
     if (isinit)
       await Provider.of<Posts>(context).mianServerCameraRoll().then((value) {
         isinit = false;
-        print(postsToDisplay.first.dateTaken);
-        gridDates.add(postsToDisplay.first.dateTaken);
+        // print(postsToDisplay.first.dateTaken);
+        gridDates.add(postsToDisplay[0].dateTaken);
         for (var i = 0; i < postsToDisplay.length; i++) {
           print(postsToDisplay[i].dateTaken);
           if (!gridDates.contains(postsToDisplay[i].dateTaken)) {
@@ -75,6 +79,9 @@ class CameraRollState extends State<CameraRoll> {
       setState(() {
         hasImages = false;
       });
+    }
+    if (!postsToDisplay.isEmpty) {
+      initCameraRoll().then((value) => setState);
     }
     return hasImages
         ? gridBuilder()

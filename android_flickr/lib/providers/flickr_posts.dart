@@ -330,7 +330,7 @@ class Posts with ChangeNotifier {
         });
         //print(peopleFaved.length);
         //if (postDetails['owner']['id'] == 8) {}
-        
+
         loadedPosts.add(
           PostDetails(
             id: postDetails['id'].toString(), //found
@@ -371,12 +371,12 @@ class Posts with ChangeNotifier {
                 .parse(postDetails['date_posted']), //found
           ),
         );
-        print(
-          'Zaka: ' +
-              DateFormat('yyyy-MM-dd')
-                  .parse(postDetails['date_posted'])
-                  .toString(),
-        );
+        // print(
+        //   'Zaka: ' +
+        //       DateFormat('yyyy-MM-dd')
+        //           .parse(postDetails['date_posted'])
+        //           .toString(),
+        // );
       },
     );
     _picPosterProfilesDetails.clear();

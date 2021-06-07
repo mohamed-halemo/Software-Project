@@ -99,6 +99,11 @@ class MyApp extends StatelessWidget {
     OneSignal.shared
         .setNotificationOpenedHandler((OSNotificationOpenedResult result) {});
 
+    var status =
+        OneSignal.shared.getPermissionSubscriptionState().then((value) {
+      print('Zaka ' + value.subscriptionStatus.userId);
+    });
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(

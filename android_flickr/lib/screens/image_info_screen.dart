@@ -1,4 +1,5 @@
 //out of the box imports
+import 'package:android_flickr/screens/add_tags_screen.dart';
 import 'package:android_flickr/screens/edit_description_screen.dart';
 import 'package:flutter/material.dart';
 //packages and plugins
@@ -19,6 +20,7 @@ class ImageInfoScreen extends StatefulWidget {
   ///Post Details , holds information about the image such as title, description, tags and so on.
   PostDetails postDetails;
   bool isFromPersonalProfile;
+  List<String> tagsList = [];
 
   ///Constructor, takes PostDetails
   ImageInfoScreen(
@@ -31,6 +33,19 @@ class ImageInfoScreen extends StatefulWidget {
 
 ///Image Info State Object
 class ImageInfoScreenState extends State<ImageInfoScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (!widget.postDetails.tags.isEmpty) {
+      for (var i = 0; i < widget.postDetails.tags.length; i++) {
+        widget.tagsList.add(widget.postDetails.tags[i]['tag_text']);
+      }
+      setState(() {});
+    }
+  }
+
   ///Main build method, Rebuilds with state update.
   @override
   Widget build(BuildContext context) {
@@ -50,7 +65,8 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (BuildContext context) => EditTitleScreen(),
+                        builder: (BuildContext context) =>
+                            EditTitleScreen(widget.postDetails.id),
                       ),
                     );
                 },
@@ -108,7 +124,9 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) =>
-                            EditDescriptionScreen(),
+                            EditDescriptionScreen(
+                          widget.postDetails.id,
+                        ),
                       ),
                     );
                 },
@@ -220,14 +238,77 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                   ],
                 ),
               ),
-              widget.postDetails.tags.isEmpty
-                  ? Container()
-                  : SizedBox(
-                      height: 20,
+              SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          AddTagsScreen(widget.tagsList),
                     ),
-              widget.postDetails.tags.isEmpty
-                  ? Container()
-                  : Align(
+                  ).then((value) async {
+                    for (var i = 0; i < widget.postDetails.tags.length; i++) {
+                      if (!widget.tagsList
+                          .contains(widget.postDetails.tags[i]['tag_text'])) {
+                        int tagId = widget.postDetails.tags[i]['tag_id'];
+                        var url = Uri.https(
+                            globals.HttpSingleton().getBaseUrl(),
+                            globals.isMockService
+                                ? '/sign-up/'
+                                : 'api/photos/tags/$tagId');
+                        final response = await http.delete(url, headers: {
+                          HttpHeaders.contentTypeHeader: 'application/json',
+                          HttpHeaders.authorizationHeader:
+                              'Bearer ' + globals.accessToken,
+                        }).then((value) {
+                          print(value.statusCode);
+                        });
+                      }
+                    }
+
+                    for (var i = 0; i < widget.tagsList.length; i++) {
+                      bool isContained = false;
+                      for (var j = 0; j < widget.postDetails.tags.length; j++) {
+                        if (widget.postDetails.tags[j]['tag_text'] ==
+                            widget.tagsList[i]) {
+                          isContained = true;
+                        }
+                      }
+                      if (!isContained) {
+                        int photoId = int.parse(widget.postDetails.id);
+                        var url = Uri.https(
+                            globals.HttpSingleton().getBaseUrl(),
+                            globals.isMockService
+                                ? '/sign-up/'
+                                : 'api/photos/$photoId/tags');
+                        final response = await http.post(
+                          url,
+                          body: json.encode(
+                            {
+                              'tag_text': widget.tagsList[i],
+                            },
+                          ),
+                          headers: {
+                            HttpHeaders.contentTypeHeader: 'application/json',
+                            HttpHeaders.authorizationHeader:
+                                'Bearer ' + globals.accessToken,
+                          },
+                        ).then((value) {
+                          print(value.statusCode);
+                        });
+                      }
+                    }
+                    setState(() {
+                      widget.tagsList = value;
+                    });
+                  });
+                },
+                child: Row(
+                  children: [
+                    Align(
                       alignment: Alignment.topLeft,
                       child: Text(
                         'Tags',
@@ -238,11 +319,38 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    widget.isFromPersonalProfile
+                        ? Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 10,
+                          )
+                        : Container(),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: 5,
               ),
-              widget.postDetails.tags.isEmpty
-                  ? Container()
+              widget.tagsList.isEmpty
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        child: widget.isFromPersonalProfile
+                            ? Text(
+                                'Add a tag',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 16,
+                                ),
+                              )
+                            : Container(),
+                      ),
+                    )
                   : GridView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
@@ -251,25 +359,41 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
                         childAspectRatio: 2.4,
                         crossAxisCount: 5,
                       ),
-                      itemCount: widget.postDetails.tags.length,
+                      itemCount: widget.tagsList.length,
                       itemBuilder: (context, index) {
                         return Container(
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              primary: Colors.white,
-                              side: BorderSide(
-                                color: Colors.white,
-                              ),
-                            ),
+                          child: Align(
+                            alignment: Alignment.center,
                             child: Text(
-                              widget.postDetails.tags[index]['tag_text'],
+                              widget.tagsList[index],
+                              overflow: TextOverflow.fade,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
                               ),
                             ),
-                            onPressed: () {},
                           ),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                            color: Colors.white,
+                            width: 1,
+                          )),
+                          // child: OutlinedButton(
+                          //   style: OutlinedButton.styleFrom(
+                          //     primary: Colors.white,
+                          //     side: BorderSide(
+                          //       color: Colors.white,
+                          //     ),
+                          //   ),
+                          //   child: Text(
+                          //     widget.postDetails.tags[index]['tag_text'],
+                          //     style: TextStyle(
+                          //       color: Colors.white,
+                          //       fontSize: 10,
+                          //     ),
+                          //   ),
+                          //   onPressed: () {},
+                          // ),
                         );
                       }),
               SizedBox(
@@ -317,74 +441,294 @@ class ImageInfoScreenState extends State<ImageInfoScreen> {
               SizedBox(
                 height: 10,
               ),
-              GestureDetector(
-                onTap: () {},
-                child: widget.postDetails.privacy
-                    ? Row(
-                        children: [
-                          Icon(
-                            Icons.lock_open,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'Public',
-                            style: TextStyle(
-                              color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 25,
+                ),
+                child: widget.isFromPersonalProfile
+                    ? PopupMenuButton(
+                        shape: Border.all(
+                          width: double.infinity,
+                        ),
+                        offset: Offset(0, 50),
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 1:
+                              Uri url = Uri.https(
+                                  globals.HttpSingleton().getBaseUrl(),
+                                  '/api/photos/${widget.postDetails.id}/perms');
+
+                              await http.put(
+                                url,
+                                body: json.encode(
+                                  {'is_public': true},
+                                ),
+                                headers: {
+                                  HttpHeaders.authorizationHeader:
+                                      'Bearer ' + globals.accessToken,
+                                  HttpHeaders.contentTypeHeader:
+                                      'application/json'
+                                },
+                              ).then((value) {
+                                if (value.statusCode == 200) {
+                                  setState(() {
+                                    widget.postDetails.privacy = true;
+                                  });
+                                }
+                                print(value.statusCode);
+                              });
+
+                              break;
+                            case 2:
+                              Uri url = Uri.https(
+                                  globals.HttpSingleton().getBaseUrl(),
+                                  '/api/photos/${widget.postDetails.id}/perms');
+
+                              await http.put(
+                                url,
+                                body: json.encode(
+                                  {'is_public': false},
+                                ),
+                                headers: {
+                                  HttpHeaders.authorizationHeader:
+                                      'Bearer ' + globals.accessToken,
+                                  HttpHeaders.contentTypeHeader:
+                                      'application/json'
+                                },
+                              ).then((value) {
+                                print(value.statusCode);
+                                if (value.statusCode == 200) {
+                                  setState(() {
+                                    widget.postDetails.privacy = false;
+                                  });
+                                }
+                              });
+                              break;
+
+                            default:
+                          }
+                        },
+                        itemBuilder: (context) {
+                          return [
+                            PopupMenuItem(
+                              value: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 60,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.6,
+                                        child: Text(
+                                          'Public',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 80,
+                                  ),
+                                  Divider(
+                                    thickness: 2,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
-                          ),
-                          Icon(
-                            Icons.image_outlined,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'Photo',
-                            style: TextStyle(
-                              color: Colors.white,
+                            PopupMenuItem(
+                              value: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 60,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.6,
+                                        child: Text(
+                                          'Private',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 80,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ];
+                        },
+                        child: Container(
+                          child: widget.postDetails.privacy
+                              ? Row(
+                                  children: [
+                                    Icon(
+                                      Icons.lock_open,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      'Public',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(
+                                      Icons.edit,
+                                      size: 10,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.2,
+                                    ),
+                                    Icon(
+                                      Icons.image_outlined,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      'Photo',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Icon(
+                                      Icons.lock,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      'Private',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.2,
+                                    ),
+                                    Icon(
+                                      Icons.image_outlined,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      'Photo',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       )
-                    : Row(
-                        children: [
-                          Icon(
-                            Icons.lock,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'Private',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.2,
-                          ),
-                          Icon(
-                            Icons.image_outlined,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'Photo',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                    : Container(
+                        child: widget.postDetails.privacy
+                            ? Row(
+                                children: [
+                                  Icon(
+                                    Icons.lock_open,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Public',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                  ),
+                                  Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Photo',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  Icon(
+                                    Icons.lock,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Private',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.2,
+                                  ),
+                                  Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Photo',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
               ),
               SizedBox(

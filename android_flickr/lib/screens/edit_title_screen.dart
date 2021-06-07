@@ -1,15 +1,21 @@
 //out of the box imports
 import 'package:flutter/material.dart';
+import '../Classes/globals.dart' as globals;
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'dart:convert';
 
 ///Screen where user can edit a post's description
 class EditTitleScreen extends StatefulWidget {
+  final id;
+  EditTitleScreen(this.id);
   @override
   EditTitleScreenState createState() => EditTitleScreenState();
 }
 
 class EditTitleScreenState extends State<EditTitleScreen> {
   ///Text controller to retrieve values entered
-  TextEditingController myTextController;
+  final myTextController = TextEditingController();
 
   ///main build method, rebuilds with state update
   @override
@@ -41,8 +47,26 @@ class EditTitleScreenState extends State<EditTitleScreen> {
                   ),
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    Uri url = Uri.https(globals.HttpSingleton().getBaseUrl(),
+                        '/api/photos/${widget.id}/meta');
+
+                    await http.put(
+                      url,
+                      body: json.encode(
+                        {
+                          'title': myTextController.text,
+                        },
+                      ),
+                      headers: {
+                        HttpHeaders.authorizationHeader:
+                            'Bearer ' + globals.accessToken,
+                        HttpHeaders.contentTypeHeader: 'application/json'
+                      },
+                    ).then((value) {
+                      print(value.statusCode);
+                      Navigator.of(context).pop(true);
+                    });
                   },
                   child: const Text(
                     'Done',
