@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 
 //import '../providers/flickr_posts.dart';
 //import 'package:flutter/material.dart';
-//import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
+import '../providers/flickr_posts.dart';
 
 /// Public that is cuztomized for the user to display his/her posts in grid view or list view.
 class ProfilePublic extends StatefulWidget {
@@ -32,10 +33,12 @@ class ProfilePublicState extends State<ProfilePublic> {
 
   @override
   Widget build(BuildContext context) {
-    //final postsToDisplay = Provider.of<Posts>(context).posts;
+    final postsToDisplay = Provider.of<Posts>(context).myPosts;
     return Container(
       decoration: BoxDecoration(
-        color: postView ? Colors.black.withOpacity(0.9) : Colors.white,
+        color: postView && postsToDisplay.length > 0
+            ? Colors.black.withOpacity(0.9)
+            : Colors.white,
       ),
       child: Column(
         children: [

@@ -91,9 +91,9 @@ class PicPostedByInfoOnPost extends StatelessWidget {
             },
             child: CircleAvatar(
               radius: MediaQuery.of(context).size.width / 20,
-              backgroundImage: NetworkImage(
+              backgroundImage: postInformation.picPoster.profilePicUrl!=null? NetworkImage(
                 postInformation.picPoster.profilePicUrl,
-              ),
+              ): AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
               backgroundColor: Colors.transparent,
             ),
           ),

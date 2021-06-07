@@ -307,10 +307,14 @@ class Posts with ChangeNotifier {
               postDetails['owner']['is_pro'], //found
               postDetails['owner'][
                   'is_followed'], //not found, using placeholder for is_followed_by_user
-              'https://picsum.photos/200/200?random=' +
-                  '${postDetails['owner']['id']}', //found
-              'https://picsum.photos/200/200?random=' +
-                  '${postDetails['owner']['id'] * 3}', //found
+              postDetails['owner']['profile_pic'] == null
+                  ? postDetails['owner']['profile_pic']
+                  : 'https://fotone.me' +
+                      postDetails['owner']['profile_pic'], //found
+              postDetails['owner']['cover_photo'] == null
+                  ? postDetails['owner']['cover_photo']
+                  : 'https://fotone.me' +
+                      postDetails['owner']['cover_photo'], //found
             ),
           );
         }
@@ -330,7 +334,7 @@ class Posts with ChangeNotifier {
         });
         //print(peopleFaved.length);
         //if (postDetails['owner']['id'] == 8) {}
-        
+
         loadedPosts.add(
           PostDetails(
             id: postDetails['id'].toString(), //found
@@ -348,10 +352,14 @@ class Posts with ChangeNotifier {
                   postDetails['owner']['last_name']), //found
               postDetails['owner']['is_pro'], //found
               postDetails['owner']['is_followed'],
-              'https://picsum.photos/200/200?random=' +
-                  '${postDetails['owner']['id']}', //found
-              'https://picsum.photos/200/200?random=' +
-                  '${postDetails['owner']['id'] * 3}', //found
+              postDetails['owner']['profile_pic'] == null
+                  ? postDetails['owner']['profile_pic']
+                  : 'https://fotone.me' +
+                      postDetails['owner']['profile_pic'], //found
+              postDetails['owner']['cover_photo'] == null
+                  ? postDetails['owner']['cover_photo']
+                  : 'https://fotone.me' +
+                      postDetails['owner']['cover_photo'], //found
             ),
             postImageUrl:
                 'https://fotone.me' + postDetails['media_file'], //found

@@ -160,8 +160,8 @@ class ClickOnImageScreenState extends State<ClickOnImageScreen> {
                         maxScale: 8.0,
                         controller: photoViewController,
                         initialScale: photoscale,
-                        imageProvider:
-                            NetworkImage(allPosts[index].postImageUrl),
+                        imageProvider:allPosts[index].postImageUrl!=null?
+                            NetworkImage(allPosts[index].postImageUrl):AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
                       ),
                     ),
                   ),

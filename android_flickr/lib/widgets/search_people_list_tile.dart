@@ -1,4 +1,3 @@
-import 'package:android_flickr/widgets/search_people_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/flickr_posts.dart';
@@ -6,15 +5,17 @@ import '../providers/flickr_post.dart';
 import '../screens/non_profile_screen.dart';
 import '../providers/flickr_profiles.dart';
 
-/// Contains list of the people profiles that came from the search result.
-class SearchPeople extends StatefulWidget {
-  final peopleSearchResult;
-  SearchPeople(this.peopleSearchResult);
+class SearchPeopleListTile extends StatefulWidget {
+  //const SearchPeopleListTile({ Key? key }) : super(key: key);
+/*   final personSearchResult;
+
+  SearchPeopleListTile(this.personSearchResult); */
+
   @override
-  SearchPeopleState createState() => SearchPeopleState();
+  _SearchPeopleListTileState createState() => _SearchPeopleListTileState();
 }
 
-class SearchPeopleState extends State<SearchPeople> {
+class _SearchPeopleListTileState extends State<SearchPeopleListTile> {
   /// When circle avatar or name is pressed then the app navigates to this user and sends its details(post information) and other posts
   /// and profiles to choose the posts and images needed and display them.
   void _goToNonprofile(BuildContext ctx, PicPosterDetails userDetails,
@@ -67,20 +68,59 @@ class SearchPeopleState extends State<SearchPeople> {
 
   @override
   Widget build(BuildContext context) {
-    /// Contains the list of the photos that came from the search result if any.
-    final peopleSearchDetails =
-        widget.peopleSearchResult as List<PicPosterDetails>;
-    //final flickrProfiles = Provider.of<FlickrProfiles>(context);
-    //final currentPosts = Provider.of<Posts>(context).posts;
-    //final listener = Provider.of<PicPosterDetails>(context);
-    return ListView.builder(
-      itemCount: peopleSearchDetails.length,
-      itemBuilder: (ctx, index) {
-        return ChangeNotifierProvider.value(
-          value: peopleSearchDetails[index],
-          child: SearchPeopleListTile(),
-        );
-      },
+    //final personSearchDetails = widget.personSearchResult as PicPosterDetails;
+    final personSearchDetails = Provider.of<PicPosterDetails>(context);
+    final flickrProfiles = Provider.of<FlickrProfiles>(context);
+    final currentPosts = Provider.of<Posts>(context).posts;
+    /*    final personSearchDetails = Provider.of<Posts>(context)
+        .posts
+        .firstWhere(
+            (post) => post.picPoster.profileId == personDetails.profileId)
+        .picPoster; */
+    return ListTile(
+      leading: GestureDetector(
+        onTap: () {
+          _goToNonprofile(
+              context, personSearchDetails, currentPosts, flickrProfiles);
+        },
+        child: CircleAvatar(
+          radius: MediaQuery.of(context).size.width / 20,
+          backgroundImage: personSearchDetails.profilePicUrl != null
+              ? NetworkImage(
+                  personSearchDetails.profilePicUrl,
+                )
+              : AssetImage('assets/images/FlickrDefaultProfilePic.jpg'),
+          backgroundColor: Colors.transparent,
+        ),
+      ),
+      title: Text(
+        personSearchDetails.name,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text(
+        "${500}" + " photos - " + "${500}" + " followers",
+        overflow: TextOverflow.fade,
+        softWrap: true,
+      ),
+      trailing: FlatButton(
+        shape: Border.all(
+          color: Colors.black,
+          width: 2,
+        ),
+        color: Colors.transparent,
+        onPressed: () {
+          setState(() {
+            toggleFollowPicPoster(personSearchDetails, currentPosts);
+            /* personSearchDetails
+                        .toggleFollowPicPoster(currentPosts); */
+          });
+        },
+        child: personSearchDetails.isFollowedByUser
+            ? Icon(Icons.beenhere_outlined)
+            : Text("+" + " Follow"),
+      ),
     );
   }
 }

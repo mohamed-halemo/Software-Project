@@ -27,17 +27,62 @@ class PublicViewPost extends StatelessWidget {
     /* final postsToDisplay =
         _goToNonprofile(context, postInformation, currentPosts).profilePosts; */
 
-    return ListView.builder(
-      //controller: _controller,
-      itemCount: postsToDisplay.length,
-      itemBuilder: (context, index) {
-        return ChangeNotifierProvider.value(
-          value: postsToDisplay[index],
+    return postsToDisplay.length > 0
+        ? ListView.builder(
+            //controller: _controller,
+            itemCount: postsToDisplay.length,
+            itemBuilder: (context, index) {
+              return ChangeNotifierProvider.value(
+                value: postsToDisplay[index],
 
-          /// True in explore post is to indicate that posts are displayed in public mode not explore mode.
-          child: ExplorePost(inPublicMode, index, isProfile),
-        );
-      },
-    );
+                /// True in explore post is to indicate that posts are displayed in public mode not explore mode.
+                child: ExplorePost(inPublicMode, index, isProfile),
+              );
+            },
+          )
+        : Center(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.08,
+                  left: MediaQuery.of(context).size.width / 10,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width -
+                        MediaQuery.of(context).size.width / 5.5,
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Share your pics!",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 20,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Take a photo or make photos public from the Camera roll",
+                          style: TextStyle(
+                            color: Colors.black45,
+                            fontSize: 15,
+                          ),
+                          softWrap: true,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
   }
 }
