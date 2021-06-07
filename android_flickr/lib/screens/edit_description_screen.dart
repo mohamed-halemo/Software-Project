@@ -7,7 +7,10 @@ import 'dart:convert';
 
 ///Screen where user can edit a post's description
 class EditDescriptionScreen extends StatefulWidget {
+  ///Id of the Post to be edited
   final id;
+
+  ///get post id through constructor
   EditDescriptionScreen(this.id);
   @override
   EditDescriptionScreenState createState() => EditDescriptionScreenState();

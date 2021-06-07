@@ -42,18 +42,19 @@ class ExploreScreenState extends State<ExploreScreen>
     );
   }
 
+  ///ask for permissions for camera and storage
   void getPermissions() async {
     await [
       Permission.camera,
       Permission.storage,
     ].request();
-
     var status = await Permission.camera.status;
     if (status.isDenied) {
       Navigator.pop(context);
     }
   }
 
+  ///get permissions before app start
   @override
   void initState() {
     super.initState();
@@ -67,6 +68,7 @@ class ExploreScreenState extends State<ExploreScreen>
     super.dispose();
   }
 
+  ///main build method, rebuilds with state update
   @override
   Widget build(BuildContext context) {
     return Scaffold(

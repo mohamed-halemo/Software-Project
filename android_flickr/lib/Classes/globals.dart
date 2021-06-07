@@ -80,6 +80,7 @@ class HttpSingleton {
     return false;
   }
 
+  ///Post a List of tags to an image Id
   Future<void> postTags(Dio dio, int photoID, List<String> tags) async {
     if (tags.isEmpty) return;
     String tagText = '';
@@ -121,6 +122,7 @@ class HttpSingleton {
     // }
   }
 
+  ///Post an image to the server
   void postAndSaveImage(
       {Bitmap editedBitmap,
       String imageName,
@@ -217,6 +219,7 @@ class HttpSingleton {
     Navigator.of(context).pushNamed(ExploreScreen.routeName);
   }
 
+  ///Post either a cover or profile pic, dependin on recieved mode
   Future<void> postProfileCoverOrPic({
     String imageName,
     String imagePath,

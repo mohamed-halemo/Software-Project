@@ -39,8 +39,8 @@ class GetStartedScreenState extends State<GetStartedScreen> {
   ///contains forth swipe image.
   Image swipeImage4;
 
+  /// Returns the String to be displayed as title based on the Swipe image we are on.
   String setStartedScreenTitle(int index) {
-    /// Returns the String to be displayed as title based on the Swipe image we are on.
     switch (index) {
       case 0:
         return 'Powerful';
@@ -59,8 +59,8 @@ class GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
+  /// Returns the String to be dsplayed as subtitle based on the Swipe image we are on.
   String setStartedScreenSubTitle(int index) {
-    /// Returns the String to be dsplayed as subtitle based on the Swipe image we are on.
     switch (index) {
       case 0:
         return 'Save all of your photos and videos in one place.';
@@ -79,6 +79,7 @@ class GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
+  ///push explore screen
   void exploreScreen(BuildContext ctx) {
     Navigator.of(ctx).push(
       MaterialPageRoute(

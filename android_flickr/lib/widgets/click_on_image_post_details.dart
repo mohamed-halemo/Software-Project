@@ -190,6 +190,7 @@ class ClickOnImageDisplayPostDetailsState
     );
   }
 
+  ///download image and go to edit screen
   void downloadImage(PostDetails postInformation) async {
     var _alertDownload = AlertDialog(
       content: Padding(

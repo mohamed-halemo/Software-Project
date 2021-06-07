@@ -566,12 +566,14 @@ class PhotoEditScreenState extends State<PhotoEditScreen> {
     );
   }
 
+  ///Save and update profile
   Future<void> saveAndPop() async {
     widget.profileEditMode == 0
         ? putRequest()
         : await postAndSaveImage(widget.imagePath);
   }
 
+  ///Put request for image does nothing, no backend request
   Future<void> putRequest() async {
     Navigator.of(context).pop();
     Navigator.of(context).pop();

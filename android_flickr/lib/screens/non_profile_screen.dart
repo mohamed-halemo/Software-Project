@@ -30,6 +30,7 @@ class NonProfileScreenState extends State<NonProfileScreen> {
     //print(personDetails.isFollowedByUser);
   }
 
+  ///main build method, rebuilds with state update
   @override
   Widget build(BuildContext context) {
     final detailsOfProfile = ModalRoute.of(context).settings.arguments as List;

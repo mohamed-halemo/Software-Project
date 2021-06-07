@@ -41,6 +41,7 @@ import './providers/flickr_groups.dart';
 ///  if true, we call the sign up request method to get access and refresh token and start app in explore screen,
 ///  if false we start app in get started screen.
 void main() async {
+  //if real server, Get remember me flag from user pref, if true, login and go to explore
   if (!globals.isMockService) {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
