@@ -65,10 +65,12 @@ void main() {
       //Assert
       expect(actual, matcher);
     });
+
+    ///TODO:add more tests for photo edit
     test('Set Brush Mode: Invalid Input', () {
       //Arrange
       BrushMode matcher = BrushMode.Saturation;
-      photoEditScreen = PhotoEditScreen('_');
+      photoEditScreen = PhotoEditScreen('_', false, 0);
 
       //Act
       photoEditScreen.setBrushState(77);
