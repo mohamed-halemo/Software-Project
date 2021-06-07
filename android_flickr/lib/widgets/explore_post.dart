@@ -23,13 +23,20 @@ class ExplorePost extends StatelessWidget {
       List<PostDetails> allPosts) {
     /// Navigator is used here when we click on the image.
 
+    final toSendPosts = allPosts.where((element) {
+      if (element.picPoster.profileId == postInformation.picPoster.profileId) {
+        return true;
+      }
+      return false;
+    });
+
     /// postInformation is passed as an argument so ClickOnImageScreen can know which details it will display.
     Navigator.of(ctx).pushNamed(
       ClickOnImageScreen.routeName,
       arguments: {
-        'postDetails': allPosts,
+        'postDetails': toSendPosts.toList(),
         'isFromPersonalProfile': false,
-        'explorePosts': allPosts,
+        'explorePosts': toSendPosts.toList(),
         'postIndex': exploreindex,
         'ExORPup': 'explore'
       },
@@ -77,10 +84,8 @@ class ExplorePost extends StatelessWidget {
               ),
             ),
 
-            
-
             /// Widget that displays picPoster avatar, name, caption and since when was this post posted.
-            
+
             PicPostedByInfoOnPost(postInformation, inPublicMode),
 
             /// Configurations and widgets choosen for the three buttons, fave , comments and share.
