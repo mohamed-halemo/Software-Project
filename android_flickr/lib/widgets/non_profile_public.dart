@@ -3,14 +3,14 @@ import 'package:android_flickr/widgets/non_profile_public_view_post.dart';
 import 'package:flutter/material.dart';
 // import 'package:android_flickr/widgets/public_view_grid.dart';
 // import 'package:android_flickr/widgets/public_view_post.dart';
-// import 'package:android_flickr/providers/flickr_profiles.dart';
+import 'package:android_flickr/providers/flickr_profiles.dart';
 // import '../providers/flickr_post.dart';
 
 //import 'package:android_flickr/widgets/explore_post.dart';
 
 //import '../providers/flickr_posts.dart';
 //import 'package:flutter/material.dart';
-//import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 
 /// Public that is cuztomized for the other profiles to display their posts in grid view or list view.
 class NonProfilePublic extends StatefulWidget {
@@ -40,10 +40,14 @@ class NonProfilePublicState extends State<NonProfilePublic> {
 
   @override
   Widget build(BuildContext context) {
+    final postsToDisplay = Provider.of<FlickrProfile>(context).profilePosts;
+
     //final postsToDisplay = Provider.of<Posts>(context).posts;
     return Container(
       decoration: BoxDecoration(
-        color: postView ? Colors.black.withOpacity(0.9) : Colors.white,
+        color: postView && postsToDisplay.length > 0
+            ? Colors.black.withOpacity(0.9)
+            : Colors.white,
       ),
       child: Column(
         children: [

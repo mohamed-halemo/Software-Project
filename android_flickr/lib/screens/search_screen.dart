@@ -86,7 +86,7 @@ class SearchScreenState extends State<SearchScreen> {
 
         /// clear old list.
         ///Extract the profiles of people that I follow.
-        final followedPeopleSearchExtractedProfiles =
+        /* final followedPeopleSearchExtractedProfiles =
             extractedData['results']['following'] as List<dynamic>;
         print(followedPeopleSearchExtractedProfiles.length);
 
@@ -114,7 +114,7 @@ class SearchScreenState extends State<SearchScreen> {
             profileCoverPhoto,
           );
           peopleSearchResult.add(followedPersonDetails);
-        });
+        }); */
         final allPeopleSearchExtractedProfiles =
             extractedData['results']['all_people'] as List<dynamic>;
         print(allPeopleSearchExtractedProfiles.length);
@@ -152,13 +152,16 @@ class SearchScreenState extends State<SearchScreen> {
       () {
         if (searchTextController.text.length > 0) {
           ///Searches for the word(s) in the tags section of the posts.
-          photosSearchResult = [
+          /* photosSearchResult = [
             ...postsToDisplay.where(
               (post) => post.tags.contains(
                 searchTextController.text,
               ),
             )
-          ];
+          ]; */
+          photosSearchResult = postsToDisplay.where((post) {
+            return post.tags[0].contains(searchTextController.text);
+          }).toList();
 
           /// Searches for the word(s) in the name of the users.
           peopleSearchResult = loadedPicPosterProfiles

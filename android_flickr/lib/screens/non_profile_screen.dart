@@ -28,6 +28,7 @@ class NonProfileScreenState extends State<NonProfileScreen> {
     profileFirstPostFound.toggleFollowPicPoster(currentPosts, personDetails);
     //print("second");
     //print(personDetails.isFollowedByUser);
+    
   }
 
   @override
@@ -35,6 +36,7 @@ class NonProfileScreenState extends State<NonProfileScreen> {
     final detailsOfProfile = ModalRoute.of(context).settings.arguments as List;
 
     /// instance of Post details that contains info about the profile that we are viewing.
+
     final postInformation = detailsOfProfile[0] as PostDetails;
     final profileData = detailsOfProfile[1] as FlickrProfile;
     //print(profileData.profilePosts.length);
@@ -50,7 +52,7 @@ class NonProfileScreenState extends State<NonProfileScreen> {
 
         ///To update listeners if the followed button was pressed.
         ChangeNotifierProvider(
-          create: (ctx) => postInformation,
+          create: (ctx) => postInformation.picPoster,
         ),
       ],
       child: Scaffold(
@@ -68,18 +70,27 @@ class NonProfileScreenState extends State<NonProfileScreen> {
                     flexibleSpace: Stack(
                       children: [
                         FlexibleSpaceBar(
-                          background: Image.network(
-                            postInformation.picPoster.profileCoverPhoto,
-                            fit: BoxFit.cover,
-                          ),
+                          background: postInformation
+                                      .picPoster.profileCoverPhoto !=
+                                  null
+                              ? Image.network(
+                                  postInformation.picPoster.profileCoverPhoto,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset('assets/images/BlackCover.jpg'),
                         ),
                         Positioned(
                           top: MediaQuery.of(context).size.height * 0.2,
                           left: MediaQuery.of(context).size.width * 0.4,
                           child: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              postInformation.picPoster.profilePicUrl,
-                            ),
+                            backgroundImage: postInformation
+                                        .picPoster.profilePicUrl !=
+                                    null
+                                ? NetworkImage(
+                                    postInformation.picPoster.profilePicUrl,
+                                  )
+                                : AssetImage(
+                                    'assets/images/FlickrDefaultProfilePic.jpg'),
                           ),
                         ),
                       ],

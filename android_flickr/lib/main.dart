@@ -41,31 +41,33 @@ import './providers/flickr_groups.dart';
 ///  if true, we call the sign up request method to get access and refresh token and start app in explore screen,
 ///  if false we start app in get started screen.
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  globals.rememberMe = prefs.getBool('remember') ?? false;
-  print(globals.rememberMe);
-  if (globals.rememberMe) {
-    var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
-        globals.isMockService ? '/login/' : 'api/accounts/login/');
-    final response = await http.post(url,
-        body: json.encode(
-          {
-            'email': prefs.getString('email'),
-            'password': prefs.getString('password'),
-          },
-        ),
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      globals.accessToken = data['tokens']['access'];
-      globals.refreshToken = data['tokens']['refresh'];
-      globals.email = prefs.getString('email');
-      globals.password = prefs.getString('password');
+  if (!globals.isMockService) {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    globals.rememberMe = prefs.getBool('remember') ?? false;
+    print(globals.rememberMe);
+    if (globals.rememberMe) {
+      var url = Uri.https(globals.HttpSingleton().getBaseUrl(),
+          globals.isMockService ? '/login/' : 'api/accounts/login/');
+      final response = await http.post(url,
+          body: json.encode(
+            {
+              'email': prefs.getString('email'),
+              'password': prefs.getString('password'),
+            },
+          ),
+          headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        globals.accessToken = data['tokens']['access'];
+        globals.refreshToken = data['tokens']['refresh'];
+        globals.email = prefs.getString('email');
+        globals.password = prefs.getString('password');
+      }
+      print(json.decode(response.body));
     }
-    print(json.decode(response.body));
+    WidgetsFlutterBinding.ensureInitialized();
   }
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -137,14 +139,13 @@ class MyApp extends StatelessWidget {
           primarySwatch: primBlack.primaryBlack,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: FlickrSplashScreen(
+        home:
+            FlickrSplashScreen(
           globals.accessToken == '' ? GetStartedScreen() : ExploreScreen(),
           globals.accessToken == '' ? true : false,
-        ),
-        //NonProfileScreen()
-        /*  FlickrSplashScreen(
-          GetStartedScreen(),
-        ), */
+        ), 
+            //NonProfileScreen()
+            //FlickrSplashScreen(GetStartedScreen(), true),
         routes: {
           ExploreScreen.routeName: (ctx) => ExploreScreen(),
           ClickOnImageScreen.routeName: (ctx) => ClickOnImageScreen(),

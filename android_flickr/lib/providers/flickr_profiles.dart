@@ -105,15 +105,14 @@ class FlickrProfile with ChangeNotifier {
 }
 
 class FlickrProfiles with ChangeNotifier {
-  static List<String> profilesId = [];
-
-  List<FlickrProfile> profiles = [];
-
   FlickrProfile addProfileDetailsToList(
       PicPosterDetails picPoster, List<PostDetails> currentPosts) {
     //int counter = 0;
-    final postsOfProfile =
-        getPostsWithProfileId(picPoster.profileId, currentPosts);
+    List<PostDetails> postsOfProfile = [];
+    List<String> profilesId = [];
+
+    List<FlickrProfile> profiles = [];
+    postsOfProfile = getPostsWithProfileId(picPoster.profileId, currentPosts);
     if (!profilesId.contains(picPoster.profileId)) {
       profilesId.add(picPoster.profileId);
       // print(postsOfProfile.length);
